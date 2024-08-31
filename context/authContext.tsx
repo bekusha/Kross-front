@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
-import { User } from "@/types/user";
+import { User } from "types/user";
 
 interface AuthProviderProps {
   children: ReactNode;

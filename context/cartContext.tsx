@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { Product } from "@/types/product";
-import { Cart, CartItem } from "@/types/cart";
-import Router from "next/router";
+import { Product } from "types/product";
+import { Cart, CartItem } from "types/cart";
+
 import { useAuth } from "./authContext";
 
 interface CartContextType {
