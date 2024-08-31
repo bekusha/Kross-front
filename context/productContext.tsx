@@ -89,13 +89,14 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
     []
   );
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts: () => Promise<Product[]> = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}product/`);
       setProducts(response.data);
-      console.log(API_BASE_URL);
+      return response.data; // Return the fetched products
     } catch (error) {
       console.error("Failed to fetch products:", error);
+      return []; // Return an empty array in case of error
     }
   }, []);
 
@@ -108,30 +109,33 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
     }
   }, []);
 
-  // Add the missing fetchProductsByCategory function
   const fetchProductsByCategory = useCallback(async (categoryId: number) => {
     try {
       const response = await axios.get(
         `${API_BASE_URL}product/?category=${categoryId}`
       );
       setProducts(response.data);
+      console.log("Filtered product:", response.data[0]?.name);
+      return response.data; // Explicitly return the data
     } catch (error) {
       console.error(
         `Failed to fetch products for category ${categoryId}:`,
         error
       );
+      return []; // Return an empty array in case of error
     }
   }, []);
 
-  // Add the missing fetchProductsByVendor function
   const fetchProductsByVendor = useCallback(async (vendorId: number) => {
     try {
       const response = await axios.get(
         `${API_BASE_URL}product/products/by_vendor/${vendorId}/`
       );
       setProducts(response.data);
+      return response.data; // Return the fetched products by vendor
     } catch (error) {
       console.error(`Failed to fetch products for vendor ${vendorId}:`, error);
+      return []; // Return an empty array in case of error
     }
   }, []);
 

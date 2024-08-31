@@ -16,13 +16,14 @@ export interface Product {
   quantity?: number;
   viscosity: string;
   liter: number;
+  category: Category;
 }
 
 export interface ProductContextType {
   products: Product[];
   categories: Category[];
-  fetchProducts: () => Promise<void>;
-  fetchProductsByCategory: (categoryId: number) => Promise<void>;
+  fetchProducts: () => Promise<Product[]>;
+  fetchProductsByCategory: (categoryId: number) => Promise<Product[]>;
   addProduct: (productData: FormData, categoryId: number) => Promise<void>;
   editProduct: (productId: number, formData: FormData) => Promise<void>;
   deleteProduct: (productId: number) => Promise<void>;

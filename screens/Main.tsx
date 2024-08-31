@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   TouchableOpacity,
@@ -7,45 +7,74 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
+import { useProducts } from "../context/productContext"; // Import the useProducts hook
 
-const Main = ({ navigation }) => {
+type MainProps = {
+  navigation: any;
+};
+
+const Main: React.FC<MainProps> = ({ navigation }) => {
+  const { categories } = useProducts(); // Use the categories from context
+
+  // Define static content with appropriate category IDs from the fetched data
+  const content = [
+    {
+      text: "გაესაუბრე KROSSGeorgia -ს ბოტს",
+      image: require("../assets/aikrossbot.webp"),
+      action: () => console.log("Chat with KROSSGeorgia bot"),
+    },
+    {
+      text: "ძრავის ზეთები",
+      image: require("../assets/engine.webp"),
+      action: () => {
+        const category = categories.find((cat) => cat.name === "ძრავის ზეთები");
+        if (category) {
+          navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+        }
+      },
+    },
+    {
+      text: "გადაცემათა კოლოფის ზეთები",
+      image: require("../assets/gearbox.webp"),
+      action: () => {
+        const category = categories.find(
+          (cat) => cat.name === "გადაცემათა კოლოფის ზეთები"
+        );
+        if (category) {
+          navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+        }
+      },
+    },
+    {
+      text: "საწმენდი საშუალებები",
+      image: require("../assets/cleaning.webp"),
+      action: () => {
+        const category = categories.find(
+          (cat) => cat.name === "საწმენდი საშუალებები"
+        );
+        if (category) {
+          navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+        }
+      },
+    },
+    {
+      text: "ყველა პროდუქტი",
+      image: require("../assets/shop.webp"),
+      action: () => navigation.navigate("Products", { categoryId: null }), // Null for all products
+    },
+  ];
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
-        <Text style={styles.cardText}>გაესაუბრე KROSSGeorgia -ს ბოტს</Text>
-        <TouchableOpacity style={styles.card}>
-          <Image
-            style={styles.image}
-            source={require("../assets/aikrossbot.webp")}
-          />
-        </TouchableOpacity>
-        <Text style={styles.cardText}>ძრავის ზეთები</Text>
-        <TouchableOpacity style={styles.card}>
-          <Image
-            style={styles.image}
-            source={require("../assets/engine.webp")}
-          />
-        </TouchableOpacity>
-        <Text style={styles.cardText}>გადაცემათა კოლოფის ზეთები</Text>
-        <TouchableOpacity style={styles.card}>
-          <Image
-            style={styles.image}
-            source={require("../assets/gearbox.webp")}
-          />
-        </TouchableOpacity>
-        <Text style={styles.cardText}>საწმენდი & მოვლის საშუალებები</Text>
-        <TouchableOpacity style={styles.card}>
-          <Image
-            style={styles.image}
-            source={require("../assets/cleaning.webp")}
-          />
-        </TouchableOpacity>
-        <Text style={styles.cardText}>ყველა პროდუქტი</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Products")}
-          style={styles.card}>
-          <Image style={styles.image} source={require("../assets/shop.webp")} />
-        </TouchableOpacity>
+        {content.map((item, index) => (
+          <View key={index} style={styles.cardWrapper}>
+            <Text style={styles.cardText}>{item.text}</Text>
+            <TouchableOpacity style={styles.card} onPress={item.action}>
+              <Image style={styles.image} source={item.image} />
+            </TouchableOpacity>
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
@@ -53,34 +82,55 @@ const Main = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Make the parent container fill the available screen height
+    flex: 1,
   },
   cardContainer: {
     padding: 10,
     gap: 10,
-    alignItems: "center", // Center content horizontally
+    alignItems: "center",
+  },
+  cardWrapper: {
+    width: "90%",
+    marginBottom: 20,
+    backgroundColor: "#f9f9f9", // Lighter background color
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 5, // Adds shadow for Android
   },
   card: {
-    width: "90%", // Adjust width to fit better within the scrollable area
     aspectRatio: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#ffffff", // Lighter shade of white for the card
     borderRadius: 10,
-    marginBottom: 10,
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4, // Adds shadow for Android
   },
   cardText: {
-    color: "red",
-    fontSize: 14,
-    fontWeight: "400",
+    color: "red", // A softer, more readable color
+    fontSize: 16,
+    fontWeight: "500",
     textAlign: "center",
-    marginVertical: 10, // Add spacing around text
+    marginBottom: 10,
   },
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "contain", // Ensure the image fits within its container
+    resizeMode: "contain",
   },
 });
 

@@ -24,27 +24,30 @@ type Props = {
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedTab, setSelectedTab] = useState<string>("Main");
+  const [filter, setFilter] = useState<string>(""); // State for the filter input
 
   const renderContent = () => {
     switch (selectedTab) {
       case "Main":
-        return <Main navigation={navigation} />;
+        return <Main navigation={navigation} filter={filter} />; // Pass the filter to Main component
       case "MyPage":
         return <MyPage />;
       case "Contact":
         return <Contact />;
       default:
-        return <Main navigation={navigation} />;
+        return <Main navigation={navigation} filter={filter} />;
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.title}>KROSSGeorgia</Text> */}
+      <Text style={styles.title}>KROSSGeorgia</Text>
       <TextInput
         style={styles.input}
         placeholder="რას ეძებ?"
         placeholderTextColor="#888"
+        value={filter}
+        onChangeText={setFilter} // Update the filter state
       />
       <View style={styles.tabContainer}>
         <TouchableOpacity
@@ -124,7 +127,6 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: "black",
-    color: "red",
   },
   tabText: {
     fontSize: 16,
