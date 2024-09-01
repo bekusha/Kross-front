@@ -10,6 +10,7 @@ import ProductsScreen from "./screens/ProductsScreen";
 import Main from "./screens/Main";
 const Stack = createNativeStackNavigator();
 import productDetails from "./screens/productDetails";
+import AuthScreen from "./screens/AuthScreen";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Stack.Screen name="Products" component={ProductsScreen} />
           <Stack.Screen name="ProductDetails" component={productDetails} />
           <Stack.Screen name="Main" component={Main} />
+          <Stack.Screen name="AuthScreen" component={AuthScreen} />
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>

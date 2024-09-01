@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { User } from "types/user";
+import { API_BASE_URL } from "@env";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -33,7 +34,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseURL: API_BASE_URL,
   });
 
   let isRefreshing = false;
@@ -110,7 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     try {
       const response = await apiClient.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}user/token/refresh/`,
+        `${API_BASE_URL}user/token/refresh/`,
         { refresh: refreshTokenValue }
       );
       const newAccessToken = response.data.access;
@@ -127,7 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const loadUserDetails = async (accessToken: string) => {
     try {
       const userDetailsResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}user/detail/`,
+        `${API_BASE_URL}user/detail/`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
@@ -145,15 +146,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   ): Promise<boolean> => {
     setLoading(true);
     try {
-      const loginResponse = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}user/token/`,
-        { username, password }
-      );
+      const loginResponse = await axios.post(`${API_BASE_URL}user/token/`, {
+        username,
+        password,
+      });
       localStorage.setItem("access", loginResponse.data.access);
       localStorage.setItem("refresh", loginResponse.data.refresh);
 
       const userDetailsResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}user/detail/`,
+        `${API_BASE_URL}user/detail/`,
         {
           headers: { Authorization: `Bearer ${loginResponse.data.access}` },
         }
@@ -184,7 +185,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const accessToken = localStorage.getItem("access");
       if (accessToken) {
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}user/update-paypal-address/`,
+          `${API_BASE_URL}user/update-paypal-address/`,
           { paypal_address: paypalAddress },
           {
             headers: { Authorization: `Bearer ${accessToken}` },

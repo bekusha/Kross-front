@@ -8,12 +8,14 @@ import {
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Main from "./Main";
-import Contact from "../components/Contact";
-import MyPage from "../components/MyPage";
+import MyPageScreen from "./MyPageScreen";
+import ContactScreen from "./ContactScreen";
+import { useAuth } from "@/context/authContext"; // Ensure the correct path to your AuthContext
 
 type RootStackParamList = {
   Welcome: undefined;
   Home: undefined;
+  AuthScreen: undefined; // Add AuthScreen to your RootStackParamList
 };
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
@@ -24,18 +26,26 @@ type Props = {
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedTab, setSelectedTab] = useState<string>("Main");
-  const [filter, setFilter] = useState<string>(""); // State for the filter input
+  const [filter, setFilter] = useState<string>("");
 
+  const authContext = useAuth();
+  const handleMyPagePress = () => {
+    if (authContext && authContext.isLoggedIn) {
+      setSelectedTab("MyPage");
+    } else {
+      navigation.navigate("AuthScreen");
+    }
+  };
   const renderContent = () => {
     switch (selectedTab) {
       case "Main":
-        return <Main navigation={navigation} filter={filter} />; // Pass the filter to Main component
+        return <Main navigation={navigation} />;
       case "MyPage":
-        return <MyPage />;
+        return <MyPageScreen />;
       case "Contact":
-        return <Contact />;
+        return <ContactScreen />;
       default:
-        return <Main navigation={navigation} filter={filter} />;
+        return <Main navigation={navigation} />;
     }
   };
 
@@ -47,7 +57,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         placeholder="რას ეძებ?"
         placeholderTextColor="#888"
         value={filter}
-        onChangeText={setFilter} // Update the filter state
+        onChangeText={setFilter}
       />
       <View style={styles.tabContainer}>
         <TouchableOpacity
@@ -63,7 +73,8 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, selectedTab === "MyPage" && styles.activeTab]}
-          onPress={() => setSelectedTab("MyPage")}>
+          onPress={handleMyPagePress} // Use the handleMyPagePress function here
+        >
           <Text
             style={[
               styles.tabText,
