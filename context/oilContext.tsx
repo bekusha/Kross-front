@@ -1,97 +1,130 @@
-// // context/OilContext.tsx
-// import React, {
-//   createContext,
-//   useState,
-//   useContext,
-//   useEffect,
-//   ReactNode,
-// } from "react";
-// import axios from "axios";
-// import { Product } from "@/types/product";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import axios from "axios";
+import { API_BASE_URL } from "@env";
 
-// // Define types for Product and Category
+// Define types for the context state and functions
+interface OilRecord {
+  id: number;
+  current_mileage: number;
+  next_change_mileage: number;
+  created_at: string;
+}
 
-// interface Category {
-//   id: number;
-//   name: string;
-//   parent?: number;
-// }
+interface OilContextType {
+  oilRecords: OilRecord[];
+  loading: boolean;
+  error: string | null;
+  fetchOilRecords: () => void;
+  createOilRecord: (currentMileage: number) => void;
+  deleteOilRecords: () => void;
+}
 
-// // Define types for the context state
-// interface OilContextState {
-//   products: Product[];
-//   categories: Category[];
-//   loading: boolean;
-//   error: string | null;
-//   createProduct: (productData: Partial<Product>) => Promise<void>;
-// }
+// Default value for the context
+const defaultValue: OilContextType = {
+  oilRecords: [],
+  loading: false,
+  error: null,
+  fetchOilRecords: () => {},
+  createOilRecord: () => {},
+  deleteOilRecords: () => {},
+};
 
-// // Create the context with a default value
-// const OilContext = createContext<OilContextState | undefined>(undefined);
+// Create the context with a default value
+const OilContext = createContext<OilContextType>(defaultValue);
 
-// interface OilProviderProps {
-//   children: ReactNode;
-// }
+// Custom hook to use the context
+export const useOil = () => useContext(OilContext);
 
-// // Create a provider component
-// export const OilProvider: React.FC<OilProviderProps> = ({ children }) => {
-//   const [products, setProducts] = useState<Product[]>([]);
-//   const [categories, setCategories] = useState<Category[]>([]);
-//   const [loading, setLoading] = useState<boolean>(true);
-//   const [error, setError] = useState<string | null>(null);
+// Context provider component with type for children prop
+export const OilProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [oilRecords, setOilRecords] = useState<OilRecord[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-//   useEffect(() => {
-//     // Fetch products and categories on mount
-//     const fetchData = async () => {
-//       setLoading(true);
-//       try {
-//         const [productsResponse, categoriesResponse] = await Promise.all([
-//           axios.get<Product[]>(
-//             `${process.env.NEXT_PUBLIC_API_BASE_URL}product`
-//           ),
-//           axios.get<Category[]>(
-//             `${process.env.NEXT_PUBLIC_API_BASE_URL}categories/`
-//           ),
-//         ]);
-//         setProducts(productsResponse.data);
-//         setCategories(categoriesResponse.data);
-//         setLoading(false);
-//       } catch (err: any) {
-//         setError(err.message);
-//         setLoading(false);
-//       }
-//     };
-//     fetchData();
-//   }, []);
+  // Base URL for your API (adjust this according to your server's base path)
 
-//   const createProduct = async (productData: Partial<Product>) => {
-//     try {
-//       const response = await axios.post<Product>(
-//         `${process.env.NEXT_PUBLIC_API_BASE_URL}products/`,
-//         productData
-//       );
-//       setProducts([...products, response.data]);
-//     } catch (err: any) {
-//       setError(err.message);
-//     }
-//   };
+  // Updated endpoints to match your Django urlpatterns
+  const endpoints = {
+    list: `${API_BASE_URL}user/mileage/list/`,
+    create: `${API_BASE_URL}user/mileage/create/`,
+  };
 
-//   const value = {
-//     products,
-//     categories,
-//     loading,
-//     error,
-//     createProduct,
-//   };
+  // Function to get oil records for the authenticated user
+  const fetchOilRecords = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get<OilRecord[]>(endpoints.list, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access")}`, // Adjust for your authentication method
+        },
+      });
+      setOilRecords(response.data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   return <OilContext.Provider value={value}>{children}</OilContext.Provider>;
-// };
+  // Function to create a new oil record
+  const createOilRecord = async (currentMileage: number) => {
+    setLoading(true);
+    try {
+      const response = await axios.post<OilRecord>(
+        endpoints.create,
+        { current_mileage: currentMileage },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+        }
+      );
+      setOilRecords([...oilRecords, response.data]);
+      fetchOilRecords();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-// // Create a custom hook to use the OilContext
-// export const useOil = (): OilContextState => {
-//   const context = useContext(OilContext);
-//   if (context === undefined) {
-//     throw new Error("useOil must be used within an OilProvider");
-//   }
-//   return context;
-// };
+  // Function to delete all existing oil records
+  const deleteOilRecords = async () => {
+    setLoading(true);
+    try {
+      // Assuming you have an endpoint for deleting records
+      await axios.delete(endpoints.list, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access")}`,
+        },
+      });
+      setOilRecords([]); // Clear the records in the state
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <OilContext.Provider
+      value={{
+        oilRecords,
+        loading,
+        error,
+        fetchOilRecords,
+        createOilRecord,
+        deleteOilRecords,
+      }}>
+      {children}
+    </OilContext.Provider>
+  );
+};

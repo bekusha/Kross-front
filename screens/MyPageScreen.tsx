@@ -1,5 +1,5 @@
 // MyPageScreen.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Alert,
 } from "react-native";
 import { useAuth } from "@/context/authContext";
+
+import { useOil } from "@/context/oilContext";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
 
@@ -16,13 +18,22 @@ const MyPageScreen: React.FC = () => {
   type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
 
   const { user, logout } = useAuth();
+  const { oilRecords, loading, error, fetchOilRecords, createOilRecord } =
+    useOil();
   const [mileage, setMileage] = useState<string>(""); // State to store mileage input
   const [savedMileage, setSavedMileage] = useState<string | null>(null); // State to store saved mileage
   const navigation = useNavigation<MyPageScreenNavigationProp>();
 
+  useEffect(() => {
+    fetchOilRecords();
+  }, []);
+
   const handleSaveMileage = () => {
     if (mileage) {
-      setSavedMileage(mileage);
+      // Create a new oil record
+      createOilRecord(parseInt(mileage, 10));
+      setMileage("");
+      fetchOilRecords();
       Alert.alert(
         "Mileage Saved",
         `Your oil change mileage is set to ${mileage} km.`
@@ -33,8 +44,8 @@ const MyPageScreen: React.FC = () => {
   };
 
   const handleLogOut = () => {
-    logout();
     navigation.navigate("Home");
+    logout();
   };
 
   return (
@@ -45,24 +56,30 @@ const MyPageScreen: React.FC = () => {
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>მოგესალმები {user?.username} </Text>
-        <Text style={styles.cardTitle}>
-          ზეთის შეცვლის დროს, არსებული გარბენი
-        </Text>
+
         <TextInput
           style={styles.input}
-          placeholder="Enter oil change mileage"
+          placeholder="ჩაწერეთ გარბენი"
           placeholderTextColor="#888"
           keyboardType="numeric"
           value={mileage}
           onChangeText={setMileage}
         />
         <TouchableOpacity style={styles.button} onPress={handleSaveMileage}>
-          <Text style={styles.buttonText}>შენახვა</Text>
-        </TouchableOpacity>
-        {savedMileage && (
-          <Text style={styles.savedText}>
-            წინა ზეთის შეცვლის გარბენი: {savedMileage} km
+          <Text onPress={handleSaveMileage} style={styles.buttonText}>
+            შენახვა
           </Text>
+        </TouchableOpacity>
+        {oilRecords.length > 0 && (
+          <View>
+            <Text style={styles.savedText}>
+              {" "}
+              შემდეგი შეცვლა: {oilRecords[0].next_change_mileage} km
+            </Text>
+            <Text style={styles.savedText}>
+              ძველი შეცვლა {oilRecords[0].current_mileage} km
+            </Text>
+          </View>
         )}
       </View>
     </View>
@@ -121,7 +138,8 @@ const styles = StyleSheet.create({
   },
   savedText: {
     marginTop: 20,
-    fontSize: 16,
+    fontSize: 14,
+    width: "100%",
     color: "#2c3e50",
   },
 });
