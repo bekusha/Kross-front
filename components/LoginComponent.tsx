@@ -8,21 +8,32 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { useAuth } from "@/context/authContext"; // Adjust the path as per your project structure
+import { useAuth } from "@/context/authContext";
+import { useNavigation } from "@react-navigation/native";
+import { LoginScreenNavigationProp } from "@/types/routes";
 
 interface LoginProps {
   onSwitch: () => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onSwitch }) => {
-  const authContext = useAuth();
-  const [email, setEmail] = useState("");
+  // const authContext = useAuth();
+  const { user, login, isLoggedIn } = useAuth() || {};
+  const [username, setUsername] = useState("");
+  const navigation = useNavigation<LoginScreenNavigationProp>();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
-    if (authContext && authContext.login) {
-      const success = await authContext.login(email, password);
+    if (login) {
+      const success = await login(username, password);
+
+      if (success) {
+        // Navigate to MyPage after successful login
+        navigation.navigate("MyPageScreen");
+      }
+
+      console.log("User in component" + user?.username);
       if (!success) {
         setError("Login failed. Please check your credentials.");
       }
@@ -37,8 +48,8 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={username}
+        onChangeText={setUsername}
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
@@ -54,7 +65,9 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Button title="Login" onPress={handleSubmit} />
       <TouchableOpacity onPress={onSwitch} style={styles.switchButton}>
-        <Text style={styles.switchText}>Don't have an account? Register</Text>
+        <Text style={styles.switchText}>
+          არ გაქვთ პროფილი? გაიარეთ რეგისტრაცია
+        </Text>
       </TouchableOpacity>
     </View>
   );

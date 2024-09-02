@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env"; // Ensure that you have configured react-native-dotenv or similar
+import { Role } from "@/types/user";
 
 interface RegistrationProps {
   onSwitch: () => void;
@@ -17,27 +19,34 @@ interface RegistrationProps {
 
 const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<Role>(Role.CONSUMER);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const authContext = useAuth();
 
   const handleSubmit = async () => {
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    try {
-      await axios.post(`${API_BASE_URL}user/register/`, {
-        email,
-        password,
-      });
-      setSuccess(true);
-      setError("");
-      Alert.alert("Success", "Registration successful! You can now log in.");
-    } catch (error) {
-      setError("Registration failed. Please try again.");
+    if (authContext) {
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        return;
+      }
+      try {
+        const response = await authContext.register(
+          email,
+          username,
+          password,
+          confirmPassword,
+          role
+        );
+        setSuccess(true);
+        console.log(response);
+      } catch (error) {
+        console.error(error);
+        setError("Registration failed. Please try again.");
+      }
     }
   };
 
@@ -62,6 +71,15 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
           />
           <TextInput
             style={styles.input}
+            placeholder="username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="username"
+          />
+          <TextInput
+            style={styles.input}
             placeholder="Password"
             value={password}
             onChangeText={setPassword}
@@ -74,12 +92,27 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
             onChangeText={setConfirmPassword}
             secureTextEntry
           />
+          <Button
+            title="Register as Admin"
+            onPress={() => setRole(Role.ADMIN)}
+          />
+          <Button
+            title="Register as Vendor"
+            onPress={() => setRole(Role.VENDOR)}
+          />
+          <Button
+            title="Register as Consumer"
+            onPress={() => setRole(Role.CONSUMER)}
+          />
+
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Button title="Register" onPress={handleSubmit} />
         </>
       )}
       <TouchableOpacity onPress={onSwitch} style={styles.switchButton}>
-        <Text style={styles.switchText}>Already have an account? Login</Text>
+        <Text style={styles.switchText}>
+          თუ რეგისტრაცია გავლილი გაქვთ შეგიძლიათ შეხვიდეთ თქვენს ექაუნთზე
+        </Text>
       </TouchableOpacity>
     </View>
   );

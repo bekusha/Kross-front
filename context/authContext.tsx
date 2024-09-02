@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
-import { User } from "types/user";
+import { Role, User } from "types/user";
 import { API_BASE_URL } from "@env";
 
 interface AuthProviderProps {
@@ -20,18 +20,30 @@ interface AuthContextType {
   logout: () => void;
   addPaypalAddress: (paypalAddress: string) => Promise<boolean>;
   isLoggedIn: boolean;
+  register: (
+    email: string,
+    username: string,
+    password: string,
+    confirmPassword: string,
+    role: Role
+  ) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState<Role | null>(null);
 
   const apiClient = axios.create({
     baseURL: API_BASE_URL,
@@ -88,6 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } catch (error) {
         console.error("Token refresh failed:", error);
         localStorage.removeItem("access");
+        setIsLoggedIn(false);
       }
     } else if (accessToken) {
       loadUserDetails(accessToken);
@@ -119,6 +132,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       apiClient.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${newAccessToken}`;
+      setIsLoggedIn(true);
     } catch (error) {
       console.error("Token refresh failed:", error);
       handleReauthentication();
@@ -134,9 +148,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       );
       setUser(userDetailsResponse.data);
+      setIsLoggedIn(true);
     } catch (error) {
       console.error("Failed to fetch user details:", error);
       localStorage.removeItem("access");
+    }
+  };
+
+  const register = async (
+    email: any,
+    password: any,
+    confirmPassword: any,
+    username: any,
+    role: any
+  ) => {
+    if (password !== confirmPassword) {
+      console.error("Passwords do not match");
+      return false;
+    }
+
+    try {
+      await axios.post(`${API_BASE_URL}user/register/`, {
+        email: email,
+        username: username, // Assuming username is the same as email, adjust as needed
+        password: password,
+        password2: confirmPassword,
+        role: role,
+      });
+      return true; // Registration was successful
+    } catch (error) {
+      console.error("Registration error:", error);
+      return false; // Registration failed
     }
   };
 
@@ -217,6 +259,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     addPaypalAddress,
     isLoggedIn,
+    register,
+    role,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

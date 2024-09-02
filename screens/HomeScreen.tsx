@@ -27,11 +27,13 @@ type Props = {
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedTab, setSelectedTab] = useState<string>("Main");
   const [filter, setFilter] = useState<string>("");
+  const { isLoggedIn } = useAuth();
 
-  const authContext = useAuth();
   const handleMyPagePress = () => {
-    if (authContext && authContext.isLoggedIn) {
+    console.log(isLoggedIn);
+    if (isLoggedIn) {
       setSelectedTab("MyPage");
+      console.log(isLoggedIn);
     } else {
       navigation.navigate("AuthScreen");
     }

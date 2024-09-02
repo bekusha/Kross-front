@@ -8,10 +8,17 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { useAuth } from "@/context/authContext";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/types/routes";
 
 const MyPageScreen: React.FC = () => {
+  type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
+
+  const { user, logout } = useAuth();
   const [mileage, setMileage] = useState<string>(""); // State to store mileage input
   const [savedMileage, setSavedMileage] = useState<string | null>(null); // State to store saved mileage
+  const navigation = useNavigation<MyPageScreenNavigationProp>();
 
   const handleSaveMileage = () => {
     if (mileage) {
@@ -25,9 +32,19 @@ const MyPageScreen: React.FC = () => {
     }
   };
 
+  const handleLogOut = () => {
+    logout();
+    navigation.navigate("Home");
+  };
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={handleLogOut}>
+        <Text>გასვლა</Text>
+      </TouchableOpacity>
+
       <View style={styles.card}>
+        <Text style={styles.cardTitle}>მოგესალმები {user?.username} </Text>
         <Text style={styles.cardTitle}>
           ზეთის შეცვლის დროს, არსებული გარბენი
         </Text>
