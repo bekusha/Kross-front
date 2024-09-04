@@ -13,6 +13,7 @@ import { useAuth } from "@/context/authContext";
 import { useOil } from "@/context/oilContext";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const MyPageScreen: React.FC = () => {
   type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
@@ -50,8 +51,9 @@ const MyPageScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handleLogOut}>
-        <Text>გასვლა</Text>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut}>
+        <Icon name="logout" size={24} color="black" />
+        <Text>ექაუნთიდან გასვლა</Text>
       </TouchableOpacity>
 
       <View style={styles.card}>
@@ -93,6 +95,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f7f7f7",
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  logoutButton: {
+    flexDirection: "row",
+    marginBottom: 20,
   },
   card: {
     width: "90%",
