@@ -1,4 +1,3 @@
-// MyPageScreen.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -9,11 +8,11 @@ import {
   Alert,
 } from "react-native";
 import { useAuth } from "@/context/authContext";
-
 import { useOil } from "@/context/oilContext";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import Cart from "@/components/Cart";
 
 const MyPageScreen: React.FC = () => {
   type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
@@ -22,7 +21,8 @@ const MyPageScreen: React.FC = () => {
   const { oilRecords, loading, error, fetchOilRecords, createOilRecord } =
     useOil();
   const [mileage, setMileage] = useState<string>(""); // State to store mileage input
-  const [savedMileage, setSavedMileage] = useState<string | null>(null); // State to store saved mileage
+  const [activeComponent, setActiveComponent] =
+    useState<string>("ჩემი პროდუქტი"); // State to manage active component
   const navigation = useNavigation<MyPageScreenNavigationProp>();
 
   useEffect(() => {
@@ -53,34 +53,72 @@ const MyPageScreen: React.FC = () => {
     <View style={styles.container}>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut}>
         <Icon name="logout" size={24} color="black" />
-        <Text>ექაუნთიდან გასვლა</Text>
+        <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
       </TouchableOpacity>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>მოგესალმები {user?.username} </Text>
+        <Text style={styles.cardTitle}>
+          მოგესალმები <span style={styles.username}> {user?.username}</span>{" "}
+        </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="ჩაწერეთ გარბენი"
-          placeholderTextColor="#888"
-          keyboardType="numeric"
-          value={mileage}
-          onChangeText={setMileage}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleSaveMileage}>
-          <Text onPress={handleSaveMileage} style={styles.buttonText}>
-            შენახვა
-          </Text>
-        </TouchableOpacity>
-        {oilRecords.length > 0 && (
+        {/* Add buttons for switching components */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              activeComponent === "ჩემი პროდუქტი" && styles.activeButton,
+            ]}
+            onPress={() => setActiveComponent("ჩემი პროდუქტი")}>
+            <Text
+              style={[
+                styles.toggleButtonText,
+                activeComponent === "ჩემი პროდუქტი" && styles.activeButtonText,
+              ]}>
+              პროდუქტი
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              activeComponent === "შენახული გარბენი" && styles.activeButton,
+            ]}
+            onPress={() => setActiveComponent("შენახული გარბენი")}>
+            <Text
+              style={[
+                styles.toggleButtonText,
+                activeComponent === "შენახული გარბენი" &&
+                  styles.activeButtonText,
+              ]}>
+              გარბენი
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Conditional rendering of components */}
+        {activeComponent === "ჩემი პროდუქტი" && <Cart />}
+        {activeComponent === "შენახული გარბენი" && (
           <View>
-            <Text style={styles.savedText}>
-              {" "}
-              შემდეგი შეცვლა: {oilRecords[0].next_change_mileage} km
-            </Text>
-            <Text style={styles.savedText}>
-              ძველი შეცვლა {oilRecords[0].current_mileage} km
-            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="ჩაწერეთ გარბენი"
+              placeholderTextColor="#888"
+              keyboardType="numeric"
+              value={mileage}
+              onChangeText={setMileage}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleSaveMileage}>
+              <Text style={styles.buttonText}>შენახვა</Text>
+            </TouchableOpacity>
+            {oilRecords.length > 0 && (
+              <View>
+                <Text style={styles.savedText}>
+                  შემდეგი შეცვლა: {oilRecords[0].next_change_mileage} km
+                </Text>
+                <Text style={styles.savedText}>
+                  ძველი შეცვლა: {oilRecords[0].current_mileage} km
+                </Text>
+              </View>
+            )}
           </View>
         )}
       </View>
@@ -95,18 +133,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#f7f7f7",
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
   },
-
+  username: {
+    color: "red",
+  },
   logoutButton: {
+    display: "flex",
     flexDirection: "row",
-    marginBottom: 20,
+    alignItems: "center",
+    position: "absolute",
+    top: 10,
+    right: 0,
+    zIndex: 1,
   },
+  logoutButtonText: {},
   card: {
-    width: "90%",
+    width: "100%",
+    height: 500,
     padding: 20,
     borderRadius: 10,
     backgroundColor: "#ffffff",
     shadowColor: "#000",
+    marginTop: 130,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -120,7 +169,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#2c3e50",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 10,
+    width: 130,
+    backgroundColor: "#ecf0f1",
+    borderRadius: 8,
+    marginHorizontal: 5,
+    height: 40,
+  },
+  activeButton: {
+    backgroundColor: "black",
+  },
+  toggleButtonText: {
+    textAlign: "center",
+    fontWeight: 400,
+    color: "black",
+    fontSize: 14,
+  },
+  activeButtonText: {
+    color: "red",
   },
   input: {
     width: "100%",

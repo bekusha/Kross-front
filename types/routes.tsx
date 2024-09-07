@@ -9,7 +9,8 @@ export type RootStackParamList = {
   ProductDetails: undefined;
   Main: undefined;
   AuthScreen: undefined;
-  MyPageScreen: undefined; // Ensure this matches your route name
+  MyPageScreen: undefined;
+  ContactScreen: undefined;
 };
 
 // Define the type for Login screen navigation

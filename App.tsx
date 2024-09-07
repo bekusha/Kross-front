@@ -16,31 +16,34 @@ import MyPageScreen from "./screens/MyPageScreen";
 import { OilProvider } from "./context/oilContext";
 import { AIProvider } from "./context/aiContext";
 import ChatScreen from "./screens/ChatScreen";
+import { CartProvider } from "./context/cartContext";
 
 export default function App() {
   return (
     <AuthProvider>
       <ProductProvider>
-        <AIProvider>
-          <OilProvider>
-            <NavigationContainer>
-              <Stack.Navigator initialRouteName="Welcome">
-                {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Products" component={ProductsScreen} />
-                <Stack.Screen
-                  name="ProductDetails"
-                  component={productDetails}
-                />
-                <Stack.Screen name="Main" component={Main} />
-                <Stack.Screen name="AuthScreen" component={AuthScreen} />
-                <Stack.Screen name="MyPageScreen" component={MyPageScreen} />
-                <Stack.Screen name="ChatScreen" component={ChatScreen} />
-              </Stack.Navigator>
-              <StatusBar style="auto" />
-            </NavigationContainer>
-          </OilProvider>
-        </AIProvider>
+        <CartProvider>
+          <AIProvider>
+            <OilProvider>
+              <NavigationContainer>
+                <Stack.Navigator initialRouteName="Welcome">
+                  {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Products" component={ProductsScreen} />
+                  <Stack.Screen
+                    name="ProductDetails"
+                    component={productDetails}
+                  />
+                  <Stack.Screen name="Main" component={Main} />
+                  <Stack.Screen name="AuthScreen" component={AuthScreen} />
+                  <Stack.Screen name="MyPageScreen" component={MyPageScreen} />
+                  <Stack.Screen name="ChatScreen" component={ChatScreen} />
+                </Stack.Navigator>
+                {/* <StatusBar style="auto" /> */}
+              </NavigationContainer>
+            </OilProvider>
+          </AIProvider>
+        </CartProvider>
       </ProductProvider>
     </AuthProvider>
   );

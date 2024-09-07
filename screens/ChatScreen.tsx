@@ -16,16 +16,24 @@ import { useAI } from "@/context/aiContext";
 const ChatScreen = () => {
   const { aiResponses, loading, error, fetchAIResponse } = useAI();
   const [input, setInput] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });
+    handleShowMessage;
   }, [aiResponses]);
 
   const handleSend = () => {
     if (input.trim()) {
       fetchAIResponse(input); // Fetch bot response, do not save user message
       setInput("");
+    }
+  };
+
+  const handleShowMessage = () => {
+    if (!aiResponses) {
+      setShowMessage(!showMessage);
     }
   };
 

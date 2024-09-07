@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { Product } from "types/product";
-import { Cart, CartItem } from "types/cart";
-
+import { Product } from "@/types/product";
+import { Cart, CartItem } from "@/types/cart";
+import { API_BASE_URL } from "@env";
 import { useAuth } from "./authContext";
 
 interface CartContextType {
@@ -49,14 +49,11 @@ export const CartProvider = ({ children }: any) => {
         return;
       }
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}cart/detail/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${API_BASE_URL}cart/detail/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         setCart({
           items: response.data,
@@ -88,7 +85,7 @@ export const CartProvider = ({ children }: any) => {
 
   //   try {
   //     const response = await axios.post(
-  //       `${process.env.NEXT_PUBLIC_API_BASE_URL}payment/checkout/`,
+  //       `${API_BASE_URL}payment/checkout/`,
   //       { cart },
   //       { headers: { Authorization: `Bearer ${token}` } }
   //     );
@@ -108,7 +105,7 @@ export const CartProvider = ({ children }: any) => {
     const token = getToken();
     try {
       const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}cart/update/${cartItemId}/`,
+        `${API_BASE_URL}cart/update/${cartItemId}/`,
         { quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -151,14 +148,11 @@ export const CartProvider = ({ children }: any) => {
     setLoading(true);
     const token = getToken();
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}cart/remove/${productId}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.delete(`${API_BASE_URL}cart/remove/${productId}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setCart((currentCart) => {
         if (!currentCart) return null;
@@ -195,7 +189,7 @@ export const CartProvider = ({ children }: any) => {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}cart/add/`,
+        `${API_BASE_URL}cart/add/`,
         {
           product_id: product.id,
           quantity,
@@ -208,7 +202,7 @@ export const CartProvider = ({ children }: any) => {
       );
 
       const addedCartItem = response.data;
-      console.log(addedCartItem);
+
       setCart((currentCart) => {
         if (!currentCart) {
           return {
@@ -217,27 +211,17 @@ export const CartProvider = ({ children }: any) => {
             totalPrice: parseFloat((product.price * quantity).toFixed(2)),
           };
         } else {
-          const existingItemIndex = currentCart.items.findIndex(
-            (item) => item.product.id === product.id
-          );
-
-          let updatedItems = [...currentCart.items];
-          if (existingItemIndex !== -1) {
-            const existingItem = updatedItems[existingItemIndex];
-            updatedItems[existingItemIndex] = {
-              ...existingItem,
-              quantity: existingItem.quantity + quantity,
-            };
-          } else {
-            updatedItems.push({ ...addedCartItem, product, quantity });
-          }
+          const updatedItems = [
+            ...currentCart.items,
+            { ...addedCartItem, product, quantity },
+          ];
 
           const updatedTotalItems = updatedItems.reduce(
             (acc, item) => acc + item.quantity,
             0
           );
           const updatedTotalPrice = updatedItems.reduce(
-            (acc, item) => acc + item.quantity * item.product.price,
+            (acc, item) => acc + item.quantity * parseFloat(item.product.price),
             0
           );
 
@@ -254,7 +238,6 @@ export const CartProvider = ({ children }: any) => {
       setLoading(false);
     }
   };
-
   const value = {
     cart,
     loading,
