@@ -1,7 +1,6 @@
 import { User } from "./user";
 
 export interface Product {
-  volume: string | undefined;
   id: number;
   vendor: any;
   name: string;
@@ -16,7 +15,6 @@ export interface Product {
   quantity?: number;
   viscosity: string;
   liter: number;
-  category: Category;
 }
 
 export interface ProductContextType {

@@ -54,13 +54,13 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>KROSSGeorgia</Text>
-      <TextInput
+      {/* <TextInput
         style={styles.input}
         placeholder="რას ეძებ?"
         placeholderTextColor="#888"
         value={filter}
         onChangeText={setFilter}
-      />
+      /> */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, selectedTab === "Main" && styles.activeTab]}

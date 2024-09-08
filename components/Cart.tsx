@@ -1,163 +1,207 @@
 import React, { useState } from "react";
-import { useCart } from "@/context/cartContext";
 import {
   View,
   Text,
   Image,
-  Button,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
+  StyleSheet,
+  Modal,
 } from "react-native";
+import { useCart } from "@/context/cartContext"; // Assuming you have a similar context in your React Native project
 
-const CartComponent = () => {
+const Cart = () => {
   const { cart, removeFromCart, updateCartItem } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const handleQuantityChange = (productId: any, change: any) => {
-    const item = cart?.items.find((item) => item.product.id === productId);
-    if (item) {
-      const newQuantity = item.quantity + change;
-      if (newQuantity > 0) {
-        updateCartItem?.(productId, newQuantity);
-      } else {
-        removeFromCart?.(productId);
-      }
-    }
-  };
+  // function getImageUrl(path) {
+  //   if (path.startsWith("http")) {
+  //     return path; // Path is already a full URL
+  //   }
+  //   return `${process.env.NEXT_PUBLIC_API_BASE}${path}`;
+  // }
+
+  // const handleQuantityChange = (productId, change) => {
+  //   const item = cart?.items.find((item) => item.id === productId);
+  //   if (item) {
+  //     const newQuantity = item.quantity + change;
+  //     if (newQuantity > 0) {
+  //       updateCartItem?.(productId, newQuantity);
+  //     } else {
+  //       removeFromCart?.(productId);
+  //     }
+  //   }
+  // };
 
   if (isCheckingOut) {
     return (
-      <View style={styles.modal}>
-        {/* Include your Checkout component here or another implementation */}
-      </View>
+      <Modal visible={true} transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {/* <Checkout /> */}
+            <TouchableOpacity
+              onPress={() => setIsCheckingOut(false)}
+              style={[styles.button, styles.cancelButton]}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     );
   }
 
   return (
-    <ScrollView style={styles.cartContainer}>
-      <TouchableOpacity style={styles.closeButton}>
+    <View style={styles.cartContainer}>
+      {/* <TouchableOpacity onPress={onClose} style={styles.closeButton}>
         <Text style={styles.closeButtonText}>Close</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       {cart && cart.items.length > 0 ? (
-        cart.items.map((item, index) => (
-          <View key={index} style={styles.itemContainer}>
-            <Image
-              source={{ uri: item.product.image1 }}
-              style={styles.itemImage}
-            />
-            <Text style={styles.itemName}>{item.product.name}</Text>
-            <Text style={styles.itemDescription}>
-              {item.product.description}
-            </Text>
-            <Text style={styles.itemPrice}>ფასი: ${item.product.price}</Text>
-            <View style={styles.quantityContainer}>
-              <Button
-                title="-"
-                onPress={() => handleQuantityChange(item.product.id, -1)}
-              />
-              <Text style={styles.quantityText}>{item.quantity}</Text>
-              <Button
-                title="+"
-                onPress={() => handleQuantityChange(item.product.id, 1)}
-              />
+        <ScrollView>
+          {cart.items.map((item, index) => (
+            <View key={index} style={styles.cartItem}>
+              <Text style={styles.itemName}>{item.product.name}</Text>
+              <View style={styles.itemDetails}>
+                {/* <Image
+                  source={{ uri: getImageUrl(item.product.image1) }}
+                  style={styles.itemImage}
+                /> */}
+                {/* <TouchableOpacity
+                  onPress={() => handleQuantityChange(item.id, -1)}
+                  style={styles.quantityButton}>
+                  <Text style={styles.quantityButtonText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.quantityText}>Qty: {item.quantity}</Text>
+                <TouchableOpacity
+                  onPress={() => handleQuantityChange(item.id, 1)}
+                  style={styles.quantityButton}>
+                  <Text style={styles.quantityButtonText}>+</Text>
+                </TouchableOpacity> */}
+              </View>
+              <TouchableOpacity
+                onPress={() => removeFromCart(item.id)}
+                style={[styles.button, styles.removeButton]}>
+                <Text style={styles.buttonText}>X</Text>
+              </TouchableOpacity>
             </View>
-            <Button
-              title="Remove"
-              onPress={() => removeFromCart(item.product.id)}
-              color="#ff0000"
-            />
-          </View>
-        ))
+          ))}
+        </ScrollView>
       ) : (
-        <Text style={styles.emptyCartText}>თქვენი კალათი ცარიელია</Text>
+        <Text>Your cart is empty</Text>
       )}
       <View style={styles.summary}>
-        <Text>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
-        <Text>ჯამური ფასი: ${cart?.totalPrice || 0}</Text>
+        <Text>
+          <strong>ნივთების რაოდენობა:</strong> {cart?.totalItems || 0}
+        </Text>
+        <Text>
+          <strong>ჯამური ფასი:</strong> ${cart?.totalPrice || 0}
+        </Text>
       </View>
-      <Button
-        title="შეძენა"
+      <TouchableOpacity
         onPress={() => setIsCheckingOut(true)}
-        color="#007bff"
-      />
-    </ScrollView>
+        style={[styles.button, styles.checkoutButton]}>
+        <Text style={styles.buttonText}>შეძენა</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   cartContainer: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
+    position: "absolute",
+    right: 0,
+    top: 20,
+    width: "80%",
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+    zIndex: 50,
   },
   closeButton: {
-    alignSelf: "flex-end",
-    marginBottom: 10,
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
   closeButtonText: {
-    color: "#555",
-    fontSize: 16,
+    color: "gray",
   },
-  itemContainer: {
-    flexDirection: "column",
-    justifyContent: "center",
+  cartItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
-    padding: 10,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
+    marginVertical: 8,
   },
   itemName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  itemDescription: {
+    flex: 1,
     fontSize: 14,
-    color: "#555",
-    marginBottom: 10,
-    textAlign: "center",
+    maxWidth: "50%",
   },
-  itemImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  quantityContainer: {
+  itemDetails: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+  },
+  itemImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
+  quantityButton: {
+    backgroundColor: "gray",
+    padding: 5,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  quantityButtonText: {
+    color: "black",
+    fontWeight: "bold",
   },
   quantityText: {
-    marginHorizontal: 10,
     fontSize: 16,
+    marginHorizontal: 8,
   },
-  itemPrice: {
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 10,
+  removeButton: {
+    backgroundColor: "red",
   },
-  emptyCartText: {
+  checkoutButton: {
+    backgroundColor: "blue",
+    marginTop: 16,
+  },
+  cancelButton: {
+    backgroundColor: "red",
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginTop: 8,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
     textAlign: "center",
-    fontSize: 18,
-    color: "#999",
-    marginVertical: 20,
   },
   summary: {
-    marginTop: 20,
-    padding: 10,
-    borderTopColor: "#ddd",
-    borderTopWidth: 1,
+    marginTop: 16,
   },
-  modal: {
+  modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 8,
+    width: "80%",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
 });
 
-export default CartComponent;
+export default Cart;

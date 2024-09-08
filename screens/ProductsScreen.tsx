@@ -13,7 +13,7 @@ import { useProducts } from "../context/productContext";
 import { Product } from "@/types/product";
 
 const ProductsScreen = ({ navigation, route }: any) => {
-  const { fetchProducts, fetchProductsByCategory } = useProducts();
+  const { fetchProducts, fetchProductsByCategory, products } = useProducts();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState(route.params?.filter || "");
   const categoryId = route.params?.categoryId || null;
@@ -23,10 +23,11 @@ const ProductsScreen = ({ navigation, route }: any) => {
     const fetchData = async () => {
       if (categoryId) {
         const productsByCategory = await fetchProductsByCategory(categoryId);
-        setFilteredProducts(productsByCategory); // Use the returned data
+
+        setFilteredProducts(productsByCategory); // Correct usage now
       } else {
-        const allProducts = await fetchProducts(); // Use the returned data
-        setFilteredProducts(allProducts);
+        const allProducts = await fetchProducts();
+        setFilteredProducts(allProducts); // Correct usage now
       }
     };
 

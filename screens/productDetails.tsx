@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { View, Image, Text, StyleSheet, Button, Alert } from "react-native";
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  Button,
+  ScrollView,
+} from "react-native";
 import { useProducts } from "@/context/productContext";
 import { useCart } from "@/context/cartContext";
-const ProductDetails = () => {
+
+const ProductDetails = ({ route }: any) => {
   const { products, fetchProducts } = useProducts();
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
 
-  // Fetch products when the component mounts
+  const productId = route.params?.productId; // მიღებულია productId from route params
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // Assuming you want to display the first product as an example
-  const product = products?.[0];
+  // არჩეული პროდუქტის მოძებნა products მასივში id-ს მიხედვით
+  const product = products.find((p) => p.id === productId);
 
-  // Handle Add to Cart action
   const handleAddToCart = () => {
     if (product) {
       addToCart(product, quantity);
@@ -34,11 +42,11 @@ const ProductDetails = () => {
   };
 
   if (!product) {
-    return <Text>Loading...</Text>; // Handle loading state
+    return <Text>Loading...</Text>; // ლოდინის სტატუსის მართვა
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Image
         source={{ uri: product.image1 }}
         style={styles.productImage}
@@ -51,9 +59,9 @@ const ProductDetails = () => {
       <View>
         <Button title="+" onPress={incrementQuantity} />
         <Text>{quantity}</Text>
-        <Button title="+" onPress={decrementQuantity} />
+        <Button title="-" onPress={decrementQuantity} />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

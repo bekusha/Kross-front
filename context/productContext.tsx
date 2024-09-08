@@ -7,14 +7,11 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import localStorage from "@react-native-async-storage/async-storage";
 import { Product, ProductContextType, Category } from "../types/product";
-const ProductContext = createContext<ProductContextType | undefined>(undefined);
-
 import { API_BASE_URL } from "@env";
 
-console.log("API Base URL:", API_BASE_URL);
+const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 interface ProductProviderProps {
   children: ReactNode;
@@ -22,18 +19,19 @@ interface ProductProviderProps {
 
 export const ProductProvider: React.FC<ProductProviderProps> = ({
   children,
-}): React.ReactElement => {
+}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
+  const getAuthHeader = async () => {
+    const token = await localStorage.getItem("access");
+    return { Authorization: `Bearer ${token}` };
+  };
+
   const deleteProduct = useCallback(async (productId: number) => {
     try {
-      const token = await AsyncStorage.getItem("access");
-      await axios.delete(`${API_BASE_URL}product/${productId}/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const headers = await getAuthHeader();
+      await axios.delete(`${API_BASE_URL}product/${productId}/`, { headers });
       setProducts((currentProducts) =>
         currentProducts.filter((product) => product.id !== productId)
       );
@@ -43,18 +41,26 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
     }
   }, []);
 
+  const fetchProductById = useCallback(async (productId: number) => {
+    try {
+      const headers = await getAuthHeader();
+      const response = await axios.get(`${API_BASE_URL}product/${productId}/`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+    }
+  }, []);
+
   const editProduct = useCallback(
     async (productId: number, formData: FormData) => {
       try {
-        const token = await AsyncStorage.getItem("access");
+        const headers = await getAuthHeader();
         const response = await axios.put(
           `${API_BASE_URL}product/${productId}/`,
           formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers }
         );
         setProducts((currentProducts) =>
           currentProducts.map((product) =>
@@ -72,14 +78,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
   const addProduct = useCallback(
     async (formData: FormData, categoryId: number) => {
       try {
-        const token = await AsyncStorage.getItem("access");
+        const headers = await getAuthHeader();
         const response = await axios.post(`${API_BASE_URL}product/`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            category: categoryId,
-          },
+          headers,
+          params: { category: categoryId },
         });
         setProducts((currentProducts) => [...currentProducts, response.data]);
       } catch (error) {
@@ -89,14 +91,14 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
     []
   );
 
-  const fetchProducts: () => Promise<Product[]> = useCallback(async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}product/`);
       setProducts(response.data);
-      return response.data; // Return the fetched products
+      return response.data; // Add this line to return data
     } catch (error) {
       console.error("Failed to fetch products:", error);
-      return []; // Return an empty array in case of error
+      return []; // Return an empty array on error
     }
   }, []);
 
@@ -114,15 +116,15 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
       const response = await axios.get(
         `${API_BASE_URL}product/?category=${categoryId}`
       );
+      console.log(response.data);
       setProducts(response.data);
-      console.log("Filtered product:", response.data[0]?.name);
-      return response.data; // Explicitly return the data
+      return response.data; // Add this line to return data
     } catch (error) {
       console.error(
         `Failed to fetch products for category ${categoryId}:`,
         error
       );
-      return []; // Return an empty array in case of error
+      return []; // Return an empty array on error
     }
   }, []);
 
@@ -132,10 +134,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
         `${API_BASE_URL}product/products/by_vendor/${vendorId}/`
       );
       setProducts(response.data);
-      return response.data; // Return the fetched products by vendor
+      return response.data;
     } catch (error) {
       console.error(`Failed to fetch products for vendor ${vendorId}:`, error);
-      return []; // Return an empty array in case of error
+      return [];
     }
   }, []);
 
@@ -163,7 +165,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
 
 export const useProducts = () => {
   const context = useContext(ProductContext);
-  if (context === undefined || context === null) {
+  if (context === undefined) {
     throw new Error("useProducts must be used within a ProductProvider");
   }
   return context;
