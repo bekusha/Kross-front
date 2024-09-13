@@ -19,6 +19,11 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
   // Define static content with appropriate category IDs from the fetched data
   const content = [
     {
+      text: "გამოიძახე ზეთის შეცვლა ადგილზე",
+      image: require("../assets/oilchangedelivery.webp"),
+      action: () => navigation.navigate("OilChangeScreen"),
+    },
+    {
       text: "მიიღე ავტომობილზე ინფორმაცია ბოტისგან",
       image: require("../assets/aikrossbot.webp"),
       action: () => navigation.navigate("ChatScreen"),

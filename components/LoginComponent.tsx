@@ -11,6 +11,7 @@ import {
 import { useAuth } from "@/context/authContext";
 import { useNavigation } from "@react-navigation/native";
 import { LoginScreenNavigationProp } from "@/types/routes";
+import { CommonActions } from "@react-navigation/native";
 
 interface LoginProps {
   onSwitch: () => void;
@@ -30,7 +31,12 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
 
       if (success) {
         // Navigate to MyPage after successful login
-        navigation.navigate("MyPageScreen");
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes:[{name: "Home"}]
+          })
+        )
       }
 
       console.log("User in component" + user?.username);

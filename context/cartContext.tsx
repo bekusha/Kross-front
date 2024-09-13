@@ -218,7 +218,7 @@ export const CartProvider = ({ children }: any) => {
   const removeFromCart = async (productId: number) => {
     setLoading(true);
     const token = getToken();
-
+    alert("Are you sure you want to remove this item from your cart?");
     try {
       await axios.delete(`${API_BASE_URL}cart/remove/${productId}/`, {
         headers: {

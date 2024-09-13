@@ -53,7 +53,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>KROSSGeorgia</Text>
+      <Text style={styles.title}>KROSSGEORGIA</Text>
       {/* <TextInput
         style={styles.input}
         placeholder="რას ეძებ?"
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 25,
-    color: "#2c3e50",
+    color: "red",
   },
   input: {
     height: 44,

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useAuth } from "@/context/authContext";
 import { useOil } from "@/context/oilContext";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { CommonActions, NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Cart from "@/components/Cart";
@@ -17,7 +17,7 @@ import Cart from "@/components/Cart";
 const MyPageScreen: React.FC = () => {
   type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
 
-  const { user, logout } = useAuth();
+  const { user, logout, isLoggedIn } = useAuth();
   const { oilRecords, loading, error, fetchOilRecords, createOilRecord } =
     useOil();
   const [mileage, setMileage] = useState<string>(""); // State to store mileage input
@@ -26,8 +26,12 @@ const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<MyPageScreenNavigationProp>();
 
   useEffect(() => {
-    fetchOilRecords();
-  }, []);
+    if (!isLoggedIn) {
+      navigation.navigate("AuthScreen");
+    } else {
+      fetchOilRecords();
+    }
+  }, [isLoggedIn, navigation]);
 
   const handleSaveMileage = () => {
     if (mileage) {
@@ -45,8 +49,14 @@ const MyPageScreen: React.FC = () => {
   };
 
   const handleLogOut = () => {
-    navigation.navigate("Home");
-    logout();
+    // ნავიგაციის ისტორიის გასუფთავება და AuthScreen-ზე გადამისამართება
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      })
+    );
+    logout(); // ანალოგიურად, ლოგაუთის ფუნქციის გამოძახება
   };
 
   return (

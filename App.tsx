@@ -17,32 +17,43 @@ import { OilProvider } from "./context/oilContext";
 import { AIProvider } from "./context/aiContext";
 import ChatScreen from "./screens/ChatScreen";
 import { CartProvider } from "./context/cartContext";
+import OilChangeScreen from "./screens/OilChangeScreen";
+import { OilChangeProvider } from "./context/OilChangeContext";
 
 export default function App() {
   return (
     <AuthProvider>
       <ProductProvider>
         <CartProvider>
-          <AIProvider>
-            <OilProvider>
-              <NavigationContainer>
-                <Stack.Navigator initialRouteName="Welcome">
-                  {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
-                  <Stack.Screen name="Home" component={HomeScreen} />
-                  <Stack.Screen name="Products" component={ProductsScreen} />
-                  <Stack.Screen
-                    name="ProductDetails"
-                    component={productDetails}
-                  />
-                  <Stack.Screen name="Main" component={Main} />
-                  <Stack.Screen name="AuthScreen" component={AuthScreen} />
-                  <Stack.Screen name="MyPageScreen" component={MyPageScreen} />
-                  <Stack.Screen name="ChatScreen" component={ChatScreen} />
-                </Stack.Navigator>
-                {/* <StatusBar style="auto" /> */}
-              </NavigationContainer>
-            </OilProvider>
-          </AIProvider>
+          <OilChangeProvider>
+            <AIProvider>
+              <OilProvider>
+                <NavigationContainer>
+                  <Stack.Navigator initialRouteName="Welcome">
+                    {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
+                    <Stack.Screen name="Home" component={HomeScreen} />
+                    <Stack.Screen name="Products" component={ProductsScreen} />
+                    <Stack.Screen
+                      name="ProductDetails"
+                      component={productDetails}
+                    />
+                    <Stack.Screen name="Main" component={Main} />
+                    <Stack.Screen name="AuthScreen" component={AuthScreen} />
+                    <Stack.Screen
+                      name="MyPageScreen"
+                      component={MyPageScreen}
+                    />
+                    <Stack.Screen name="ChatScreen" component={ChatScreen} />
+                    <Stack.Screen
+                      name="OilChangeScreen"
+                      component={OilChangeScreen}
+                    />
+                  </Stack.Navigator>
+                  {/* <StatusBar style="auto" /> */}
+                </NavigationContainer>
+              </OilProvider>
+            </AIProvider>
+          </OilChangeProvider>
         </CartProvider>
       </ProductProvider>
     </AuthProvider>

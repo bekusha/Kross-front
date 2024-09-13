@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,99 +6,118 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Modal,
+  Animated,
 } from "react-native";
-import { useCart } from "@/context/cartContext"; // Assuming you have a similar context in your React Native project
+import { useCart } from "@/context/cartContext";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { API_BASE_URL } from "@env";
 
 const Cart = () => {
-  const { cart, removeFromCart, updateCartItem } = useCart();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const { cart, removeFromCart } = useCart();
+  const [expandedItems, setExpandedItems] = useState<number[]>([]);
+  const [rotateAnims, setRotateAnims] = useState<{
+    [key: number]: Animated.Value;
+  }>({});
 
-  // function getImageUrl(path) {
-  //   if (path.startsWith("http")) {
-  //     return path; // Path is already a full URL
-  //   }
-  //   return `${process.env.NEXT_PUBLIC_API_BASE}${path}`;
-  // }
+  useEffect(() => {
+    // Initialize animation states for all cart items on mount
+    if (cart && cart.items.length > 0) {
+      const initialAnims = cart.items.reduce(
+        (acc: { [key: number]: Animated.Value }, _, index: number) => {
+          acc[index] = new Animated.Value(0);
 
-  // const handleQuantityChange = (productId, change) => {
-  //   const item = cart?.items.find((item) => item.id === productId);
-  //   if (item) {
-  //     const newQuantity = item.quantity + change;
-  //     if (newQuantity > 0) {
-  //       updateCartItem?.(productId, newQuantity);
-  //     } else {
-  //       removeFromCart?.(productId);
-  //     }
-  //   }
-  // };
+          return acc;
+        },
+        {}
+      );
+      setRotateAnims(initialAnims);
+    }
+  }, [cart]);
 
-  if (isCheckingOut) {
-    return (
-      <Modal visible={true} transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {/* <Checkout /> */}
-            <TouchableOpacity
-              onPress={() => setIsCheckingOut(false)}
-              style={[styles.button, styles.cancelButton]}>
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    );
+  function getImageUrl(path: any) {
+    if (path.startsWith("http")) {
+      return path; // Path is already a full URL
+    }
+    return `${API_BASE_URL}${path}`;
   }
+
+  const toggleExpand = (index: number) => {
+    if (!rotateAnims[index]) return; // Ensure animation state exists
+
+    const isExpanded = expandedItems.includes(index);
+    if (isExpanded) {
+      setExpandedItems(expandedItems.filter((i) => i !== index));
+    } else {
+      setExpandedItems([...expandedItems, index]);
+    }
+
+    // Trigger arrow rotation animation for the specific index
+    Animated.timing(rotateAnims[index], {
+      toValue: isExpanded ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleRemoveFromCart = (productId: number) => {
+    removeFromCart(productId);
+  };
 
   return (
     <View style={styles.cartContainer}>
-      {/* <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>Close</Text>
-      </TouchableOpacity> */}
       {cart && cart.items.length > 0 ? (
         <ScrollView>
-          {cart.items.map((item, index) => (
-            <View key={index} style={styles.cartItem}>
-              <Text style={styles.itemName}>{item.product.name}</Text>
-              <View style={styles.itemDetails}>
-                {/* <Image
-                  source={{ uri: getImageUrl(item.product.image1) }}
-                  style={styles.itemImage}
-                /> */}
-                {/* <TouchableOpacity
-                  onPress={() => handleQuantityChange(item.id, -1)}
-                  style={styles.quantityButton}>
-                  <Text style={styles.quantityButtonText}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.quantityText}>Qty: {item.quantity}</Text>
-                <TouchableOpacity
-                  onPress={() => handleQuantityChange(item.id, 1)}
-                  style={styles.quantityButton}>
-                  <Text style={styles.quantityButtonText}>+</Text>
-                </TouchableOpacity> */}
+          {cart.items.map((item, index) => {
+            const rotateAnim = rotateAnims[index] || new Animated.Value(0); // Safe fallback
+
+            const rotateInterpolate = rotateAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: ["0deg", "180deg"],
+            });
+
+            return (
+              <View key={index} style={styles.cartItem}>
+                <View style={styles.itemHeader}>
+                  <Text style={styles.itemName}>{item.product.name}</Text>
+                  <Text>${item.product.price}</Text>
+                  <TouchableOpacity onPress={() => toggleExpand(index)}>
+                    <Animated.View
+                      style={{
+                        transform: [{ rotate: rotateInterpolate }],
+                      }}>
+                      <Icon name="expand-more" size={24} color="black" />
+                    </Animated.View>
+                  </TouchableOpacity>
+                </View>
+                {expandedItems.includes(index) && (
+                  <View style={styles.itemDetails}>
+                    <Image
+                      source={{ uri: getImageUrl(item.product.image1) }}
+                      style={styles.itemImage}
+                    />
+
+                    <Text>რაოდენობა: {item.quantity}</Text>
+                    <TouchableOpacity
+                      onPress={() => removeFromCart(item.id)}
+                      style={[styles.button, styles.removeButton]}>
+                      <Text style={styles.buttonText}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
-              <TouchableOpacity
-                onPress={() => removeFromCart(item.id)}
-                style={[styles.button, styles.removeButton]}>
-                <Text style={styles.buttonText}>X</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+            );
+          })}
         </ScrollView>
       ) : (
-        <Text>Your cart is empty</Text>
+        <View>
+          <Text>შენი კალათი ცარიელია</Text>
+        </View>
       )}
       <View style={styles.summary}>
-        <Text>
-          <strong>ნივთების რაოდენობა:</strong> {cart?.totalItems || 0}
-        </Text>
-        <Text>
-          <strong>ჯამური ფასი:</strong> ${cart?.totalPrice || 0}
-        </Text>
+        <Text>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
+        <Text>ჯამური ფასი: ${cart?.totalPrice || 0}</Text>
       </View>
-      <TouchableOpacity
-        onPress={() => setIsCheckingOut(true)}
-        style={[styles.button, styles.checkoutButton]}>
+      <TouchableOpacity style={[styles.button, styles.checkoutButton]}>
         <Text style={styles.buttonText}>შეძენა</Text>
       </TouchableOpacity>
     </View>
@@ -107,10 +126,8 @@ const Cart = () => {
 
 const styles = StyleSheet.create({
   cartContainer: {
-    position: "absolute",
-    right: 0,
-    top: 20,
     width: "80%",
+    height: "68%",
     backgroundColor: "white",
     padding: 16,
     borderRadius: 8,
@@ -120,57 +137,30 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 50,
   },
-  closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-  },
-  closeButtonText: {
-    color: "gray",
-  },
   cartItem: {
+    marginVertical: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+  },
+  itemHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 8,
   },
   itemName: {
-    flex: 1,
     fontSize: 14,
-    maxWidth: "50%",
+    fontWeight: "bold",
   },
   itemDetails: {
-    flexDirection: "row",
+    marginTop: 10,
     alignItems: "center",
   },
   itemImage: {
     width: 50,
     height: 50,
     borderRadius: 8,
-  },
-  quantityButton: {
-    backgroundColor: "gray",
-    padding: 5,
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  quantityButtonText: {
-    color: "black",
-    fontWeight: "bold",
-  },
-  quantityText: {
-    fontSize: 16,
-    marginHorizontal: 8,
-  },
-  removeButton: {
-    backgroundColor: "red",
-  },
-  checkoutButton: {
-    backgroundColor: "blue",
-    marginTop: 16,
-  },
-  cancelButton: {
-    backgroundColor: "red",
   },
   button: {
     paddingVertical: 10,
@@ -179,28 +169,19 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonText: {
-    color: "white",
+    color: "gray",
     fontWeight: "bold",
     textAlign: "center",
   },
-  summary: {
+  removeButton: {
+    backgroundColor: "red",
+  },
+  checkoutButton: {
+    backgroundColor: "white",
     marginTop: 16,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 8,
-    width: "80%",
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+  summary: {
+    marginTop: 16,
   },
 });
 
