@@ -20,6 +20,7 @@ interface OilChangeDelivery {
   email: string;
   product: number;
   message: string;
+  ordered_at: string;
 }
 
 // Define context type
@@ -93,11 +94,17 @@ const fetchDeliveries = async () => {
 
   // ფუნქცია ახალი ჩანაწერის შესაქმნელად
   const createDelivery = async (deliveryData: Partial<OilChangeDelivery>) => {
+    console.log(deliveryData)
     setLoading(true);
     try {
       const response = await axios.post<OilChangeDelivery>(
-        API_BASE_URL || "",
-        deliveryData
+        `${API_BASE_URL}changedelivery/`,
+        deliveryData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+        }
       );
       setDeliveries((prev) => [...prev, response.data]);
       setError(null);

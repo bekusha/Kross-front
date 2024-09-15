@@ -9,75 +9,83 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { useOilChange } from "../context/OilChangeContext";
 import { useProducts } from "@/context/productContext";
-
-import { User } from "@/types/user";
+import { useAuth } from "@/context/authContext";
 
 const OilChangeScreen = () => {
-  const { deliveries, loading, error, fetchDeliveries, createDelivery } =
-    useOilChange();
-
+  const { deliveries, loading, error, fetchDeliveries, createDelivery } = useOilChange();
   const { products } = useProducts();
+  const { user } = useAuth();
 
   // State for form inputs
   const [formData, setFormData] = useState({
-    user: "",
-    phone: "",
-    address: "",
-    email: "",
+    user: user || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+    email: user?.email || "",
     product: "",
     message: "",
+    ordered_at: '',
   });
 
-  const [expanded, setExpanded] = useState<number | null>(null); // State to track expanded item
+  const [expanded, setExpanded] = useState<number | null>(null);
 
-  // Function to handle form input changes
+  useEffect(() => {
+    fetchDeliveries();
+    
+  }, []);
+
+  useEffect(() => {
+    console.log("User from context:", user);
+  }, [user]);
+
   const handleInputChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  useEffect(() => {
-    fetchDeliveries();
-  }, []);
-
-  // Function to handle form submission
   const handleCreateDelivery = () => {
-    if (
-      !formData.user ||
-      !formData.phone ||
-      !formData.address ||
-      !formData.email ||
-      !formData.product
-    ) {
-      alert("Please fill all required fields.");
+    if (!formData.phone || !formData.address || !formData.email || !formData.product) {
+      Alert.alert("Error", "Please fill all required fields.");
+      return;
+    }
+
+    if (!user) {
+      Alert.alert("Error", "User information is not available.");
       return;
     }
 
     const newDelivery = {
-      user: Number(formData.user),
+      user: user.id,
       phone: formData.phone,
       address: formData.address,
       email: formData.email,
       product: Number(formData.product),
       message: formData.message,
+      ordered_at: '',
     };
 
-    createDelivery(newDelivery);
-
-    // Reset only specific fields after submission
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      phone: "",
-      address: "",
-      email: "",
-      message: "",
-    }));
+    createDelivery(newDelivery)
+      .then(() => {
+        Alert.alert("Success", "Delivery created successfully.");
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          phone: "",
+          address: "",
+          email: "",
+          message: "",
+          ordered_at: '',
+        }));
+      })
+      .catch((err) => Alert.alert("Error", err.message));
   };
 
   const toggleExpand = (id: number) => {
-    setExpanded(expanded === id ? null : id); // Toggle expansion
+    setExpanded(expanded === id ? null : id);
+    console.log("Deliveries from changescreen:", deliveries);
   };
 
   if (loading) {
@@ -88,20 +96,18 @@ const OilChangeScreen = () => {
     );
   }
 
-  // if (error) {
-  //   return (
-  //     <View style={styles.center}>
-  //       <Text style={styles.errorText}>Error: {error}</Text>
-  //       <Button title="Retry" onPress={fetchDeliveries} color="#ff6347" />
-  //     </View>
-  //   );
-  // }
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+        <Button title="Retry" onPress={fetchDeliveries} color="#ff6347" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.header}>ზეთის შეცვლა ადგილზე გამოძახებით</Text>
-
-      {/* Form for creating a new delivery */}
+      <Text>Welcome, {user?.username}</Text>
       <View style={styles.form}>
         <TextInput
           placeholder="Phone"
@@ -122,21 +128,23 @@ const OilChangeScreen = () => {
           style={styles.input}
         />
 
+        <Picker
+          selectedValue={formData.product}
+          onValueChange={(value) => handleInputChange("product", value)}
+          style={styles.input}
+        >
+          <Picker.Item label="Select a Product" value="" />
+          {products.map((product) => (
+            <Picker.Item key={product.id} label={product.name} value={product.id.toString()} />
+          ))}
+        </Picker>
+
         <TextInput
           placeholder="Message"
           value={formData.message}
           onChangeText={(value) => handleInputChange("message", value)}
           style={styles.input}
         />
-        {/* i need dropdown for reactnative */ }
-
-        {/* <TextInput
-          placeholder="Product ID"
-          value={formData.product}
-          onChangeText={(value) => handleInputChange("product", value)}
-          style={styles.input}
-        /> */}
-
         <Button
           title="Create New Delivery"
           onPress={handleCreateDelivery}
@@ -151,14 +159,12 @@ const OilChangeScreen = () => {
           <View style={styles.card}>
             <TouchableOpacity onPress={() => toggleExpand(item.id)}>
               <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>პროდუქტი {item.product}</Text>
+                <Text style={styles.cardTitle}>გამოძახება {item.ordered_at}</Text>
                 <Text style={styles.toggleIcon}>
                   {expanded === item.id ? "▼" : "▶"}
                 </Text>
               </View>
             </TouchableOpacity>
-
-            {/* Details shown only if the item is expanded */}
             {expanded === item.id && (
               <View style={styles.cardContent}>
                 <Text>Phone: {item.phone}</Text>
@@ -166,6 +172,7 @@ const OilChangeScreen = () => {
                 <Text>Email: {item.email}</Text>
                 <Text>Product ID: {item.product}</Text>
                 <Text>Message: {item.message}</Text>
+                <Text>თარიღი: {item.ordered_at}</Text>
               </View>
             )}
           </View>
@@ -184,13 +191,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 20,
-    color: "#333",
   },
   form: {
     padding: 15,

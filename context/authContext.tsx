@@ -92,6 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const initializeAuth = async () => {
+    console.log("Initializing auth...");
     const accessToken = localStorage.getItem("access");
     if (accessToken && isTokenExpired(accessToken)) {
       // Access token is expired, attempt to refresh
@@ -103,11 +104,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsLoggedIn(false);
       }
     } else if (accessToken) {
+      console.log("Access token found, loading user details...");
       loadUserDetails(accessToken);
     }
     setLoading(false);
   };
-
+  
   function isTokenExpired(token: string) {
     const payload = JSON.parse(atob(token.split(".")[1]));
     return payload.exp * 1000 < Date.now(); // Ensure time units are consistent
@@ -139,21 +141,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const loadUserDetails = async (accessToken: string) => {
-    try {
-      const userDetailsResponse = await axios.get(
-        `${API_BASE_URL}user/detail/`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      setUser(userDetailsResponse.data);
-      setIsLoggedIn(true);
-    } catch (error) {
-      console.error("Failed to fetch user details:", error);
-      localStorage.removeItem("access");
-    }
-  };
+ const loadUserDetails = async (accessToken: string) => {
+  try {
+    const userDetailsResponse = await axios.get(
+      `${API_BASE_URL}user/detail/`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    console.log("User: " + JSON.stringify(userDetailsResponse.data.username));
+
+    setUser(userDetailsResponse.data);
+    
+    setIsLoggedIn(true);
+  } catch (error) {
+    console.error("Failed to fetch user details:", error);
+    localStorage.removeItem("access");
+    handleReauthentication(); // თუ მოხდა შეცდომა, მოხდეს ხელახლა ავტენტიფიკაცია
+  }
+};
+
 
   const register = async (
     email: any,

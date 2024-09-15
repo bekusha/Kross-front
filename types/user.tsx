@@ -10,4 +10,6 @@ export interface User {
   email: string;
   role: Role;
   accessToken?: string;
+  phone?: string;
+  address?: string;
 }
