@@ -61,14 +61,10 @@ const MyPageScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut}>
-        <Icon name="logout" size={24} color="black" />
-        <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
-      </TouchableOpacity>
-
+    
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
-          მოგესალმები <span style={styles.username}> {user?.username}</span>{" "}
+           <span style={styles.username}> {user?.username}'s </span>Page
         </Text>
 
         {/* Add buttons for switching components */}
@@ -132,6 +128,17 @@ const MyPageScreen: React.FC = () => {
           </View>
         )}
       </View>
+      <View style={styles.accountButtons}>
+      <TouchableOpacity style={styles.logoutButton}  onPress={handleLogOut}>
+        <Icon name="logout" size={24} color="black" />
+        <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.deleteButton}  >
+        <Icon name="delete" size={24} color="black" />
+        <Text >ექაუნთის წაშლა</Text>
+      </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -148,14 +155,22 @@ const styles = StyleSheet.create({
   username: {
     color: "red",
   },
+  accountButtons: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 20,
+  },
   logoutButton: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    position: "absolute",
-    top: 10,
-    right: 0,
-    zIndex: 1,
+   
+  },
+  deleteButton: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
   },
   logoutButtonText: {},
   card: {
@@ -165,7 +180,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#ffffff",
     shadowColor: "#000",
-    marginTop: 130,
+
     shadowOffset: {
       width: 0,
       height: 4,
@@ -203,7 +218,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   activeButtonText: {
-    color: "red",
+    color: "white",
   },
   input: {
     width: "100%",
@@ -216,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   button: {
-    backgroundColor: "#3498db",
+    backgroundColor: "black",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,

@@ -107,22 +107,22 @@ const OilChangeScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text>Welcome, {user?.username}</Text>
+      <Text style={styles.title} >გამარჯობა, <span style={styles.redText}>{user?.username}</span></Text>
       <View style={styles.form}>
         <TextInput
-          placeholder="Phone"
+          placeholder="მობილურის ნომერი"
           value={formData.phone}
           onChangeText={(value) => handleInputChange("phone", value)}
           style={styles.input}
         />
         <TextInput
-          placeholder="Address"
+          placeholder="მისამართი"
           value={formData.address}
           onChangeText={(value) => handleInputChange("address", value)}
           style={styles.input}
         />
         <TextInput
-          placeholder="Email"
+          placeholder="test@mail.com"
           value={formData.email}
           onChangeText={(value) => handleInputChange("email", value)}
           style={styles.input}
@@ -133,24 +133,27 @@ const OilChangeScreen = () => {
           onValueChange={(value) => handleInputChange("product", value)}
           style={styles.input}
         >
-          <Picker.Item label="Select a Product" value="" />
+          <Picker.Item label="აირჩიეთ პროდუქტი" value="" />
           {products.map((product) => (
             <Picker.Item key={product.id} label={product.name} value={product.id.toString()} />
           ))}
         </Picker>
 
         <TextInput
-          placeholder="Message"
+          placeholder="დამატებითი შეტყობინება"
           value={formData.message}
           onChangeText={(value) => handleInputChange("message", value)}
           style={styles.input}
         />
-        <Button
-          title="Create New Delivery"
+        <TouchableOpacity
+
           onPress={handleCreateDelivery}
-          color="#4682b4"
-        />
+          style={styles.submitButton}
+
+        ><Text style={styles.submitButtonText}>სერვისის გამოძახება</Text></TouchableOpacity>
       </View>
+
+      <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text>
 
       <FlatList
         data={deliveries}
@@ -167,11 +170,11 @@ const OilChangeScreen = () => {
             </TouchableOpacity>
             {expanded === item.id && (
               <View style={styles.cardContent}>
-                <Text>Phone: {item.phone}</Text>
-                <Text>Address: {item.address}</Text>
-                <Text>Email: {item.email}</Text>
-                <Text>Product ID: {item.product}</Text>
-                <Text>Message: {item.message}</Text>
+                <Text>ტელეფონის ნომერი: {item.phone}</Text>
+                <Text>მისამართი: {item.address}</Text>
+                <Text>მეილი: {item.email}</Text>
+                <Text>პროდუქტი: {item.product}</Text>
+                <Text>შეტყობინება {item.message}</Text>
                 <Text>თარიღი: {item.ordered_at}</Text>
               </View>
             )}
@@ -203,12 +206,36 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+    marginTop: 15,
+  },
+  redText: {
+    color: "red",
+  },
   input: {
     borderBottomWidth: 1,
     borderColor: "#ccc",
     marginBottom: 15,
     padding: 10,
     fontSize: 16,
+  },
+  submitButton: {
+    marginTop: 15,
+    backgroundColor: "black",
+    width: "100%",
+    height: 40,
+    
+    paddingTop: 10,
+    borderRadius: 8,
+  },
+  submitButtonText: {
+
+    color: "white",
+    textAlign: "center",
   },
   card: {
     backgroundColor: "#fff",
