@@ -52,39 +52,39 @@ export const OilChangeProvider: React.FC<OilChangeProviderProps> = ({
   const { isLoggedIn } = useAuth();
 
   // ფუნქცია ყველა ჩანაწერის მისაღებად
- // ფუნქცია ყველა ჩანაწერის მისაღებად
-const fetchDeliveries = async () => {
-  console.log('is working')
-  if (!isLoggedIn) {
-    console.warn("User is not logged in, aborting fetch");
-    return; // Exit if the user is not logged in
-  }
-  setLoading(true);
-  const token = localStorage.getItem("access");
-  if (!token) {
-    setError("No access token found");
-    setLoading(false);
-    return;
-  }
-  try {
-    const response = await axios.get<OilChangeDelivery[]>(
-      `${API_BASE_URL}changedelivery/user-orders/`, // Adjust API endpoint
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Ensure the token is correct
-        },
-      }
-    );
-    console.log("Fetched deliveries:", response.data);
-    setDeliveries(response.data);
-    setError(null);
-  } catch (err: any) {
-    console.error("Error fetching deliveries:", err.response || err.message);
-    setError(err.response?.data?.message || err.message || "Unknown error");
-  } finally {
-    setLoading(false);
-  }
-};
+  // ფუნქცია ყველა ჩანაწერის მისაღებად
+  const fetchDeliveries = async () => {
+    console.log('is working')
+    if (!isLoggedIn) {
+      console.warn("User is not logged in, aborting fetch");
+      return; // Exit if the user is not logged in
+    }
+    setLoading(true);
+    const token = localStorage.getItem("access");
+    if (!token) {
+      setError("No access token found");
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await axios.get<OilChangeDelivery[]>(
+        `${API_BASE_URL}changedelivery/user-orders/`, // Adjust API endpoint
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Ensure the token is correct
+          },
+        }
+      );
+      console.log("Fetched deliveries:", response.data);
+      setDeliveries(response.data);
+      setError(null);
+    } catch (err: any) {
+      console.error("Error fetching deliveries:", err.response || err.message);
+      setError(err.response?.data?.message || err.message || "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const checkNewApi = () => {

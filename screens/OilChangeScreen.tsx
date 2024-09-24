@@ -15,16 +15,24 @@ import { Picker } from "@react-native-picker/picker";
 import { useOilChange } from "../context/OilChangeContext";
 import { useProducts } from "@/context/productContext";
 import { useAuth } from "@/context/authContext";
+import { CommonActions, NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/types/routes";
 
 const OilChangeScreen = () => {
   const { deliveries, loading, error, fetchDeliveries, createDelivery } = useOilChange();
   const { products } = useProducts();
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
+  type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
+  const navigation = useNavigation<AuthScreenNavigationProp>();
 
   // State for form inputs
   const [formData, setFormData] = useState({
     user: user || "",
     phone: user?.phone || "",
+    car_make: user?.car_make || "",
+    car_model: user?.car_model || "",
+    car_year: user?.car_year || "",
+    car_mileage: user?.car_mileage || "",
     address: user?.address || "",
     email: user?.email || "",
     product: "",
@@ -34,14 +42,25 @@ const OilChangeScreen = () => {
 
   const [expanded, setExpanded] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchDeliveries();
-    
-  }, []);
+
 
   useEffect(() => {
-    console.log("User from context:", user);
-  }, [user]);
+    fetchDeliveries();
+
+  }, []);
+  // check if user is not logged in, navigate to authScreen
+  // useEffect(() => {
+  //   if (!isLoggedIn) {
+
+  //     navigation.navigate("AuthScreen");
+  //     // how to go back with two screens?
+
+  //   } else if (isLoggedIn) {
+  //     navigation.goBack(
+
+  //     );
+  //   }
+  // }, [isLoggedIn, navigation]);
 
   const handleInputChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
@@ -61,6 +80,10 @@ const OilChangeScreen = () => {
     const newDelivery = {
       user: user.id,
       phone: formData.phone,
+      car_make: user.car_make,
+      car_model: user.car_model,
+      car_year: user.car_year,
+      car_mileage: user.car_mileage,
       address: formData.address,
       email: formData.email,
       product: Number(formData.product),
@@ -85,7 +108,6 @@ const OilChangeScreen = () => {
 
   const toggleExpand = (id: number) => {
     setExpanded(expanded === id ? null : id);
-    console.log("Deliveries from changescreen:", deliveries);
   };
 
   if (loading) {
@@ -113,6 +135,30 @@ const OilChangeScreen = () => {
           placeholder="მობილურის ნომერი"
           value={formData.phone}
           onChangeText={(value) => handleInputChange("phone", value)}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="მანქანის მწარმოებელი"
+          value={formData.car_make}
+          onChangeText={(value) => handleInputChange("car_make", value)}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="მანქანის მოდელი"
+          value={formData.car_model}
+          onChangeText={(value) => handleInputChange("car_model", value)}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="გამოშვების წელი"
+          value={formData.car_year}
+          onChangeText={(value) => handleInputChange("car_year", value)}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="გარბენი"
+          value={formData.car_mileage}
+          onChangeText={(value) => handleInputChange("mileage", value)}
           style={styles.input}
         />
         <TextInput
@@ -228,7 +274,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     width: "100%",
     height: 40,
-    
+
     paddingTop: 10,
     borderRadius: 8,
   },

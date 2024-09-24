@@ -16,9 +16,9 @@ interface CartContextType {
 const CartContext = createContext<CartContextType>({
   cart: null,
   loading: false,
-  addToCart: async () => {},
-  removeFromCart: async () => {},
-  updateCartItem: async () => {},
+  addToCart: async () => { },
+  removeFromCart: async () => { },
+  updateCartItem: async () => { },
 });
 
 export function useCart() {

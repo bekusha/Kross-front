@@ -116,10 +116,11 @@ const Cart = () => {
       <View style={styles.summary}>
         <Text>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
         <Text>ჯამური ფასი: ${cart?.totalPrice || 0}</Text>
+        <TouchableOpacity style={[styles.button, styles.checkoutButton]}>
+          <Text style={styles.buttonText}>შეძენა</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={[styles.button, styles.checkoutButton]}>
-        <Text style={styles.buttonText}>შეძენა</Text>
-      </TouchableOpacity>
+
     </View>
   );
 };
@@ -167,11 +168,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 5,
     marginTop: 8,
+    backgroundColor: "black"
   },
   buttonText: {
-    color: "gray",
+    color: "red",
     fontWeight: "bold",
     textAlign: "center",
+    backgroundColor: "black",
+    width: 160,
+    height: 40,
+    borderRadius: 8,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+
   },
   removeButton: {
     backgroundColor: "red",
@@ -182,6 +192,9 @@ const styles = StyleSheet.create({
   },
   summary: {
     marginTop: 16,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

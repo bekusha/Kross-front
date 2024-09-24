@@ -20,6 +20,7 @@ import { CartProvider } from "./context/cartContext";
 import OilChangeScreen from "./screens/OilChangeScreen";
 import { OilChangeProvider } from "./context/OilChangeContext";
 
+
 export default function App() {
   return (
     <AuthProvider>
@@ -50,6 +51,7 @@ export default function App() {
                     />
                   </Stack.Navigator>
                   {/* <StatusBar style="auto" /> */}
+
                 </NavigationContainer>
               </OilProvider>
             </AIProvider>

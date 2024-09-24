@@ -11,6 +11,7 @@ export type RootStackParamList = {
   AuthScreen: undefined;
   MyPageScreen: undefined;
   ContactScreen: undefined;
+  OilChangeScreen: undefined;
 };
 
 // Define the type for Login screen navigation

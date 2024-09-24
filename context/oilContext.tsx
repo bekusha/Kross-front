@@ -30,9 +30,9 @@ const defaultValue: OilContextType = {
   oilRecords: [],
   loading: false,
   error: null,
-  fetchOilRecords: () => {},
-  createOilRecord: () => {},
-  deleteOilRecords: () => {},
+  fetchOilRecords: () => { },
+  createOilRecord: () => { },
+  deleteOilRecords: () => { },
 };
 
 // Create the context with a default value

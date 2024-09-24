@@ -8,6 +8,7 @@ import {
   Image,
 } from "react-native";
 import { useProducts } from "../context/productContext"; // Import the useProducts hook
+import { useAuth } from "@/context/authContext";
 
 type MainProps = {
   navigation: any;
@@ -15,13 +16,21 @@ type MainProps = {
 
 const Main: React.FC<MainProps> = ({ navigation }) => {
   const { categories } = useProducts(); // Use the categories from context
-
+  const { isLoggedIn } = useAuth();
   // Define static content with appropriate category IDs from the fetched data
   const content = [
     {
       text: "გამოიძახე ზეთის შეცვლა ადგილზე",
       image: require("../assets/oilchangedelivery.webp"),
-      action: () => navigation.navigate("OilChangeScreen"),
+      action: () => {
+        if (isLoggedIn) {
+          console.log("User is logged in");
+          navigation.navigate("OilChangeScreen");
+        } else {
+          // Optionally, navigate to the login screen or show a message
+          navigation.navigate("AuthScreen"); // Redirect to login
+        }
+      },
     },
     {
       text: "მიიღე ავტომობილზე ინფორმაცია ბოტისგან",

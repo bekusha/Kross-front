@@ -49,18 +49,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     baseURL: API_BASE_URL,
   });
 
-  let isRefreshing = false;
-  let failedQueue = [];
-
   apiClient.interceptors.response.use(
-    (response) => response, // Just return the response if it's successful
+    (response) => response,
     async (error) => {
       const originalRequest = error.config;
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
           await refreshToken();
-          return apiClient(originalRequest); // Retry the original request with the refreshed token
+          return apiClient(originalRequest);
         } catch (refreshError) {
           handleReauthentication();
           return Promise.reject(refreshError);
@@ -71,11 +68,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   const handleReauthentication = () => {
-    // Clear user state and redirect to login or show login modal
     setUser(null);
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
-    window.location.href = "/login"; // Adjust as needed for your application
+    window.location.href = "/login";
   };
 
   useEffect(() => {
@@ -84,18 +80,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const intervalId = setInterval(() => {
       const accessToken = localStorage.getItem("access");
       if (accessToken && isTokenExpired(accessToken)) {
-        refreshToken(); // Call refreshToken if the token has expired
+        refreshToken();
       }
-    }, 35000); // Refresh every 55 seconds
+    }, 55000); // შევცვალე დრო 55 წამზე
 
-    return () => clearInterval(intervalId); // Clear interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const initializeAuth = async () => {
-    console.log("Initializing auth...");
     const accessToken = localStorage.getItem("access");
     if (accessToken && isTokenExpired(accessToken)) {
-      // Access token is expired, attempt to refresh
       try {
         await refreshToken();
       } catch (error) {
@@ -104,63 +98,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsLoggedIn(false);
       }
     } else if (accessToken) {
-      console.log("Access token found, loading user details...");
       loadUserDetails(accessToken);
     }
     setLoading(false);
   };
-  
+
   function isTokenExpired(token: string) {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.exp * 1000 < Date.now(); // Ensure time units are consistent
+    return payload.exp * 1000 < Date.now();
   }
-
-  // Enhanced refreshToken function with user details update
 
   const refreshToken = async () => {
     const refreshTokenValue = localStorage.getItem("refresh");
     if (!refreshTokenValue) {
-      console.error("No refresh token available");
-      handleReauthentication(); // handle re-authentication logic
+      handleReauthentication();
       return;
     }
     try {
-      const response = await apiClient.post(
-        `${API_BASE_URL}user/token/refresh/`,
-        { refresh: refreshTokenValue }
-      );
+      const response = await apiClient.post(`${API_BASE_URL}user/token/refresh/`, {
+        refresh: refreshTokenValue,
+      });
       const newAccessToken = response.data.access;
       localStorage.setItem("access", newAccessToken);
-      apiClient.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${newAccessToken}`;
+      apiClient.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
       setIsLoggedIn(true);
     } catch (error) {
-      console.error("Token refresh failed:", error);
       handleReauthentication();
     }
   };
 
- const loadUserDetails = async (accessToken: string) => {
-  try {
-    const userDetailsResponse = await axios.get(
-      `${API_BASE_URL}user/detail/`,
-      {
+  const loadUserDetails = async (accessToken: string) => {
+    try {
+      const userDetailsResponse = await apiClient.get(`${API_BASE_URL}user/detail/`, {
         headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-    console.log("User: " + JSON.stringify(userDetailsResponse.data.username));
-
-    setUser(userDetailsResponse.data);
-    
-    setIsLoggedIn(true);
-  } catch (error) {
-    console.error("Failed to fetch user details:", error);
-    localStorage.removeItem("access");
-    handleReauthentication(); // თუ მოხდა შეცდომა, მოხდეს ხელახლა ავტენტიფიკაცია
-  }
-};
-
+      });
+      setUser(userDetailsResponse.data);
+      setIsLoggedIn(true);
+    } catch (error) {
+      handleReauthentication();
+    }
+  };
 
   const register = async (
     email: any,
@@ -175,17 +152,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     try {
-      await axios.post(`${API_BASE_URL}user/register/`, {
-        email: email,
-        username: username, // Assuming username is the same as email, adjust as needed
-        password: password,
+      await apiClient.post(`${API_BASE_URL}user/register/`, {
+        email,
+        username,
+        password,
         password2: confirmPassword,
-        role: role,
+        role,
       });
-      return true; // Registration was successful
+      return true;
     } catch (error) {
       console.error("Registration error:", error);
-      return false; // Registration failed
+      return false;
     }
   };
 
@@ -195,27 +172,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   ): Promise<boolean> => {
     setLoading(true);
     try {
-      const loginResponse = await axios.post(`${API_BASE_URL}user/token/`, {
+      const loginResponse = await apiClient.post(`${API_BASE_URL}user/token/`, {
         username,
         password,
       });
       localStorage.setItem("access", loginResponse.data.access);
       localStorage.setItem("refresh", loginResponse.data.refresh);
 
-      const userDetailsResponse = await axios.get(
-        `${API_BASE_URL}user/detail/`,
-        {
-          headers: { Authorization: `Bearer ${loginResponse.data.access}` },
-        }
-      );
-      setIsLoggedIn(true);
-      setUser(userDetailsResponse.data);
+      await loadUserDetails(loginResponse.data.access);
       setLoading(false);
-      return true; // Login was successful
+      return true;
     } catch (error) {
       console.error("Login error:", error);
       setLoading(false);
-      return false; // Login failed
+      return false;
     }
   };
 
@@ -233,29 +203,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const accessToken = localStorage.getItem("access");
       if (accessToken) {
-        const response = await axios.post(
+        const response = await apiClient.post(
           `${API_BASE_URL}user/update-paypal-address/`,
           { paypal_address: paypalAddress },
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }
         );
-        // Update the user state with the updated PayPal address
-        setUser((prevUser) => {
-          if (prevUser) {
-            return {
-              ...prevUser,
-              paypal_address: response.data.paypal_address,
-            };
-          }
-          return null;
-        });
-        return true; // Adding PayPal address was successful
+        setUser((prevUser) => prevUser ? {
+          ...prevUser,
+          paypal_address: response.data.paypal_address,
+        } : null);
+        return true;
       }
-      return false; // No access token found
+      return false;
     } catch (error) {
       console.error("Error adding PayPal address:", error);
-      return false; // Adding PayPal address failed
+      return false;
     }
   };
 
