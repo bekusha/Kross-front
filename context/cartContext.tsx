@@ -4,6 +4,7 @@ import { Product } from "@/types/product";
 import { Cart, CartItem } from "@/types/cart";
 import { useAuth } from "./authContext";
 import { API_BASE_URL } from "@env";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface CartContextType {
   cart: Cart | null;
@@ -34,7 +35,9 @@ export const CartProvider = ({ children }: any) => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth()!;
 
-  const getToken = () => localStorage.getItem("access");
+  const getToken = async () => {
+    return await AsyncStorage.getItem("access");
+  };
 
   useEffect(() => {
     if (user && user.role === "CONSUMER") {
@@ -44,7 +47,7 @@ export const CartProvider = ({ children }: any) => {
 
   const fetchCart = async () => {
     setLoading(true);
-    const token = getToken();
+    const token = await getToken();
 
     if (!token || !user || user.role !== "CONSUMER") {
       setLoading(false);
@@ -115,8 +118,7 @@ export const CartProvider = ({ children }: any) => {
 
   const addToCart = async (product: Product, quantity: number) => {
     setLoading(true);
-    const token = getToken();
-
+    const token = await getToken(); // await დაემატა
     try {
       const response = await axios.post(
         `${API_BASE_URL}cart/add/`,
@@ -173,7 +175,7 @@ export const CartProvider = ({ children }: any) => {
 
   const updateCartItem = async (cartItemId: number, quantity: number) => {
     setLoading(true);
-    const token = getToken();
+    const token = await getToken();
 
     try {
       await axios.patch(
@@ -217,7 +219,7 @@ export const CartProvider = ({ children }: any) => {
 
   const removeFromCart = async (productId: number) => {
     setLoading(true);
-    const token = getToken();
+    const token = await getToken();
     alert("Are you sure you want to remove this item from your cart?");
     try {
       await axios.delete(`${API_BASE_URL}cart/remove/${productId}/`, {

@@ -79,7 +79,7 @@ const Cart = () => {
               <View key={index} style={styles.cartItem}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemName}>{item.product.name}</Text>
-                  <Text>${item.product.price}</Text>
+                  <Text>{item.product.price} ლ</Text>
                   <TouchableOpacity onPress={() => toggleExpand(index)}>
                     <Animated.View
                       style={{
@@ -114,9 +114,11 @@ const Cart = () => {
         </View>
       )}
       <View style={styles.summary}>
-        <Text>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
-        <Text>ჯამური ფასი: ${cart?.totalPrice || 0}</Text>
-        <TouchableOpacity style={[styles.button, styles.checkoutButton]}>
+        <Text style={styles.checkoutInfo}>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
+        {/* i want to bold only ჯამური ფასი */}
+
+        <Text style={styles.checkoutInfo}>ჯამური ფასი: <Text>{cart?.totalPrice || 0} ლ</Text></Text>
+        <TouchableOpacity style={styles.checkoutButton}>
           <Text style={styles.buttonText}>შეძენა</Text>
         </TouchableOpacity>
       </View>
@@ -166,29 +168,35 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 5,
-    marginTop: 8,
+    borderRadius: 8,
+
     backgroundColor: "black"
   },
+
   buttonText: {
     color: "red",
-    fontWeight: "bold",
-    textAlign: "center",
-    backgroundColor: "black",
-    width: 160,
-    height: 40,
-    borderRadius: 8,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+
+
+
+
+
 
   },
   removeButton: {
     backgroundColor: "red",
   },
   checkoutButton: {
-    backgroundColor: "white",
+    backgroundColor: "black",
+    width: 160,
+    height: 40,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 8,
     marginTop: 16,
+  },
+  checkoutInfo: {
+    fontWeight: "bold",
   },
   summary: {
     marginTop: 16,

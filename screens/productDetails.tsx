@@ -14,7 +14,9 @@ import { useCart } from "@/context/cartContext";
 import { Alert } from "react-native";
 import { useAuth } from "@/context/authContext";
 
-const ProductDetails = ({ route }: any) => {
+
+
+const ProductDetails = ({ route, navigation }: any) => {
   const { products, fetchProducts } = useProducts();
   const [quantity, setQuantity] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
@@ -57,6 +59,14 @@ const ProductDetails = ({ route }: any) => {
   //   }
   // };
 
+  const handleOpenOilChangeDelivery = () => {
+    if (isLoggedIn) {
+      navigation.navigate("OilChangeScreen");
+    } else {
+      Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
+    }
+  }
+
   const incrementQuantity = () => {
     setQuantity(quantity + 1);
   };
@@ -84,6 +94,9 @@ const ProductDetails = ({ route }: any) => {
       <ScrollView><Text style={styles.productDescription}>{product.description}</Text></ScrollView>
 
       {/* <Button title="კალათში დამატება" onPress={handleAddToCart} /> */}
+      <TouchableOpacity onPress={handleOpenOilChangeDelivery} style={styles.basketButton} >
+        <Text style={styles.basketButtonText}>სერვისის ადგილზე გამოძახება</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.basketButton} onPress={handleAddToCart}>
         <Text style={styles.basketButtonText}>კალათში დამატება</Text>
         <Modal
@@ -112,7 +125,7 @@ const ProductDetails = ({ route }: any) => {
           <View style={styles.modalContainer}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>
-                პროდუქტი წარმატებით დაემატა, შეგიძლიათ იხილოთ თაბზე : <br /> "ჩემი გვერდი"
+                პროდუქტი წარმატებით დაემატა, შეგიძლიათ იხილოთ თაბზე :  "ჩემი გვერდი"
               </Text>
               <TouchableOpacity
                 style={styles.okButton}

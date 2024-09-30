@@ -10,8 +10,10 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import DropDownPicker from "react-native-dropdown-picker";
 import { useOilChange } from "../context/OilChangeContext";
 import { useProducts } from "@/context/productContext";
 import { useAuth } from "@/context/authContext";
@@ -23,7 +25,13 @@ const OilChangeScreen = () => {
   const { products } = useProducts();
   const { user, isLoggedIn } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
-  const navigation = useNavigation<AuthScreenNavigationProp>();
+  // const navigation = useNavigation<AuthScreenNavigationProp>();
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState(products.map(product => ({
+    label: product.name,
+    value: product.id
+  })));
 
   // State for form inputs
   const [formData, setFormData] = useState({
@@ -128,112 +136,125 @@ const OilChangeScreen = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title} >გამარჯობა, <span style={styles.redText}>{user?.username}</span></Text>
-      <View style={styles.form}>
-        <TextInput
-          placeholder="მობილურის ნომერი"
-          value={formData.phone}
-          onChangeText={(value) => handleInputChange("phone", value)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="მანქანის მწარმოებელი"
-          value={formData.car_make}
-          onChangeText={(value) => handleInputChange("car_make", value)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="მანქანის მოდელი"
-          value={formData.car_model}
-          onChangeText={(value) => handleInputChange("car_model", value)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="გამოშვების წელი"
-          value={formData.car_year}
-          onChangeText={(value) => handleInputChange("car_year", value)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="გარბენი"
-          value={formData.car_mileage}
-          onChangeText={(value) => handleInputChange("mileage", value)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="მისამართი"
-          value={formData.address}
-          onChangeText={(value) => handleInputChange("address", value)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="test@mail.com"
-          value={formData.email}
-          onChangeText={(value) => handleInputChange("email", value)}
-          style={styles.input}
-        />
+    <KeyboardAvoidingView style={styles.container}>
+      <View>
+        <Text style={styles.title} >სერვისის მისამართზე გამოძახება <Text style={styles.redText}>{user?.username}</Text></Text>
+        <View style={styles.form}>
+          <TextInput
+            placeholder="მობილურის ნომერი"
+            value={formData.phone}
+            onChangeText={(value) => handleInputChange("phone", value)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="მანქანის მწარმოებელი"
+            value={formData.car_make}
+            onChangeText={(value) => handleInputChange("car_make", value)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="მანქანის მოდელი"
+            value={formData.car_model}
+            onChangeText={(value) => handleInputChange("car_model", value)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="გამოშვების წელი"
+            value={formData.car_year}
+            onChangeText={(value) => handleInputChange("car_year", value)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="გარბენი"
+            value={formData.car_mileage}
+            onChangeText={(value) => handleInputChange("mileage", value)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="მისამართი"
+            value={formData.address}
+            onChangeText={(value) => handleInputChange("address", value)}
+            style={styles.input}
+          />
+          {/* <TextInput
+            placeholder="test@mail.com"
+            value={formData.email}
+            onChangeText={(value) => handleInputChange("email", value)}
+            style={styles.input}
+          /> */}
 
-        <Picker
-          selectedValue={formData.product}
-          onValueChange={(value) => handleInputChange("product", value)}
-          style={styles.input}
-        >
-          <Picker.Item label="აირჩიეთ პროდუქტი" value="" />
-          {products.map((product) => (
-            <Picker.Item key={product.id} label={product.name} value={product.id.toString()} />
-          ))}
-        </Picker>
+          {/* <Picker
+            selectedValue={formData.product}
+            onValueChange={(value) => handleInputChange("product", value)}
+            style={styles.input}
+          >
+            <Picker.Item label="აირჩიეთ პროდუქტი" value="" />
+            {products.map((product) => (
+              <Picker.Item key={product.id} label={product.name} value={product.id.toString()} />
+            ))}
+          </Picker> */}
+          <DropDownPicker
+            open={open}
+            value={value}
+            items={items}
+            setOpen={setOpen}
+            setValue={setValue}
+            setItems={setItems}
+            placeholder="აირჩიე პროდუქტი"
+            style={styles.dropdown}
+          />
 
-        <TextInput
-          placeholder="დამატებითი შეტყობინება"
-          value={formData.message}
-          onChangeText={(value) => handleInputChange("message", value)}
-          style={styles.input}
+          <TextInput
+            placeholder="დამატებითი შეტყობინება"
+            value={formData.message}
+            onChangeText={(value) => handleInputChange("message", value)}
+            style={styles.inputAdditionalText}
+          />
+          <TouchableOpacity
+
+            onPress={handleCreateDelivery}
+            style={styles.submitButton}
+
+          ><Text style={styles.submitButtonText}>სერვისის გამოძახება</Text></TouchableOpacity>
+        </View>
+
+        {/* <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text> */}
+
+        <FlatList
+          data={deliveries}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <TouchableOpacity onPress={() => toggleExpand(item.id)}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>გამოძახება {item.ordered_at}</Text>
+                  <Text style={styles.toggleIcon}>
+                    {expanded === item.id ? "▼" : "▶"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              {expanded === item.id && (
+                <View style={styles.cardContent}>
+                  <Text>ტელეფონის ნომერი: {item.phone}</Text>
+                  <Text>მისამართი: {item.address}</Text>
+                  {/* <Text>მეილი: {item.email}</Text> */}
+                  <Text>პროდუქტი: {item.product}</Text>
+                  <Text>შეტყობინება {item.message}</Text>
+                  <Text>თარიღი: {item.ordered_at}</Text>
+                </View>
+              )}
+            </View>
+          )}
         />
-        <TouchableOpacity
-
-          onPress={handleCreateDelivery}
-          style={styles.submitButton}
-
-        ><Text style={styles.submitButtonText}>სერვისის გამოძახება</Text></TouchableOpacity>
       </View>
-
-      <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text>
-
-      <FlatList
-        data={deliveries}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <TouchableOpacity onPress={() => toggleExpand(item.id)}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>გამოძახება {item.ordered_at}</Text>
-                <Text style={styles.toggleIcon}>
-                  {expanded === item.id ? "▼" : "▶"}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            {expanded === item.id && (
-              <View style={styles.cardContent}>
-                <Text>ტელეფონის ნომერი: {item.phone}</Text>
-                <Text>მისამართი: {item.address}</Text>
-                <Text>მეილი: {item.email}</Text>
-                <Text>პროდუქტი: {item.product}</Text>
-                <Text>შეტყობინება {item.message}</Text>
-                <Text>თარიღი: {item.ordered_at}</Text>
-              </View>
-            )}
-          </View>
-        )}
-      />
-    </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
     backgroundColor: "#f5f5f5",
   },
   center: {
@@ -268,6 +289,20 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     padding: 10,
     fontSize: 16,
+    // height: 35,
+  },
+  dropdown: {
+    backgroundColor: '#fafafa',
+    borderColor: '#ccc',
+    marginVertical: 10,
+  },
+  inputAdditionalText: {
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 15,
+    padding: 10,
+    fontSize: 16,
+    height: 75,
   },
   submitButton: {
     marginTop: 15,

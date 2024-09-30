@@ -7,7 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
-import localStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // AsyncStorage დამატებულია
 import { Product, ProductContextType, Category } from "../types/product";
 import { API_BASE_URL } from "@env";
 
@@ -24,7 +24,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
   const [categories, setCategories] = useState<Category[]>([]);
 
   const getAuthHeader = async () => {
-    const token = await localStorage.getItem("access");
+    const token = await AsyncStorage.getItem("access"); // AsyncStorage და await დაემატა
     return { Authorization: `Bearer ${token}` };
   };
 
@@ -95,10 +95,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
     try {
       const response = await axios.get(`${API_BASE_URL}product/`);
       setProducts(response.data);
-      return response.data; // Add this line to return data
+      return response.data;
     } catch (error) {
       console.error("Failed to fetch products:", error);
-      return []; // Return an empty array on error
+      return [];
     }
   }, []);
 
@@ -118,13 +118,13 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
       );
       console.log(response.data);
       setProducts(response.data);
-      return response.data; // Add this line to return data
+      return response.data;
     } catch (error) {
       console.error(
         `Failed to fetch products for category ${categoryId}:`,
         error
       );
-      return []; // Return an empty array on error
+      return [];
     }
   }, []);
 

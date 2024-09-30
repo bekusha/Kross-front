@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // API URL, დარწმუნდით, რომ თქვენი URL სწორია და შეიცავს თქვენს Backend-ის მისამართს.
 import { API_BASE_URL } from "@env";
@@ -52,7 +53,6 @@ export const OilChangeProvider: React.FC<OilChangeProviderProps> = ({
   const { isLoggedIn } = useAuth();
 
   // ფუნქცია ყველა ჩანაწერის მისაღებად
-  // ფუნქცია ყველა ჩანაწერის მისაღებად
   const fetchDeliveries = async () => {
     console.log('is working')
     if (!isLoggedIn) {
@@ -60,7 +60,7 @@ export const OilChangeProvider: React.FC<OilChangeProviderProps> = ({
       return; // Exit if the user is not logged in
     }
     setLoading(true);
-    const token = localStorage.getItem("access");
+    const token = await AsyncStorage.getItem("access"); // await დაემატა
     if (!token) {
       setError("No access token found");
       setLoading(false);
@@ -97,12 +97,13 @@ export const OilChangeProvider: React.FC<OilChangeProviderProps> = ({
     console.log(deliveryData)
     setLoading(true);
     try {
+      const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც
       const response = await axios.post<OilChangeDelivery>(
         `${API_BASE_URL}changedelivery/`,
         deliveryData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access")}`,
+            Authorization: `Bearer ${token}`, // და ცვლილება აქაც
           },
         }
       );

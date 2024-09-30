@@ -8,15 +8,18 @@ import React, {
 } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "@env"; // Ensure this points to your backend API base URL
+import { Product } from "@/types/product";
 
 // Define types for AI responses and context
 interface AIResponse {
   id: string;
   message: string;
+  products: any[];
 }
 
 interface AIContextType {
   aiResponses: AIResponse[];
+  products: any[];
   loading: boolean;
   error: string | null;
   fetchAIResponse: (prompt: string) => void;
@@ -26,10 +29,11 @@ interface AIContextType {
 // Default values for the context
 const defaultValue: AIContextType = {
   aiResponses: [],
+  products: [],
   loading: false,
   error: null,
-  fetchAIResponse: () => {},
-  clearResponses: () => {},
+  fetchAIResponse: () => { },
+  clearResponses: () => { },
 };
 
 // Create the context
@@ -54,11 +58,12 @@ export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     try {
       const response = await axios.post(endpoint, { car_model_year: prompt });
       const aiMessage = response.data.message;
+      const aiResponsedProduct = response.data.products;
 
       // Add the new AI response to the list
       setAIResponses((prevResponses) => [
         ...prevResponses,
-        { id: Math.random().toString(), message: aiMessage },
+        { id: Math.random().toString(), message: aiMessage, products: aiResponsedProduct },
       ]);
     } catch (err: any) {
       setError(
@@ -84,6 +89,7 @@ export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         error,
         fetchAIResponse,
         clearResponses,
+        products: [],
       }}>
       {children}
     </AIContext.Provider>

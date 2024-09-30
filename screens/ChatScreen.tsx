@@ -10,18 +10,24 @@ import {
   KeyboardAvoidingView,
   Platform,
   Modal,
+  Image
 } from "react-native";
 import { useAI } from "@/context/aiContext";
+import { useAuth } from "@/context/authContext";
 
-const ChatScreen = () => {
+const ChatScreen = ({ navigation }: { navigation: any }) => {
   const { aiResponses, loading, error, fetchAIResponse } = useAI();
   const [input, setInput] = useState("");
   const [showMessage, setShowMessage] = useState(false);
   const [modalVisible, setModalVisible] = useState(true);
   const [carImage, setCarImage] = useState("");
+  const { isLoggedIn } = useAuth();
   const flatListRef = useRef<FlatList>(null);
 
+
+
   useEffect(() => {
+    console.log(aiResponses)
     flatListRef.current?.scrollToEnd({ animated: true });
   }, [aiResponses]);
 
@@ -60,14 +66,25 @@ const ChatScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.botResponseCard}>
             <Text style={styles.messageText}>{item.message}</Text>
+
+            {/* პროდუქტის რენდერი map ფუნქციით */}
+            {item.products && item.products.map((product: any, index: any) => (
+              <View style={styles.productCard} key={index} >
+                <Text>შესაბამისი პროდუქტი ჩვენი პროდუტების სიიდან</Text>
+                <Image source={{ uri: product.image1 }} />
+                <Text >{product.name}</Text>
+                <TouchableOpacity style={styles.detailPageButton}><Text style={styles.detailPageButtonText}>პროდუქტის გვერდზე გადასვლა</Text></TouchableOpacity>
+              </View>
+            ))}
           </View>
         )}
         contentContainerStyle={styles.chatContainer}
         onContentSizeChange={() =>
           flatListRef.current?.scrollToEnd({ animated: true })
         }
-        showsVerticalScrollIndicator={false} // Hide scroll indicator for better UX
+        showsVerticalScrollIndicator={false}
       />
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -152,6 +169,25 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     maxWidth: "80%",
   },
+  productCard: {
+
+  },
+  detailPageButton: {
+    backgroundColor: "black",
+    color: "red",
+    height: 40,
+    borderRadius: 8,
+    padding: 10,
+    textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  detailPageButtonText: {
+    color: "red",
+  },
+
   messageText: {
     fontSize: 16,
   },

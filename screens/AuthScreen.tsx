@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Login from "@/components/LoginComponent";
 import Registration from "@/components/RegistrationComponent";
-import { Text, View } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 
 const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,11 +11,8 @@ const AuthScreen = () => {
   };
 
   return (
-    <View>
-      <Text>
-        თუ გინდათ ისარგებლოთ აპლიკაციის დამატებითი ფუნქციონალით, გთხოვთ შეხვიდეთ
-        სისტემაში ან გაიარეთ რეგისტრაცია.
-      </Text>
+    <View style={styles.container}>
+
       {isLogin ? (
         <Login onSwitch={toggleAuthMode} />
       ) : (
@@ -24,5 +21,21 @@ const AuthScreen = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+
+    backgroundColor: "white"
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 24,
+  },
+
+  switch: {
+    marginTop: 10,
+  },
+});
 
 export default AuthScreen;

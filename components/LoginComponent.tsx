@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useAuth } from "@/context/authContext";
 import { useNavigation } from "@react-navigation/native";
@@ -34,7 +35,7 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes:[{name: "Home"}]
+            routes: [{ name: "Home" }]
           })
         )
       }
@@ -49,11 +50,11 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <KeyboardAvoidingView style={styles.container}>
+      <Text style={styles.title}>სისტემაში შესვლა</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="username"
         value={username}
         onChangeText={setUsername}
         keyboardType="email-address"
@@ -69,22 +70,26 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
         secureTextEntry
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <Button title="Login" onPress={handleSubmit} />
+      <TouchableOpacity onPress={handleSubmit} ><Text>შესვლა</Text></TouchableOpacity>
       <TouchableOpacity onPress={onSwitch} style={styles.switchButton}>
         <Text style={styles.switchText}>
           არ გაქვთ პროფილი? გაიარეთ რეგისტრაცია
         </Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: "center",
+    marginTop: 50,
     backgroundColor: "#fff",
+    display: "flex",
+    alignItems: "center",
+
+
+
   },
   title: {
     fontSize: 24,
@@ -94,6 +99,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
+    width: "80%",
     borderColor: "#ccc",
     borderWidth: 1,
     marginBottom: 10,
@@ -104,6 +110,11 @@ const styles = StyleSheet.create({
     color: "red",
     marginBottom: 10,
     textAlign: "center",
+  },
+  loginButton: {
+    backgroundColor: "#0066cc",
+    padding: 10,
+    borderRadius: 5,
   },
   switchButton: {
     marginTop: 10,

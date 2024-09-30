@@ -92,14 +92,14 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
             onChangeText={setConfirmPassword}
             secureTextEntry
           />
-          <Button
+          {/* <Button
             title="Register as Admin"
             onPress={() => setRole(Role.ADMIN)}
           />
           <Button
             title="Register as Vendor"
             onPress={() => setRole(Role.VENDOR)}
-          />
+          /> */}
           <Button
             title="Register as Consumer"
             onPress={() => setRole(Role.CONSUMER)}
@@ -120,9 +120,10 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
 
 const styles = StyleSheet.create({
   container: {
+
     flex: 1,
     padding: 20,
-    justifyContent: "center",
+
     backgroundColor: "#fff",
   },
   title: {

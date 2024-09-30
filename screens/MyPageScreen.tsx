@@ -23,11 +23,14 @@ const MyPageScreen: React.FC = () => {
   const [mileage, setMileage] = useState<string>("");
   const [activeComponent, setActiveComponent] = useState<string>("ჩემი პროდუქტი");
   const [showSettings, setShowSettings] = useState<boolean>(false);
+
   const navigation = useNavigation<MyPageScreenNavigationProp>();
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    console.log(isLoggedIn)
+    if (!isLoggedIn && !user) {
       navigation.navigate("AuthScreen");
+
       console.log(user)
     } else {
       fetchOilRecords();
@@ -80,15 +83,15 @@ const MyPageScreen: React.FC = () => {
             <Icon name="logout" size={24} color="black" />
             <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
+          {/* <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
             <Icon name="delete" size={24} color="black" />
             <Text>ექაუნთის წაშლა</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       )}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
-          <span style={styles.username}> {user?.username}'s </span>Page
+          <Text style={styles.username}> {user?.username}'s </Text>Page
         </Text>
 
         <View style={styles.accountSettings}>
@@ -276,12 +279,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "500",
+    textAlign: "center",
   },
   savedText: {
     marginTop: 20,
     fontSize: 14,
     width: "100%",
     color: "#2c3e50",
+    fontWeight: "bold",
   },
 });
 

@@ -8,6 +8,10 @@ import React, {
 import axios from "axios";
 import { Role, User } from "types/user";
 import { API_BASE_URL } from "@env";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert, } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -29,8 +33,10 @@ interface AuthContextType {
   ) => Promise<boolean>;
 }
 
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// const navigation = useNavigation()
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
@@ -44,6 +50,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState<Role | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      initializeAuth();
+    }
+  }, []);
 
   const apiClient = axios.create({
     baseURL: API_BASE_URL,
@@ -69,16 +81,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const handleReauthentication = () => {
     setUser(null);
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    window.location.href = "/login";
+    AsyncStorage.removeItem("access");
+    AsyncStorage.removeItem("refresh");
+    // navigation.navigate("AuthScreen" as never);
   };
 
   useEffect(() => {
     initializeAuth();
 
-    const intervalId = setInterval(() => {
-      const accessToken = localStorage.getItem("access");
+    const intervalId = setInterval(async () => {
+      const accessToken = await AsyncStorage.getItem("access"); // await უნდა დაემატოს აქ
       if (accessToken && isTokenExpired(accessToken)) {
         refreshToken();
       }
@@ -88,13 +100,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const initializeAuth = async () => {
-    const accessToken = localStorage.getItem("access");
+    const accessToken = await AsyncStorage.getItem("access"); // await უნდა დაემატოს აქ
     if (accessToken && isTokenExpired(accessToken)) {
       try {
         await refreshToken();
       } catch (error) {
         console.error("Token refresh failed:", error);
-        localStorage.removeItem("access");
+        await AsyncStorage.removeItem("access");
         setIsLoggedIn(false);
       }
     } else if (accessToken) {
@@ -103,13 +115,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(false);
   };
 
+
   function isTokenExpired(token: string) {
     const payload = JSON.parse(atob(token.split(".")[1]));
     return payload.exp * 1000 < Date.now();
   }
 
   const refreshToken = async () => {
-    const refreshTokenValue = localStorage.getItem("refresh");
+    const refreshTokenValue = await AsyncStorage.getItem("refresh"); // await უნდა დაემატოს აქ
     if (!refreshTokenValue) {
       handleReauthentication();
       return;
@@ -119,8 +132,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         refresh: refreshTokenValue,
       });
       const newAccessToken = response.data.access;
-      localStorage.setItem("access", newAccessToken);
+      await AsyncStorage.setItem("access", newAccessToken);
       apiClient.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+      loadUserDetails(newAccessToken);
       setIsLoggedIn(true);
     } catch (error) {
       handleReauthentication();
@@ -133,7 +147,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setUser(userDetailsResponse.data);
-      setIsLoggedIn(true);
+      if (userDetailsResponse.data.role === "CONSUMER") {
+        setIsLoggedIn(true);
+      }
+      // setIsLoggedIn(true);
     } catch (error) {
       handleReauthentication();
     }
@@ -176,8 +193,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username,
         password,
       });
-      localStorage.setItem("access", loginResponse.data.access);
-      localStorage.setItem("refresh", loginResponse.data.refresh);
+      AsyncStorage.setItem("access", loginResponse.data.access);
+      AsyncStorage.setItem("refresh", loginResponse.data.refresh);
 
       await loadUserDetails(loginResponse.data.access);
       setLoading(false);
@@ -190,18 +207,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = () => {
-    const confirmLogout = window.confirm("Are you sure you want to logout?");
-    if (confirmLogout) {
-      setUser(null);
-      setIsLoggedIn(false);
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
-    }
+    // ვამოწმებთ, თუ მომხმარებელი მართლა უნდა გავიდეს სისტემიდან
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            setUser(null);
+            setIsLoggedIn(false);
+            AsyncStorage.removeItem("access");
+            AsyncStorage.removeItem("refresh");
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
+
 
   const addPaypalAddress = async (paypalAddress: string) => {
     try {
-      const accessToken = localStorage.getItem("access");
+      const accessToken = AsyncStorage.getItem("access");
       if (accessToken) {
         const response = await apiClient.post(
           `${API_BASE_URL}user/update-paypal-address/`,

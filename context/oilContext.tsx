@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // AsyncStorage დამატებულია
 
 // Define types for the context state and functions
 interface OilRecord {
@@ -61,9 +62,10 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
   const fetchOilRecords = async () => {
     setLoading(true);
     try {
+      const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც
       const response = await axios.get<OilRecord[]>(endpoints.list, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("access")}`, // Adjust for your authentication method
+          Authorization: `Bearer ${token}`, // Token გადაეცა
         },
       });
       setOilRecords(response.data);
@@ -78,12 +80,13 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
   const createOilRecord = async (currentMileage: number) => {
     setLoading(true);
     try {
+      const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც
       const response = await axios.post<OilRecord>(
         endpoints.create,
         { current_mileage: currentMileage },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access")}`,
+            Authorization: `Bearer ${token}`, // Token გადაეცა აქაც
           },
         }
       );
@@ -100,10 +103,10 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
   const deleteOilRecords = async () => {
     setLoading(true);
     try {
-      // Assuming you have an endpoint for deleting records
+      const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც
       await axios.delete(endpoints.list, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
+          Authorization: `Bearer ${token}`, // Token გადაეცა აქაც
         },
       });
       setOilRecords([]); // Clear the records in the state
