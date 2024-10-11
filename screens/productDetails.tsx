@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: "80%",
-    height: 250,
+    height: 200,
     borderRadius: 8,
   },
   namePrice: {
@@ -214,8 +214,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginVertical: 10,
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
     backgroundColor: "black",
     color: "white",
     textAlign: "center",

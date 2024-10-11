@@ -52,12 +52,12 @@ const ProductsScreen = ({ navigation, route }: any) => {
   return (
     <View style={styles.container}>
       {/* Filter Input */}
-      <TextInput
+      {/* <TextInput
         style={styles.filterInput}
         placeholder="რას ეძებ?"
         value={filter}
         onChangeText={setFilter}
-      />
+      /> */}
 
       {filteredProducts.length > 0 ? (
         <FlatList
@@ -116,11 +116,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowColor: "red",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 5,
     alignItems: "center",
   },
   productName: {

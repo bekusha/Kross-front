@@ -46,6 +46,11 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
+  const handleProductPress = (product: any) => {
+    navigation.navigate("ProductDetails", { productId: product.id }); // აქ product.id უკვე სწორად იქნება გამოყენებული
+    console.log(product.id); // ეს console-ში უნდა აჩვენოს ID
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -73,7 +78,8 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
                 <Text>შესაბამისი პროდუქტი ჩვენი პროდუტების სიიდან</Text>
                 <Image source={{ uri: product.image1 }} />
                 <Text >{product.name}</Text>
-                <TouchableOpacity style={styles.detailPageButton}><Text style={styles.detailPageButtonText}>პროდუქტის გვერდზე გადასვლა</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => handleProductPress(product)} style={styles.detailPageButton}><Text style={styles.detailPageButtonText}>
+                  პროდუქტის გვერდზე გადასვლა</Text></TouchableOpacity>
               </View>
             ))}
           </View>
@@ -170,7 +176,18 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
   },
   productCard: {
-
+    borderWidth: 1,
+    borderRadius: 8,
+    marginTop: 10,
+    padding: 10,
+    shadowColor: "red",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   detailPageButton: {
     backgroundColor: "black",

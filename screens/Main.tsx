@@ -109,14 +109,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9", // Lighter background color
     padding: 10,
     borderRadius: 10,
-    shadowColor: "#000",
+    shadowColor: "gray",
     shadowOffset: {
-      width: 0,
-      height: 5,
+      width: 2,
+      height: 2,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 5, // Adds shadow for Android
+    shadowOpacity: 0.85,
+    shadowRadius: 4,
+    elevation: 4,
   },
   card: {
     aspectRatio: 1,

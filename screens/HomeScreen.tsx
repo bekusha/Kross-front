@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Image
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Main from "./Main";
@@ -53,7 +54,13 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>KROSSGEORGIA</Text>
+      {/* <View style={styles.logoContainer}><Image
+        source={require("../assets/logo.jpg")}
+        style={styles.logo}
+        resizeMode="contain"  // ეს საშუალებას აძლევს სურათს შეინარჩუნოს პროპორცია
+      /></View> */}
+
+      {/* <Text style={styles.title}>KROSSGEORGIA</Text> */}
       {/* <TextInput
         style={styles.input}
         placeholder="რას ეძებ?"
@@ -105,15 +112,19 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
     backgroundColor: "#f7f7f7",
   },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 25,
-    color: "red",
+  logoContainer: {
+    display: "flex",
+
+
+    alignItems: "center",
+    backgroundColor: "red"
+  },
+  logo: {
+    width: 150, // სურათის ფიქსირებული სიგანე
+    height: 50, // სურათის ფიქსირებული სიმაღლე
+    resizeMode: "contain", // სურათი ჩაჯდება კონტეინერში პროპორციების დაცვით
   },
   input: {
     height: 44,
@@ -156,5 +167,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
 });
+
 
 export default HomeScreen;
