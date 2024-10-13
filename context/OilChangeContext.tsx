@@ -54,6 +54,7 @@ export const OilChangeProvider: React.FC<OilChangeProviderProps> = ({
 
   // ფუნქცია ყველა ჩანაწერის მისაღებად
   const fetchDeliveries = async () => {
+    console.log(API_BASE_URL)
     console.log('is working')
     if (!isLoggedIn) {
       console.warn("User is not logged in, aborting fetch");

@@ -47,6 +47,7 @@ export const CartProvider = ({ children }: any) => {
 
   const fetchCart = async () => {
     setLoading(true);
+    console.log(API_BASE_URL)
     const token = await getToken();
 
     if (!token || !user || user.role !== "CONSUMER") {

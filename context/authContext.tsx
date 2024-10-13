@@ -54,6 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     if (!user) {
       initializeAuth();
+      console.log(API_BASE_URL)
     }
   }, []);
 

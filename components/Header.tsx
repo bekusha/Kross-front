@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useLayoutEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useAuth } from "@/context/authContext";
 
@@ -33,35 +33,41 @@ const Header: React.FC = () => {
   }, [isFocused, navigation]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>KROSSGEORGIA</Text>
-      <View style={styles.tabContainer}>
-        {["Main", "MyPageScreen", "ContactScreen"].map((screen) => (
-          <TouchableOpacity
-            key={screen}
-            style={[styles.tab, selectedTab === screen && styles.activeTab]}
-            onPress={() => handleNavigation(screen)}>
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === screen && styles.activeTabText,
-              ]}>
-              {screen === "Main"
-                ? "მთავარი"
-                : screen === "MyPageScreen"
-                ? "ჩემი გვერდი"
-                : screen === "ContactScreen"
-                ? "კონტაქტი"
-                : ""}
-            </Text>
-          </TouchableOpacity>
-        ))}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>KROSSGEORGIA</Text>
+        <View style={styles.tabContainer}>
+          {["Main", "MyPageScreen", "ContactScreen"].map((screen) => (
+            <TouchableOpacity
+              key={screen}
+              style={[styles.tab, selectedTab === screen && styles.activeTab]}
+              onPress={() => handleNavigation(screen)}>
+              <Text
+                style={[
+                  styles.tabText,
+                  selectedTab === screen && styles.activeTabText,
+                ]}>
+                {screen === "Main"
+                  ? "მთავარი"
+                  : screen === "MyPageScreen"
+                    ? "ჩემი გვერდი"
+                    : screen === "ContactScreen"
+                      ? "კონტაქტი"
+                      : ""}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f7f7f7",
+  },
   container: {
     paddingTop: 20,
     backgroundColor: "#f7f7f7",

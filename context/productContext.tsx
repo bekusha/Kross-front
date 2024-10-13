@@ -93,6 +93,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
 
   const fetchProducts = useCallback(async () => {
     try {
+      console.log(API_BASE_URL)
       const response = await axios.get(`${API_BASE_URL}product/`);
       setProducts(response.data);
       return response.data;

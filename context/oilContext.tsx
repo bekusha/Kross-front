@@ -60,6 +60,7 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
 
   // Function to get oil records for the authenticated user
   const fetchOilRecords = async () => {
+    console.log(API_BASE_URL)
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც

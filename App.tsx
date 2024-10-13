@@ -22,10 +22,11 @@ import { OilChangeProvider } from "./context/OilChangeContext";
 import * as Font from "expo-font";
 import { Text } from "react-native";
 import { Image } from "react-native";
+import { Dimensions } from 'react-native';
+import { Platform } from "react-native";
 
 
-
-
+const { width } = Dimensions.get('window');
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -175,12 +176,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "red"
   },
+  // logoContainer: {
+  //   width: width, // სიგანის განსაზღვრა ეკრანის სიგანის მიხედვით
+  //   borderBottomWidth: 2, // საზღვრის ქვედა სიგანე
+  //   borderColor: "black", // საზღვრის ფერი
+  //   borderRadius: 10, // საზღვრის მრგვალი კუთხეები
+  //   alignItems: "center", // კონტეინერის შიგთავსის ცენტრში განთავსება
+  //   backgroundColor: "red", // ფონის ფერი
+  //   paddingVertical: 10, // დამატებული padding ზევით და ქვევით
+  // },
   logo: {
-    width: 150,
-    height: 80,
+    width: width * 0.4, // ლოგოს ზომა ეკრანის სიგანის 40%
+    height: width * 0.2, // შესაბამისად, სიმაღლე პროპორციულად 20%
+    resizeMode: "contain",
 
-
-    resizeMode: "contain", // სურათი ჩაჯდება კონტეინერში პროპორციების დაცვით
-    zIndex: 1
   },
 });

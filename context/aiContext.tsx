@@ -53,6 +53,7 @@ export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   // Function to fetch AI response based on user input
   const fetchAIResponse = async (prompt: string) => {
+    console.log(API_BASE_URL)
     setLoading(true);
     setError(null);
     try {

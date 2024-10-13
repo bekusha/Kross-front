@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.85,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowRadius: 2,
+    elevation: 2,
   },
   card: {
     aspectRatio: 1,
