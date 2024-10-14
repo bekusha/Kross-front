@@ -148,9 +148,15 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
+    width: 150,
+    textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
   activeTab: {
     backgroundColor: "black",
+    width: 150
   },
   tabText: {
     fontSize: 16,

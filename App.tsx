@@ -175,7 +175,8 @@ const styles = StyleSheet.create({
     height: 60,
     resizeMode: "contain",
     position: "absolute",
-    top: 55,
+    top: 50,
+
     borderRadius: 10,
     borderBottomColor: "black",
     borderBottomWidth: 2,
