@@ -116,8 +116,6 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     display: "flex",
-
-
     alignItems: "center",
     backgroundColor: "red"
   },
@@ -148,7 +146,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
-    width: 150,
+    width: 130,
     textAlign: "center",
     display: "flex",
     justifyContent: "center",
@@ -156,10 +154,10 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: "black",
-    width: 150
+    width: 130
   },
   tabText: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#2c3e50",
     fontWeight: "500",
   },

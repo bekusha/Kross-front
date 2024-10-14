@@ -163,7 +163,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 100, // ჰედერის საჭირო სიმაღლე
+    height: 80, // ჰედერის საჭირო სიმაღლე
     backgroundColor: "red", // ჰედერის ფერი
     justifyContent: "center", // ლოგოს ცენტრში მოთავსება
     alignItems: "center",
@@ -171,8 +171,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 150,
-    height: 60,
+    width: 100,
+    height: 40,
     resizeMode: "contain",
     position: "absolute",
     top: 50,
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   header: {
+    width: "100%",
     height: 100, // ჰედერის გაზრდილი სიმაღლე
     backgroundColor: "red",
     justifyContent: "center", // კონტეინერის შიგთავსის ცენტრში განთავსება
