@@ -40,6 +40,8 @@ export default function App() {
     };
     loadFonts();
   }, []);
+
+
   return (
     <AuthProvider>
       <ProductProvider>
@@ -48,23 +50,23 @@ export default function App() {
             <AIProvider>
               <OilProvider>
                 <NavigationContainer>
-                  <Stack.Navigator initialRouteName="Welcome">
+                  <Stack.Navigator initialRouteName="Welcome" >
                     {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
                     <Stack.Screen
                       name="Home"
                       component={HomeScreen}
                       options={{
-                        headerTitle: () => {
-                          return (
-                            <View style={styles.logoContainer}>
-                              <Image source={require("./assets/logo.jpg")} style={styles.logo} />
-                            </View>
-                          );
-                        },
+                        header: () => (
+                          <View style={styles.headerContainer}>
+                            <Image
+                              source={require("./assets/logo.jpg")}
+                              style={styles.logo}
+                            />
+                          </View>
+                        ),
                         headerTitleAlign: "center", // ცენტრში მოთავსება
-                        headerStyle: {
-                          backgroundColor: "red", // ფონის ფერი
-                        },
+                        headerStyle: styles.header,
+
                         title: "", // სახელი გამორთულია, სტანდარტული წარწერა არ გამოჩნდება
                       }}
                     />
@@ -160,35 +162,29 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "red",
-    justifyContent: "center",
-    width: "100%",
-
-  },
-  logoContainer: {
-    display: "flex",
-    width: "100%",
-    borderBottomWidth: 2,
-    borderColor: "black",
-    borderRadius: 10,
+  headerContainer: {
+    height: 100, // ჰედერის საჭირო სიმაღლე
+    backgroundColor: "red", // ჰედერის ფერი
+    justifyContent: "center", // ლოგოს ცენტრში მოთავსება
     alignItems: "center",
-    backgroundColor: "red"
+    position: "relative",
   },
-  // logoContainer: {
-  //   width: width, // სიგანის განსაზღვრა ეკრანის სიგანის მიხედვით
-  //   borderBottomWidth: 2, // საზღვრის ქვედა სიგანე
-  //   borderColor: "black", // საზღვრის ფერი
-  //   borderRadius: 10, // საზღვრის მრგვალი კუთხეები
-  //   alignItems: "center", // კონტეინერის შიგთავსის ცენტრში განთავსება
-  //   backgroundColor: "red", // ფონის ფერი
-  //   paddingVertical: 10, // დამატებული padding ზევით და ქვევით
-  // },
-  logo: {
-    width: width * 0.4, // ლოგოს ზომა ეკრანის სიგანის 40%
-    height: width * 0.2, // შესაბამისად, სიმაღლე პროპორციულად 20%
-    resizeMode: "contain",
 
+  logo: {
+    width: 150,
+    height: 60,
+    resizeMode: "contain",
+    position: "absolute",
+    top: 55,
+    borderRadius: 10,
+    borderBottomColor: "black",
+    borderBottomWidth: 2,
+  },
+  header: {
+    height: 100, // ჰედერის გაზრდილი სიმაღლე
+    backgroundColor: "red",
+    justifyContent: "center", // კონტეინერის შიგთავსის ცენტრში განთავსება
+    alignItems: "center",
+    overflow: "visible", // დარწმუნდით, რომ არაფერი დაიმალება
   },
 });

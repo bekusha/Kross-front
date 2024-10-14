@@ -7,7 +7,7 @@ module.exports = function (api) {
         "module:react-native-dotenv",
         {
           moduleName: "@env",
-          path: "./.env", // Update the path to the correct location of your .env file
+          path: ".env", // Update the path to the correct location of your .env file
           blocklist: null,
           allowlist: null,
           safe: false,
