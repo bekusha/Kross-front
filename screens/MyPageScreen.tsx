@@ -72,6 +72,7 @@ const MyPageScreen: React.FC = () => {
   };
 
   // Function to capitalize the first letter of the username
+  
   const formatUserName = (username: string) => {
     return username.charAt(0).toUpperCase() + username.slice(1);
   };
