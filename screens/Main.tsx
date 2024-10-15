@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { useProducts } from "../context/productContext"; // Import the useProducts hook
 import { useAuth } from "@/context/authContext";
+import axios from "axios";
+import { API_BASE_URL } from "@env";
 
 type MainProps = {
   navigation: any;
@@ -17,66 +19,97 @@ type MainProps = {
 const Main: React.FC<MainProps> = ({ navigation }) => {
   const { categories } = useProducts(); // Use the categories from context
   const { isLoggedIn } = useAuth();
+  const [content, setContent] = useState<any[]>([]);
+
+
+  useEffect(() => {
+    // Fetch data from the backend using Axios
+    axios
+      .get(`${API_BASE_URL}content/main/`)
+      .then((response) => {
+        const formattedContent = response.data.map((item: any) => ({
+          text: item.title,
+          image: { uri: item.image }, // Assuming the backend returns the full image URL
+          action: () => {
+            // Find the category based on the title
+            const category = categories.find((cat) => cat.name === item.title);
+            if (category) {
+              navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+            } else if (item.action === "oil-change") {
+              navigation.navigate("OilChangeScreen");
+            } else if (item.action === "chat") {
+              navigation.navigate("ChatScreen");
+            } else if (item.title === "ყველა პროდუქტი") {
+              navigation.navigate("Products", { categoryId: null }); // Pass null for all products
+            }
+          },
+        }));
+        setContent(formattedContent);
+      })
+      .catch((error: any) => {
+        console.error("Error fetching data: ", error);
+      });
+  }, [categories]);
   // Define static content with appropriate category IDs from the fetched data
-  const content = [
-    {
-      text: "გამოიძახე ზეთის შეცვლა ადგილზე",
-      image: require("../assets/oilchangedelivery.webp"),
-      action: () => {
-        if (isLoggedIn) {
-          console.log("User is logged in");
-          navigation.navigate("OilChangeScreen");
-        } else {
-          // Optionally, navigate to the login screen or show a message
-          navigation.navigate("AuthScreen"); // Redirect to login
-        }
-      },
-    },
-    {
-      text: "მიიღე ავტომობილზე ინფორმაცია ბოტისგან",
-      image: require("../assets/aikrossbot.webp"),
-      action: () => navigation.navigate("ChatScreen"),
-    },
-    {
-      text: "ძრავის ზეთები",
-      image: require("../assets/engine.webp"),
-      action: () => {
-        const category = categories.find((cat) => cat.name === "ძრავის ზეთები");
-        if (category) {
-          navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
-        }
-      },
-    },
-    {
-      text: "გადაცემათა კოლოფის ზეთები",
-      image: require("../assets/gearbox.webp"),
-      action: () => {
-        const category = categories.find(
-          (cat) => cat.name === "გადაცემათა კოლოფის ზეთები"
-        );
-        if (category) {
-          navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
-        }
-      },
-    },
-    {
-      text: "საწმენდი საშუალებები",
-      image: require("../assets/cleaning.webp"),
-      action: () => {
-        const category = categories.find(
-          (cat) => cat.name === "საწმენდი საშუალებები"
-        );
-        if (category) {
-          navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
-        }
-      },
-    },
-    {
-      text: "ყველა პროდუქტი",
-      image: require("../assets/shop.webp"),
-      action: () => navigation.navigate("Products", { categoryId: null }), // Null for all products
-    },
-  ];
+  // const content = [
+  //   {
+  //     text: "გამოიძახე ზეთის შეცვლა ადგილზე",
+  //     image: require("../assets/oilchangedelivery.webp"),
+  //     action: () => {
+  //       if (isLoggedIn) {
+  //         console.log("User is logged in");
+  //         navigation.navigate("OilChangeScreen");
+  //       } else {
+  //         // Optionally, navigate to the login screen or show a message
+  //         navigation.navigate("AuthScreen"); // Redirect to login
+  //       }
+  //     },
+  //   },
+  //   {
+  //     text: "მიიღე ავტომობილზე ინფორმაცია ბოტისგან",
+  //     image: require("../assets/aikrossbot.webp"),
+  //     action: () => navigation.navigate("ChatScreen"),
+  //   },
+  //   {
+  //     text: "ძრავის ზეთები",
+  //     image: require("../assets/engine.webp"),
+  //     action: () => {
+  //       const category = categories.find((cat) => cat.name === "ძრავის ზეთები");
+  //       if (category) {
+  //         navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+  //       }
+  //     },
+  //   },
+  //   {
+  //     text: "გადაცემათა კოლოფის ზეთები",
+  //     image: require("../assets/gearbox.webp"),
+  //     action: () => {
+  //       const category = categories.find(
+  //         (cat) => cat.name === "გადაცემათა კოლოფის ზეთები"
+  //       );
+  //       if (category) {
+  //         navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+  //       }
+  //     },
+  //   },
+  //   {
+  //     text: "საწმენდი საშუალებები",
+  //     image: require("../assets/cleaning.webp"),
+  //     action: () => {
+  //       const category = categories.find(
+  //         (cat) => cat.name === "საწმენდი საშუალებები"
+  //       );
+  //       if (category) {
+  //         navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+  //       }
+  //     },
+  //   },
+  //   {
+  //     text: "ყველა პროდუქტი",
+  //     image: require("../assets/shop.webp"),
+  //     action: () => navigation.navigate("Products", { categoryId: null }), // Null for all products
+  //   },
+  // ];
 
   return (
     <View style={styles.container}>

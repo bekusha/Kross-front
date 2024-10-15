@@ -20,16 +20,19 @@ const ProductsScreen = ({ navigation, route }: any) => {
 
   // Fetch products when the component mounts or categoryId changes
   useEffect(() => {
+    // თუ არ არის მითითებული კატეგორია, აბრუნებს ყველა პროდუქტს
     const fetchData = async () => {
       if (categoryId) {
+        console.log(`Fetching products for category ID: ${categoryId}`);
         const productsByCategory = await fetchProductsByCategory(categoryId);
-
-        setFilteredProducts(productsByCategory); // Correct usage now
+        setFilteredProducts(productsByCategory);
       } else {
+        console.log("Fetching all products");
         const allProducts = await fetchProducts();
-        setFilteredProducts(allProducts); // Correct usage now
+        setFilteredProducts(allProducts);
       }
     };
+
 
     fetchData();
   }, [fetchProductsByCategory, fetchProducts, categoryId]);

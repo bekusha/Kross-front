@@ -96,6 +96,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
       console.log(API_BASE_URL)
       const response = await axios.get(`${API_BASE_URL}product/`);
       setProducts(response.data);
+      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error("Failed to fetch products:", error);

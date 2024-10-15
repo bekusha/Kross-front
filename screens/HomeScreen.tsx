@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   tab: {
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    // paddingHorizontal: 10,
     borderRadius: 10,
     width: 130,
     textAlign: "center",
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: "black",
-    width: 130
+    width: 130,
   },
   tabText: {
     fontSize: 14,
