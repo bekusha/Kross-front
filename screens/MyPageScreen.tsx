@@ -91,16 +91,18 @@ const MyPageScreen: React.FC = () => {
       )}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
-          <Text style={styles.username}> {user?.username}'s </Text>Page
+          <Text style={styles.username}>
+            {user?.username
+              ? user.username.charAt(0).toUpperCase() + user.username.slice(1)
+              : ""}'s
+          </Text> 
+           <Text>  Page</Text>
         </Text>
 
         <View style={styles.accountSettings}>
           <TouchableOpacity onPress={() => setShowSettings(!showSettings)}>
             <Icon name="settings" size={30} color="black" />
-
           </TouchableOpacity>
-
-
         </View>
 
         <View style={styles.buttonContainer}>
@@ -151,6 +153,7 @@ const MyPageScreen: React.FC = () => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -159,7 +162,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-
   },
   username: {
     color: "red",
@@ -178,7 +180,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     shadowColor: "#000",
-
     shadowOffset: {
       width: 0,
       height: 2,
@@ -186,8 +187,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: (Platform.OS === 'android') ? 5 : 0,
-    // Ensures the popup appears above other components
-
   },
   accountButtons: {
     display: "flex",
@@ -227,7 +226,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
     alignItems: "center",
-
   },
   cardTitle: {
     fontSize: 18,
