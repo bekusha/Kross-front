@@ -27,15 +27,18 @@ const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<MyPageScreenNavigationProp>();
 
   useEffect(() => {
-    console.log(isLoggedIn)
+    console.log('User object:', user); // Log user object for debugging
     if (!isLoggedIn && !user) {
       navigation.navigate("AuthScreen");
-
-      console.log(user)
     } else {
       fetchOilRecords();
     }
   }, [isLoggedIn, navigation]);
+
+  
+  const capitalizeFirstLetter = (username: string) => {
+    return username.charAt(0).toUpperCase() + username.slice(1);
+  };
 
   const handleSaveMileage = () => {
     if (mileage) {
@@ -66,7 +69,6 @@ const MyPageScreen: React.FC = () => {
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete", onPress: () => {
-            // Call your delete account logic here
             Alert.alert("Account Deleted", "Your account has been successfully deleted.");
           }
         },
@@ -83,20 +85,16 @@ const MyPageScreen: React.FC = () => {
             <Icon name="logout" size={24} color="black" />
             <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
-            <Icon name="delete" size={24} color="black" />
-            <Text>ექაუნთის წაშლა</Text>
-          </TouchableOpacity> */}
         </View>
       )}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
           <Text style={styles.username}>
-            {user?.username
-              ? user.username.charAt(0).toUpperCase() + user.username.slice(1)
-              : ""}'s
-          </Text> 
-           <Text>  Page</Text>
+            {user?.username 
+              ? capitalizeFirstLetter(user.username) 
+              : "User"}'s
+          </Text>
+          <Text>  Page</Text>
         </Text>
 
         <View style={styles.accountSettings}>
