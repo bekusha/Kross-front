@@ -27,15 +27,18 @@ const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<MyPageScreenNavigationProp>();
 
   useEffect(() => {
-    console.log(isLoggedIn)
+    console.log('User object:', user); // Log user object for debugging
     if (!isLoggedIn && !user) {
       navigation.navigate("AuthScreen");
-
-      console.log(user)
     } else {
       fetchOilRecords();
     }
   }, [isLoggedIn, navigation]);
+
+  
+  const capitalizeFirstLetter = (username: string) => {
+    return username.charAt(0).toUpperCase() + username.slice(1);
+  };
 
   const handleSaveMileage = () => {
     if (mileage) {
@@ -66,7 +69,6 @@ const MyPageScreen: React.FC = () => {
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete", onPress: () => {
-            // Call your delete account logic here
             Alert.alert("Account Deleted", "Your account has been successfully deleted.");
           }
         },
@@ -83,24 +85,22 @@ const MyPageScreen: React.FC = () => {
             <Icon name="logout" size={24} color="black" />
             <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
-            <Icon name="delete" size={24} color="black" />
-            <Text>ექაუნთის წაშლა</Text>
-          </TouchableOpacity> */}
         </View>
       )}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
-          <Text style={styles.username}> {user?.username}'s </Text>Page
+          <Text style={styles.username}>
+            {user?.username 
+              ? capitalizeFirstLetter(user.username) 
+              : "User"}'s
+          </Text>
+          <Text>  Page</Text>
         </Text>
 
         <View style={styles.accountSettings}>
           <TouchableOpacity onPress={() => setShowSettings(!showSettings)}>
             <Icon name="settings" size={30} color="black" />
-
           </TouchableOpacity>
-
-
         </View>
 
         <View style={styles.buttonContainer}>
@@ -151,6 +151,7 @@ const MyPageScreen: React.FC = () => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -159,7 +160,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-
   },
   username: {
     color: "red",
@@ -178,7 +178,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     shadowColor: "#000",
-
     shadowOffset: {
       width: 0,
       height: 2,
@@ -186,8 +185,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: (Platform.OS === 'android') ? 5 : 0,
-    // Ensures the popup appears above other components
-
   },
   accountButtons: {
     display: "flex",
@@ -227,7 +224,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
     alignItems: "center",
-
   },
   cardTitle: {
     fontSize: 18,
