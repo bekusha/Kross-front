@@ -17,7 +17,7 @@ const ContactScreen = () => {
   return (
     <View style={styles.container}>
       <Animatable.View animation="fadeInDown" style={styles.contactContainer}>
-        <Text style={styles.heading}>კონტაქტები</Text>
+        <Text style={styles.heading}>კონტაქტი</Text>
         <Text style={styles.intro}>მოგვწერეთ მაილზე ან დაგვირეკეთ ქვემოთ მითითებულ ნომერზე</Text>
 
         <Animatable.View animation="fadeInUp" delay={300} style={styles.contactItem}>
@@ -44,8 +44,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    
-   
+
+
   },
   contactContainer: {
     top: -60,
@@ -62,13 +62,13 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#D32F2F', 
+    color: '#D32F2F',
     textAlign: 'center',
     marginBottom: 10,
   },
   intro: {
     fontSize: 16,
-    color: '#333333', 
+    color: '#333333',
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 18,
-    color: '#000000', 
+    color: '#000000',
     marginLeft: 10,
   },
 });

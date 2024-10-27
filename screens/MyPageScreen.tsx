@@ -27,7 +27,6 @@ const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<MyPageScreenNavigationProp>();
 
   useEffect(() => {
-    console.log('User object:', user); // Log user object for debugging
     if (!isLoggedIn && !user) {
       navigation.navigate("AuthScreen");
     } else {
@@ -35,7 +34,13 @@ const MyPageScreen: React.FC = () => {
     }
   }, [isLoggedIn, navigation]);
 
-  
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchOilRecords();
+    }
+  }, [isLoggedIn, mileage]);
+
+
   const capitalizeFirstLetter = (username: string) => {
     return username.charAt(0).toUpperCase() + username.slice(1);
   };
@@ -45,7 +50,7 @@ const MyPageScreen: React.FC = () => {
       createOilRecord(parseInt(mileage, 10));
       setMileage("");
       fetchOilRecords();
-      Alert.alert("Mileage Saved", `Your oil change mileage is set to ${mileage} km.`);
+      Alert.alert("გარბენი შენახულია", `ზეთი შეიცვალა ${mileage} კმ გარბენზე.`);
     } else {
       Alert.alert("Error", "Please enter a valid mileage.");
     }
@@ -61,21 +66,7 @@ const MyPageScreen: React.FC = () => {
     logout();
   };
 
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      "Confirm Deletion",
-      "Are you sure you want to delete your account?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete", onPress: () => {
-            Alert.alert("Account Deleted", "Your account has been successfully deleted.");
-          }
-        },
-      ],
-      { cancelable: true }
-    );
-  };
+
 
   return (
     <View style={styles.container}>
@@ -83,15 +74,15 @@ const MyPageScreen: React.FC = () => {
         <View style={[styles.settingsPopup, { zIndex: 10 }]}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut}>
             <Icon name="logout" size={24} color="black" />
-            <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
+            <Text style={styles.logoutButtonText}>ექაუნთიდან  </Text>
           </TouchableOpacity>
         </View>
       )}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
           <Text style={styles.username}>
-            {user?.username 
-              ? capitalizeFirstLetter(user.username) 
+            {user?.username
+              ? capitalizeFirstLetter(user.username)
               : "User"}'s
           </Text>
           <Text>  Page</Text>
@@ -236,12 +227,13 @@ const styles = StyleSheet.create({
   },
   toggleButton: {
     flex: 1,
-    paddingVertical: 10,
+    justifyContent: "center",
     width: 130,
     backgroundColor: "#ecf0f1",
     borderRadius: 8,
     marginHorizontal: 5,
     height: 40,
+
   },
   activeButton: {
     backgroundColor: "black",
@@ -251,12 +243,13 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     color: "black",
     fontSize: 14,
+
   },
   activeButtonText: {
     color: "white",
   },
   input: {
-    width: "100%",
+    width: 200,
     height: 44,
     padding: 10,
     borderColor: "#ddd",
@@ -266,13 +259,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   button: {
-    backgroundColor: "black",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    backgroundColor: "#ecf0f1",
+    paddingVertical: 5,
     borderRadius: 10,
+
   },
   buttonText: {
-    color: "#fff",
+    color: "black",
     fontSize: 16,
     fontWeight: "500",
     textAlign: "center",

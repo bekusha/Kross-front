@@ -8,20 +8,24 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useProducts } from "../context/productContext";
 import { Product } from "@/types/product";
+import { set } from "mongoose";
 
 const ProductsScreen = ({ navigation, route }: any) => {
   const { fetchProducts, fetchProductsByCategory, products } = useProducts();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState(route.params?.filter || "");
+  const [loading, setLoading] = useState(true);
   const categoryId = route.params?.categoryId || null;
 
   // Fetch products when the component mounts or categoryId changes
   useEffect(() => {
     // თუ არ არის მითითებული კატეგორია, აბრუნებს ყველა პროდუქტს
     const fetchData = async () => {
+      setLoading(true);
       if (categoryId) {
         console.log(`Fetching products for category ID: ${categoryId}`);
         const productsByCategory = await fetchProductsByCategory(categoryId);
@@ -31,6 +35,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
         const allProducts = await fetchProducts();
         setFilteredProducts(allProducts);
       }
+      setLoading(false);
     };
 
 
@@ -54,15 +59,9 @@ const ProductsScreen = ({ navigation, route }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* Filter Input */}
-      {/* <TextInput
-        style={styles.filterInput}
-        placeholder="რას ეძებ?"
-        value={filter}
-        onChangeText={setFilter}
-      /> */}
-
-      {filteredProducts.length > 0 ? (
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" /> // Show loading indicator
+      ) : filteredProducts.length > 0 ? (
         <FlatList
           style={styles.productList}
           data={filteredProducts}
@@ -74,7 +73,8 @@ const ProductsScreen = ({ navigation, route }: any) => {
               style={styles.productCard}
               onPress={() =>
                 navigation.navigate("ProductDetails", { productId: item.id })
-              }>
+              }
+            >
               <Image
                 source={{ uri: item.image1 }}
                 style={styles.productImage}

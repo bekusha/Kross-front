@@ -80,41 +80,22 @@ const Cart = () => {
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemName}>{item.product.name}</Text>
                   <Text>{item.product.price} ლ</Text>
-                  <TouchableOpacity onPress={() => toggleExpand(index)}>
-                    <Animated.View
-                      style={{
-                        transform: [{ rotate: rotateInterpolate }],
-                      }}>
-                      <Icon name="expand-more" size={24} color="black" />
-                    </Animated.View>
-                  </TouchableOpacity>
+                  <Icon style={{ fontSize: 25 }} onPress={() => {
+                    removeFromCart(item.id)
+                  }} name="close" />
                 </View>
-                {expandedItems.includes(index) && (
-                  <View style={styles.itemDetails}>
-                    <Image
-                      source={{ uri: getImageUrl(item.product.image1) }}
-                      style={styles.itemImage}
-                    />
 
-                    <Text>რაოდენობა: {item.quantity}</Text>
-                    <TouchableOpacity
-                      onPress={() => removeFromCart(item.id)}
-                      style={[styles.button, styles.removeButton]}>
-                      <Text style={styles.buttonText}>Remove</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
               </View>
             );
           })}
         </ScrollView>
       ) : (
-        <View>
-          <Text>შენი კალათი ცარიელია</Text>
+        <View style={styles.emptyCartContainer}>
+          <Text style={styles.emptyCart}>შენი კალათი ცარიელია</Text>
         </View>
       )}
       <View style={styles.summary}>
-        <Text style={styles.checkoutInfo}>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
+        <Text style={[styles.emptyCart, { color: '#00FF00' }]}>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
         {/* i want to bold only ჯამური ფასი */}
 
         <Text style={styles.checkoutInfo}>ჯამური ფასი: <Text>{cart?.totalPrice || 0} ლ</Text></Text>
@@ -169,19 +150,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
-
     backgroundColor: "black"
   },
 
   buttonText: {
     color: "red",
-
-
-
-
-
-
   },
+
   removeButton: {
     backgroundColor: "red",
   },
@@ -197,6 +172,15 @@ const styles = StyleSheet.create({
   },
   checkoutInfo: {
     fontWeight: "bold",
+    fontSize: 12,
+  },
+  emptyCartContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  emptyCart: {
+    color: 'rgba(211, 47, 47, 1)',
   },
   summary: {
     marginTop: 16,

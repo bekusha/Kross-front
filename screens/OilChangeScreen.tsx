@@ -8,22 +8,22 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+
   Alert,
   KeyboardAvoidingView,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+
 import DropDownPicker from "react-native-dropdown-picker";
 import { useOilChange } from "../context/OilChangeContext";
 import { useProducts } from "@/context/productContext";
 import { useAuth } from "@/context/authContext";
-import { CommonActions, NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
 
 const OilChangeScreen = () => {
   const { deliveries, loading, error, fetchDeliveries, createDelivery } = useOilChange();
   const { products } = useProducts();
-  const { user, isLoggedIn } = useAuth();
+  const { user } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
   // const navigation = useNavigation<AuthScreenNavigationProp>();
   const [open, setOpen] = useState(false);
@@ -52,10 +52,10 @@ const OilChangeScreen = () => {
 
 
 
-  useEffect(() => {
-    fetchDeliveries();
+  // useEffect(() => {
+  //   fetchDeliveries();
 
-  }, []);
+  // }, []);
   // check if user is not logged in, navigate to authScreen
   // useEffect(() => {
   //   if (!isLoggedIn) {
@@ -71,14 +71,18 @@ const OilChangeScreen = () => {
   // }, [isLoggedIn, navigation]);
 
   const handleInputChange = (name: string, value: string) => {
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
 
+
   const handleCreateDelivery = () => {
-    if (!formData.phone || !formData.address || !formData.email || !formData.product) {
-      Alert.alert("Error", "Please fill all required fields.");
-      return;
-    }
+    // if (!formData.phone || !formData.address || !formData.email || !formData.product) {
+    //   Alert.alert("Error", "Please fill all required fields.");
+    //   return;
+    // }
 
     if (!user) {
       Alert.alert("Error", "User information is not available.");
@@ -167,7 +171,7 @@ const OilChangeScreen = () => {
           <TextInput
             placeholder="გარბენი"
             value={formData.car_mileage}
-            onChangeText={(value) => handleInputChange("mileage", value)}
+            onChangeText={(value) => handleInputChange("car_mileage", value)}
             style={styles.input}
           />
           <TextInput

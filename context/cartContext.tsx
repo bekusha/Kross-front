@@ -5,7 +5,7 @@ import { Cart, CartItem } from "@/types/cart";
 import { useAuth } from "./authContext";
 import { API_BASE_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { Alert } from 'react-native';
 interface CartContextType {
   cart: Cart | null;
   loading: boolean;
@@ -218,46 +218,66 @@ export const CartProvider = ({ children }: any) => {
     }
   };
 
+
+
   const removeFromCart = async (productId: number) => {
     setLoading(true);
     const token = await getToken();
-    alert("Are you sure you want to remove this item from your cart?");
-    try {
-      await axios.delete(`${API_BASE_URL}cart/remove/${productId}/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+
+    Alert.alert(
+      "პროდუქტის წაშლა",
+      "ნამდვილად გსურთ პროდუქტის კალათიდან წაშლა?",
+      [
+        {
+          text: "არა",
+          onPress: () => setLoading(false),
+          style: "cancel"
         },
-      });
+        {
+          text: "დიახ",
+          onPress: async () => {
+            try {
+              await axios.delete(`${API_BASE_URL}cart/remove/${productId}/`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
 
-      setCart((currentCart) => {
-        if (!currentCart) return null;
+              setCart((currentCart) => {
+                if (!currentCart) return null;
 
-        const updatedItems = currentCart.items.filter(
-          (item) => item.id !== productId
-        );
+                const updatedItems = currentCart.items.filter(
+                  (item) => item.id !== productId
+                );
 
-        const updatedTotalItems = updatedItems.reduce(
-          (acc, item) => acc + item.quantity,
-          0
-        );
-        const updatedTotalPrice = updatedItems.reduce(
-          (acc, item) => acc + item.quantity * item.product.price,
-          0
-        );
+                const updatedTotalItems = updatedItems.reduce(
+                  (acc, item) => acc + item.quantity,
+                  0
+                );
+                const updatedTotalPrice = updatedItems.reduce(
+                  (acc, item) => acc + item.quantity * item.product.price,
+                  0
+                );
 
-        return {
-          ...currentCart,
-          items: updatedItems,
-          totalItems: updatedTotalItems,
-          totalPrice: parseFloat(updatedTotalPrice.toFixed(2)),
-        };
-      });
-    } catch (error) {
-      console.error("Failed to remove item from cart:", error);
-    } finally {
-      setLoading(false);
-    }
+                return {
+                  ...currentCart,
+                  items: updatedItems,
+                  totalItems: updatedTotalItems,
+                  totalPrice: parseFloat(updatedTotalPrice.toFixed(2)),
+                };
+              });
+            } catch (error) {
+              console.error("Failed to remove item from cart:", error);
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
   };
+
+
 
   const value = {
     cart,

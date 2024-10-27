@@ -50,66 +50,7 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
         console.error("Error fetching data: ", error);
       });
   }, [categories]);
-  // Define static content with appropriate category IDs from the fetched data
-  // const content = [
-  //   {
-  //     text: "გამოიძახე ზეთის შეცვლა ადგილზე",
-  //     image: require("../assets/oilchangedelivery.webp"),
-  //     action: () => {
-  //       if (isLoggedIn) {
-  //         console.log("User is logged in");
-  //         navigation.navigate("OilChangeScreen");
-  //       } else {
-  //         // Optionally, navigate to the login screen or show a message
-  //         navigation.navigate("AuthScreen"); // Redirect to login
-  //       }
-  //     },
-  //   },
-  //   {
-  //     text: "მიიღე ავტომობილზე ინფორმაცია ბოტისგან",
-  //     image: require("../assets/aikrossbot.webp"),
-  //     action: () => navigation.navigate("ChatScreen"),
-  //   },
-  //   {
-  //     text: "ძრავის ზეთები",
-  //     image: require("../assets/engine.webp"),
-  //     action: () => {
-  //       const category = categories.find((cat) => cat.name === "ძრავის ზეთები");
-  //       if (category) {
-  //         navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
-  //       }
-  //     },
-  //   },
-  //   {
-  //     text: "გადაცემათა კოლოფის ზეთები",
-  //     image: require("../assets/gearbox.webp"),
-  //     action: () => {
-  //       const category = categories.find(
-  //         (cat) => cat.name === "გადაცემათა კოლოფის ზეთები"
-  //       );
-  //       if (category) {
-  //         navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
-  //       }
-  //     },
-  //   },
-  //   {
-  //     text: "საწმენდი საშუალებები",
-  //     image: require("../assets/cleaning.webp"),
-  //     action: () => {
-  //       const category = categories.find(
-  //         (cat) => cat.name === "საწმენდი საშუალებები"
-  //       );
-  //       if (category) {
-  //         navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
-  //       }
-  //     },
-  //   },
-  //   {
-  //     text: "ყველა პროდუქტი",
-  //     image: require("../assets/shop.webp"),
-  //     action: () => navigation.navigate("Products", { categoryId: null }), // Null for all products
-  //   },
-  // ];
+
 
   return (
     <View style={styles.container}>
