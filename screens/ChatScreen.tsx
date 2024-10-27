@@ -54,7 +54,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 120}
       style={styles.container}>
       {error && <Text style={styles.error}>Error: {error}</Text>}
       {loading && (
