@@ -12,55 +12,50 @@ import {
 } from "react-native";
 import { useProducts } from "../context/productContext";
 import { Product } from "@/types/product";
-import { set } from "mongoose";
 
 const ProductsScreen = ({ navigation, route }: any) => {
   const { fetchProducts, fetchProductsByCategory, products } = useProducts();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState(route.params?.filter || "");
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const categoryId = route.params?.categoryId || null;
 
   // Fetch products when the component mounts or categoryId changes
   useEffect(() => {
-    // თუ არ არის მითითებული კატეგორია, აბრუნებს ყველა პროდუქტს
     const fetchData = async () => {
       setLoading(true);
       if (categoryId) {
-        console.log(`Fetching products for category ID: ${categoryId}`);
         const productsByCategory = await fetchProductsByCategory(categoryId);
         setFilteredProducts(productsByCategory);
       } else {
-        console.log("Fetching all products");
         const allProducts = await fetchProducts();
         setFilteredProducts(allProducts);
       }
       setLoading(false);
     };
 
-
     fetchData();
   }, [fetchProductsByCategory, fetchProducts, categoryId]);
 
-  // Filter products based on the input filter state
+  // Filter products based on the search query
   useEffect(() => {
-    if (filter.trim() === "") {
-      // If no filter text, show all products
-      setFilteredProducts((currentProducts) => currentProducts);
-    } else {
-      // Apply the filter based on product name
-      setFilteredProducts((currentProducts) =>
-        currentProducts.filter((product) =>
-          product.name.toLowerCase().includes(filter.toLowerCase())
-        )
-      );
-    }
-  }, [filter]);
+    const filtered = products.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  }, [searchQuery, products]);
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.filterInput}
+        placeholder="რას ეძებ..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" /> // Show loading indicator
+        <ActivityIndicator size="large" color="#0000ff" />
       ) : filteredProducts.length > 0 ? (
         <FlatList
           style={styles.productList}
