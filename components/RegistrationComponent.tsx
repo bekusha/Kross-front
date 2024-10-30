@@ -3,14 +3,12 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
   TouchableOpacity,
-  Alert,
+  StyleSheet,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useAuth } from "@/context/authContext";
-import axios from "axios";
-import { API_BASE_URL } from "@env"; // Ensure that you have configured react-native-dotenv or similar
+import * as Animatable from "react-native-animatable";
 import { Role } from "@/types/user";
 
 interface RegistrationProps {
@@ -51,94 +49,123 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
-      {success ? (
-        <Text style={styles.successMessage}>
-          Registration successful! You can now log in.
-        </Text>
-      ) : (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            textContentType="emailAddress"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="username"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            autoCorrect={false}
-            textContentType="username"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
-          {/* <Button
-            title="Register as Admin"
-            onPress={() => setRole(Role.ADMIN)}
-          />
-          <Button
-            title="Register as Vendor"
-            onPress={() => setRole(Role.VENDOR)}
-          /> */}
-          <Button
-            title="Register as Consumer"
-            onPress={() => setRole(Role.CONSUMER)}
-          />
+    <KeyboardAvoidingView style={styles.container}>
+      <Animatable.View animation="fadeInDown" duration={800} easing="ease-in-out" style={styles.formContainer}>
+        <Text style={styles.title}>რეგისტრაცია</Text>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Register" onPress={handleSubmit} />
-        </>
-      )}
-      <TouchableOpacity onPress={onSwitch} style={styles.switchButton}>
-        <Text style={styles.switchText}>
-          თუ რეგისტრაცია გავლილი გაქვთ შეგიძლიათ შეხვიდეთ თქვენს ექაუნთზე
-        </Text>
-      </TouchableOpacity>
-    </View>
+        {success ? (
+          <Text style={styles.successMessage}>Registration successful! You can now log in.</Text>
+        ) : (
+          <>
+            <Animatable.View animation="fadeInUp" duration={600} delay={300} easing="ease-in-out">
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="emailAddress"
+                placeholderTextColor="#666"
+              />
+            </Animatable.View>
+
+            <Animatable.View animation="fadeInUp" duration={600} delay={500} easing="ease-in-out">
+              <TextInput
+                style={styles.input}
+                placeholder="Username"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="username"
+                placeholderTextColor="#666"
+              />
+            </Animatable.View>
+
+            <Animatable.View animation="fadeInUp" duration={600} delay={700} easing="ease-in-out">
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#666"
+              />
+            </Animatable.View>
+
+            <Animatable.View animation="fadeInUp" duration={600} delay={900} easing="ease-in-out">
+              <TextInput
+                style={styles.input}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                placeholderTextColor="#666"
+              />
+            </Animatable.View>
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <Animatable.View animation="fadeInUp" duration={600} delay={1100} easing="ease-in-out">
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleSubmit}
+              >
+                <Text style={styles.buttonText}>რეგისტრაცია</Text>
+              </TouchableOpacity>
+            </Animatable.View>
+          </>
+        )}
+
+        <Animatable.View animation="fadeInUp" duration={600} delay={1300} easing="ease-in-out">
+          <TouchableOpacity onPress={onSwitch} style={styles.switchButton}>
+            <Text style={styles.switchText}>
+              თუ რეგისტრაცია გავლილი გაქვთ შეგიძლიათ შეხვიდეთ თქვენს ექაუნთზე
+            </Text>
+          </TouchableOpacity>
+        </Animatable.View>
+      </Animatable.View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-
+    top: -60,
     flex: 1,
-    padding: 20,
-
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#fff",
   },
+  formContainer: {
+    width: "90%",
+    padding: 20,
+    borderRadius: 15,
+    backgroundColor: "#f9f9f9",
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 5,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    color: "#D32F2F",
     textAlign: "center",
     marginBottom: 20,
   },
   input: {
     height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
+    width: "100%",
     marginBottom: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
+    color: "#333",
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
   error: {
     color: "red",
@@ -150,12 +177,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
+  button: {
+    backgroundColor: "black",
+    borderWidth: 1,
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#D32F2F",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   switchButton: {
     marginTop: 10,
     alignItems: "center",
   },
   switchText: {
-    color: "#0066cc",
+    color: "#D32F2F",
     textDecorationLine: "underline",
   },
 });

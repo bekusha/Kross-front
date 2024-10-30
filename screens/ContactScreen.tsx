@@ -23,7 +23,7 @@ const ContactScreen = () => {
         <Animatable.View animation="fadeInUp" delay={300} style={styles.contactItem}>
           <Ionicons name="mail-outline" size={28} color="#D32F2F" />
           <TouchableOpacity onPress={handleEmailPress}>
-            <Text style={styles.contactText}>test</Text>
+            <Text style={styles.contactText}>Kross Gorgia</Text>
           </TouchableOpacity>
         </Animatable.View>
 
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 
   },
   contactContainer: {
-    top: -60,
+    top: -90,
     width: '90%',
     padding: 20,
     borderRadius: 15,
