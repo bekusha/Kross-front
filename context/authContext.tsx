@@ -207,29 +207,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () => {
-    // ვამოწმებთ, თუ მომხმარებელი მართლა უნდა გავიდეს სისტემიდან
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "OK",
-          onPress: () => {
-            setUser(null);
-            setIsLoggedIn(false);
-            AsyncStorage.removeItem("access");
-            AsyncStorage.removeItem("refresh");
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+  const logoutConfirmation = async () => {
+    await AsyncStorage.removeItem("access"); // ტოკენების წაშლა
+    await AsyncStorage.removeItem("refresh");
+    console.log("User logged out, access token:", await AsyncStorage.getItem("access"));
+    setUser(null);
+    setIsLoggedIn(false);
   };
+
+  const logout = () => {
+    console.log("is working");
+    logoutConfirmation();
+  };
+
 
 
   const addPaypalAddress = async (paypalAddress: string) => {

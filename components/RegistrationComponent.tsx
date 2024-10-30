@@ -32,15 +32,19 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
         return;
       }
       try {
-        const response = await authContext.register(
+        const success = await authContext.register(
           email,
           username,
           password,
           confirmPassword,
           role
         );
-        setSuccess(true);
-        console.log(response);
+        if (success) {
+          setSuccess(true);
+          setError("");
+        } else {
+          setError("რეგისტრაციის დროს მოხდა შეცდომა, ან ასეთი მომხმარებელი უკვე არსებობს");
+        }
       } catch (error) {
         console.error(error);
         setError("Registration failed. Please try again.");
@@ -48,13 +52,15 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
     }
   };
 
+
+
   return (
     <KeyboardAvoidingView style={styles.container}>
       <Animatable.View animation="fadeInDown" duration={800} easing="ease-in-out" style={styles.formContainer}>
         <Text style={styles.title}>რეგისტრაცია</Text>
 
         {success ? (
-          <Text style={styles.successMessage}>Registration successful! You can now log in.</Text>
+          <Text style={styles.successMessage}>რეგისტრაცია წარმატებით გაიარეთ, შეგიძლიათ შეხვიდეთ სისტემაში.</Text>
         ) : (
           <>
             <Animatable.View animation="fadeInUp" duration={600} delay={300} easing="ease-in-out">
@@ -195,7 +201,7 @@ const styles = StyleSheet.create({
   },
   switchText: {
     color: "#D32F2F",
-    textDecorationLine: "underline",
+    textAlign: "center",
   },
 });
 

@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   switchText: {
     color: "#D32F2F",
-    textDecorationLine: "underline",
+    textAlign: "center",
   },
 });
 

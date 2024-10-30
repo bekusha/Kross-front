@@ -3,7 +3,7 @@ import "dotenv/config"; // Allows use of .env file if needed
 
 export default {
   expo: {
-    name: "YourAppName",
+    name: "KROSSGEORGIA",
     slug: "your-app-name",
     version: "1.0.0",
     platforms: ["ios", "android", "web"],

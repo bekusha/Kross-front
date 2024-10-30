@@ -56,15 +56,45 @@ const MyPageScreen: React.FC = () => {
     }
   };
 
+  // const handleLogOut = () => {
+  //   Alert.alert(
+  //     "ექაუნთიდან გასვლა",
+  //     "ნამდვილად გსურთ ექაუნთიდან გასვლა?",
+  //     [
+  //       {
+  //         text: "არა",
+  //         style: "cancel",
+  //       },
+  //       {
+  //         text: "დიახ",
+  //         onPress: () => {
+  //           logout();
+  //           navigation.dispatch(
+  //             CommonActions.reset({
+  //               index: 0,
+  //               routes: [{ name: "Home" }], // გადაყვანა ავტორიზაციის გვერდზე ლოგაუთის შემდეგ
+  //             })
+  //           );
+  //         },
+  //       },
+  //     ],
+  //     { cancelable: false }
+  //   );
+  // };
   const handleLogOut = () => {
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: "Home" }],
-      })
-    );
     logout();
-  };
+  }
+
+
+  // const handleLogOut = () => {
+  //   logout();
+  //   // navigation.dispatch(
+  //   //   CommonActions.reset({
+  //   //     index: 0,
+  //   //     routes: [{ name: "Home" }],
+  //   //   })
+  //   // );
+  // };
 
 
 

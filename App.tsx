@@ -24,6 +24,7 @@ import { Text } from "react-native";
 import { Image } from "react-native";
 import { Dimensions } from 'react-native';
 import { Platform } from "react-native";
+import ContactScreen from "./screens/ContactScreen";
 
 
 const { width } = Dimensions.get('window');
@@ -108,7 +109,7 @@ export default function App() {
                       }}
                     />
                     <Stack.Screen name="Main" component={Main} options={{ title: "შენი საიმედო პარტნიორი" }} />
-
+                    <Stack.Screen name="ContactScreen" component={ContactScreen} options={{ title: "კონტაქტი" }} />
                     <Stack.Screen name="AuthScreen" component={AuthScreen} options={{
                       headerTitle: () => {
                         return (
