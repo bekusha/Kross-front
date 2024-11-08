@@ -54,7 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     if (!user) {
       initializeAuth();
-      console.log(API_BASE_URL)
+
     }
   }, []);
 
@@ -91,7 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initializeAuth();
 
     const intervalId = setInterval(async () => {
-      const accessToken = await AsyncStorage.getItem("access"); // await უნდა დაემატოს აქ
+      const accessToken = await AsyncStorage.getItem("access");
       if (accessToken && isTokenExpired(accessToken)) {
         refreshToken();
       }
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const initializeAuth = async () => {
-    const accessToken = await AsyncStorage.getItem("access"); // await უნდა დაემატოს აქ
+    const accessToken = await AsyncStorage.getItem("access");
     if (accessToken && isTokenExpired(accessToken)) {
       try {
         await refreshToken();

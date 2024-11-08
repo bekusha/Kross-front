@@ -41,7 +41,6 @@ const ProductDetails = ({ route, navigation }: any) => {
       if (product) {
         addToCart(product, quantity);
         setSuccessModalVisible(true);
-        console.log("წარმატება", `${product.name} დამატებულია კარტაში!`);
       }
     }
   };
@@ -64,6 +63,7 @@ const ProductDetails = ({ route, navigation }: any) => {
       navigation.navigate("OilChangeScreen");
     } else {
       Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
+      setModalVisible(true);
     }
   }
 
@@ -107,12 +107,20 @@ const ProductDetails = ({ route, navigation }: any) => {
           <View style={styles.modalContainer}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>
-                პროდუქტის კალათში დასამატებლად უნდა გაიაროთ ავტორიზაცია
+                დამატებითი სერვისებით სარგებლობისთვის გთხოვთ გაიაროთ ავტორიზაცია
               </Text>
               <TouchableOpacity
                 style={styles.okButton}
+                onPress={() => {
+                  setModalVisible(false);
+                  navigation.navigate("AuthScreen"); // რეგისტრაციის ან ავტორიზაციის გვერდზე გადასვლა
+                }}>
+                <Text style={styles.okButtonText}>ავტორიზაცია</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.cancelButton, { marginTop: 10 }]}
                 onPress={() => setModalVisible(false)}>
-                <Text style={styles.okButtonText}>გასაგებია</Text>
+                <Text style={styles.okButtonText}>უკან დაბრუნება</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -156,16 +164,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
+
   },
   productImage: {
     width: "80%",
     height: 200,
     borderRadius: 8,
+    marginTop: 50
   },
   namePrice: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 100,
   },
   productName: {
     fontSize: 24,
@@ -253,6 +264,15 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+  cancelButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 10,
+  },
+
+  cancelButtonText: {
+
+  }
 });
 
 export default ProductDetails;

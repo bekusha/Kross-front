@@ -11,31 +11,21 @@ import {
 
   Alert,
   KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
-
-import DropDownPicker from "react-native-dropdown-picker";
 import { useOilChange } from "../context/OilChangeContext";
-import { useProducts } from "@/context/productContext";
 import { useAuth } from "@/context/authContext";
-import { NavigationProp, } from "@react-navigation/native";
+import { NavigationProp, useNavigation, } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
 
 const OilChangeScreen = () => {
   const { deliveries, loading, error, fetchDeliveries, createDelivery } = useOilChange();
-  const { products } = useProducts();
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
-  // const navigation = useNavigation<AuthScreenNavigationProp>();
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState(products.map(product => ({
-    label: product.name,
-    value: product.id
-  })));
+  const navigation = useNavigation<AuthScreenNavigationProp>();
 
   // State for form inputs
   const [formData, setFormData] = useState({
-    user: user || "",
     phone: user?.phone || "",
     car_make: user?.car_make || "",
     car_model: user?.car_model || "",
@@ -43,32 +33,18 @@ const OilChangeScreen = () => {
     car_mileage: user?.car_mileage || "",
     address: user?.address || "",
     email: user?.email || "",
-    product: "",
-    message: "",
-    ordered_at: '',
+    ordered_at: "",
   });
 
   const [expanded, setExpanded] = useState<number | null>(null);
 
 
 
-  // useEffect(() => {
-  //   fetchDeliveries();
+  useEffect(() => {
+    fetchDeliveries();
 
-  // }, []);
-  // check if user is not logged in, navigate to authScreen
-  // useEffect(() => {
-  //   if (!isLoggedIn) {
+  }, []);
 
-  //     navigation.navigate("AuthScreen");
-  //     // how to go back with two screens?
-
-  //   } else if (isLoggedIn) {
-  //     navigation.goBack(
-
-  //     );
-  //   }
-  // }, [isLoggedIn, navigation]);
 
   const handleInputChange = (name: string, value: string) => {
     setFormData((prevFormData) => ({
@@ -85,7 +61,7 @@ const OilChangeScreen = () => {
     // }
 
     if (!user) {
-      Alert.alert("Error", "User information is not available.");
+      Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
       return;
     }
 
@@ -98,8 +74,6 @@ const OilChangeScreen = () => {
       car_mileage: user.car_mileage,
       address: formData.address,
       email: formData.email,
-      product: Number(formData.product),
-      message: formData.message,
       ordered_at: '',
     };
 
@@ -111,7 +85,6 @@ const OilChangeScreen = () => {
           phone: "",
           address: "",
           email: "",
-          message: "",
           ordered_at: '',
         }));
       })
@@ -120,6 +93,15 @@ const OilChangeScreen = () => {
 
   const toggleExpand = (id: number) => {
     setExpanded(expanded === id ? null : id);
+  };
+
+  const formatDate = (dateString: any) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("ka-GE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(date);
   };
 
   if (loading) {
@@ -141,8 +123,8 @@ const OilChangeScreen = () => {
 
   return (
     <KeyboardAvoidingView style={styles.container}>
-      <View>
-        <Text style={styles.title} >სერვისის მისამართზე გამოძახება <Text style={styles.redText}>{user?.username}</Text></Text>
+      <ScrollView>
+        {/* <Text style={styles.title} >სერვისის მისამართზე გამოძახება <Text style={styles.redText}>{user?.username}</Text></Text> */}
         <View style={styles.form}>
           <TextInput
             placeholder="მობილურის ნომერი"
@@ -197,23 +179,9 @@ const OilChangeScreen = () => {
               <Picker.Item key={product.id} label={product.name} value={product.id.toString()} />
             ))}
           </Picker> */}
-          <DropDownPicker
-            open={open}
-            value={value}
-            items={items}
-            setOpen={setOpen}
-            setValue={setValue}
-            setItems={setItems}
-            placeholder="აირჩიე პროდუქტი"
-            style={styles.dropdown}
-          />
 
-          <TextInput
-            placeholder="დამატებითი შეტყობინება"
-            value={formData.message}
-            onChangeText={(value) => handleInputChange("message", value)}
-            style={styles.inputAdditionalText}
-          />
+
+
           <TouchableOpacity
 
             onPress={handleCreateDelivery}
@@ -223,7 +191,10 @@ const OilChangeScreen = () => {
         </View>
 
         {/* <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text> */}
-
+        {/* if changedeliveries.length !== 0 show view above */}
+        {!loading && !error && deliveries.length > 0 && (
+          <Text style={styles.title}>შენი სერვისების ისტორია</Text>
+        )}
         <FlatList
           data={deliveries}
           keyExtractor={(item) => item.id.toString()}
@@ -231,7 +202,7 @@ const OilChangeScreen = () => {
             <View style={styles.card}>
               <TouchableOpacity onPress={() => toggleExpand(item.id)}>
                 <View style={styles.cardHeader}>
-                  <Text style={styles.cardTitle}>გამოძახება {item.ordered_at}</Text>
+                  <Text style={styles.cardTitle}>თარიღი: {formatDate(item.ordered_at)}</Text>
                   <Text style={styles.toggleIcon}>
                     {expanded === item.id ? "▼" : "▶"}
                   </Text>
@@ -244,13 +215,13 @@ const OilChangeScreen = () => {
                   {/* <Text>მეილი: {item.email}</Text> */}
                   <Text>პროდუქტი: {item.product}</Text>
                   <Text>შეტყობინება {item.message}</Text>
-                  <Text>თარიღი: {item.ordered_at}</Text>
+                  <Text>თარიღი: {formatDate(item.ordered_at)}</Text>
                 </View>
               )}
             </View>
           )}
         />
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };
@@ -258,7 +229,7 @@ const OilChangeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
+    paddingTop: 0,
     backgroundColor: "#f5f5f5",
   },
   center: {
