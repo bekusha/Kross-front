@@ -11,6 +11,8 @@ import { useProducts } from "../context/productContext"; // Import the useProduc
 import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
+import Footer from "@/components/Footer";
+
 
 type MainProps = {
   navigation: any;
@@ -64,6 +66,7 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
           </View>
         ))}
       </ScrollView>
+      <Footer/>
     </View>
   );
 };
