@@ -30,8 +30,17 @@ const Footer = () => {
         style={[styles.button, isOpen && styles.buttonActive]} 
         onPress={toggleFooter}
       >
-        <Animated.View style={{ transform: [{ rotate: isOpen ? '45deg' : '0deg' }] }}>
-          <Ionicons name="add" size={32} color="#FFF" />
+        <Animated.View 
+          style={{
+            transform: [{
+              rotate: heightAnimation.interpolate({
+                inputRange: [0, 240],
+                outputRange: ['0deg', '0deg']
+              })
+            }]
+          }}
+        >
+          <Ionicons name="chevron-up" size={32} color="#FFF" />
         </Animated.View>
       </TouchableOpacity>
 
@@ -90,7 +99,7 @@ const styles = StyleSheet.create({
   },
   buttonActive: {
     backgroundColor: '#dc2626', // Red color when active
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: '180deg' }],
   },
   popupContainer: {
     position: 'absolute',
@@ -122,3 +131,4 @@ const styles = StyleSheet.create({
 });
 
 export default Footer;
+
