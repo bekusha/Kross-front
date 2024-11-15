@@ -11,6 +11,8 @@ import { useProducts } from "../context/productContext"; // Import the useProduc
 import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
+import Footer from "@/components/Footer";
+
 
 type MainProps = {
   navigation: any;
@@ -20,7 +22,6 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
   const { categories } = useProducts(); // Use the categories from context
   const { isLoggedIn } = useAuth();
   const [content, setContent] = useState<any[]>([]);
-
 
   useEffect(() => {
     // Fetch data from the backend using Axios
@@ -64,6 +65,7 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
           </View>
         ))}
       </ScrollView>
+      <Footer/>
     </View>
   );
 };
