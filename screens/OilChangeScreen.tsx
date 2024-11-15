@@ -64,6 +64,7 @@ const OilChangeScreen = () => {
       Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
       return;
     }
+    console.log('working')
 
     const newDelivery = {
       user: user.id,

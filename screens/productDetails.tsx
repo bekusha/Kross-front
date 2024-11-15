@@ -173,10 +173,11 @@ const styles = StyleSheet.create({
     marginTop: 50
   },
   namePrice: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 100,
+    gap: 10
   },
   productName: {
     fontSize: 24,

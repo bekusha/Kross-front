@@ -175,7 +175,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username,
         password,
         password2: confirmPassword,
-        role,
+        role: 'CONSUMER',
       });
       return true;
     } catch (error) {

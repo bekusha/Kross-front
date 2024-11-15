@@ -14,7 +14,8 @@ import {
 } from "react-native";
 import { useAI } from "@/context/aiContext";
 import { useAuth } from "@/context/authContext";
-
+import { useCart } from "@/context/cartContext";
+import { Ionicons } from '@expo/vector-icons';
 const ChatScreen = ({ navigation }: { navigation: any }) => {
   const { aiResponses, loading, error, fetchAIResponse } = useAI();
   const [input, setInput] = useState("");
@@ -23,6 +24,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   const [carImage, setCarImage] = useState("");
   const { isLoggedIn } = useAuth();
   const flatListRef = useRef<FlatList>(null);
+  const { addToCart } = useCart();
 
 
 
@@ -46,9 +48,8 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  const handleProductPress = (product: any) => {
-    navigation.navigate("ProductDetails", { productId: product.id }); // აქ product.id უკვე სწორად იქნება გამოყენებული
-    console.log(product.id); // ეს console-ში უნდა აჩვენოს ID
+  const handleAddToCart = (product: any) => {
+
   };
 
   return (
@@ -75,11 +76,40 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
             {/* პროდუქტის რენდერი map ფუნქციით */}
             {item.products && item.products.map((product: any, index: any) => (
               <View style={styles.productCard} key={index} >
-                <Text>შესაბამისი პროდუქტი ჩვენი პროდუტების სიიდან</Text>
-                <Image source={{ uri: product.image1 }} />
-                <Text >{product.name}</Text>
-                <TouchableOpacity onPress={() => handleProductPress(product)} style={styles.detailPageButton}><Text style={styles.detailPageButtonText}>
-                  პროდუქტის გვერდზე გადასვლა</Text></TouchableOpacity>
+
+                <View style={{ flexDirection: "row" }}>
+                  <Image source={require('assets/engine.webp')}
+                    style={{ width: 50, height: 40 }}
+                  />
+                  <View >
+                    <Text>დასახელება{product.name}</Text>
+                    <Text>ფასი{product.price}</Text>
+                    <Text>სიბლანტე{product.viscosity}</Text>
+                    {/* how to import image from assets */}
+                    <View style={{ flexDirection: "row", justifyContent: "center" }}>
+                      <TouchableOpacity><Text>-</Text></TouchableOpacity>
+                      <View>
+                        <Text>{product.quantity_for_user || 0}</Text>
+                      </View>
+                      <TouchableOpacity><Text>+</Text></TouchableOpacity>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleAddToCart(product)}
+                      style={styles.callServiceButtonText}
+                    >
+                      <Ionicons name="cart" size={24} color={"red"} />
+                      <Text style={{ color: "red", fontSize: 12 }}>კალათში დამატება</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleAddToCart(product)}
+                      style={styles.callServiceButtonText}
+                    >
+                      <Ionicons name="construct-outline" size={24} color="red" />
+                      <Text style={{ color: "red", fontSize: 12 }}>სერვისის გამოძახება</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                </View>
               </View>
             ))}
           </View>
@@ -177,6 +207,7 @@ const styles = StyleSheet.create({
   },
   productCard: {
     borderWidth: 1,
+    height: 300,
     borderRadius: 8,
     marginTop: 10,
     padding: 10,
@@ -189,16 +220,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  detailPageButton: {
-    backgroundColor: "black",
+  callServiceButtonText: {
+    backgroundColor: "transparent",
     color: "red",
-    height: 40,
+    // height: 50,
     borderRadius: 8,
-    padding: 10,
+    // padding: 10,
     textAlign: "center",
     display: "flex",
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 10,
   },
 
   detailPageButtonText: {

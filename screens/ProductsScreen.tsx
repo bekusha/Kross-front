@@ -76,7 +76,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
                 resizeMode="contain"
               />
               <Text style={styles.productName}>{item.name}</Text>
-              <Text style={styles.productPrice}>${item.price}</Text>
+              <Text style={styles.productPrice}>{item.price} ლარი</Text>
             </TouchableOpacity>
           )}
         />
