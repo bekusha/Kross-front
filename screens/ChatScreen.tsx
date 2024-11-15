@@ -19,10 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 const ChatScreen = ({ navigation }: { navigation: any }) => {
   const { aiResponses, loading, error, fetchAIResponse } = useAI();
   const [input, setInput] = useState("");
-  const [showMessage, setShowMessage] = useState(false);
   const [modalVisible, setModalVisible] = useState(true);
-  const [carImage, setCarImage] = useState("");
-  const { isLoggedIn } = useAuth();
   const flatListRef = useRef<FlatList>(null);
   const { addToCart } = useCart();
 
@@ -32,14 +29,6 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
     console.log(aiResponses)
     flatListRef.current?.scrollToEnd({ animated: true });
   }, [aiResponses]);
-
-  // const handleSend = async () => {
-  //   if (input.trim()) {
-  //     const response = await fetchAIResponse(input); // Fetch bot response
-  //     setCarImage(response.carImage); // Assuming the API response has a carImage field
-  //     setInput("");
-  //   }
-  // };
 
   const handleSend = () => {
     if (input.trim()) {
@@ -79,36 +68,43 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
 
                 <View style={{ flexDirection: "row" }}>
                   <Image source={require('assets/engine.webp')}
-                    style={{ width: 50, height: 40 }}
+                    style={{ width: 50, height: 40, borderRadius: 10, marginRight: 5 }}
                   />
-                  <View >
-                    <Text>დასახელება{product.name}</Text>
-                    <Text>ფასი{product.price}</Text>
-                    <Text>სიბლანტე{product.viscosity}</Text>
+                  <View style={{ justifyContent: "flex-start" }}>
+                    <Text style={styles.productTitle}>{product.name}</Text>
+
+
                     {/* how to import image from assets */}
-                    <View style={{ flexDirection: "row", justifyContent: "center" }}>
-                      <TouchableOpacity><Text>-</Text></TouchableOpacity>
-                      <View>
-                        <Text>{product.quantity_for_user || 0}</Text>
-                      </View>
-                      <TouchableOpacity><Text>+</Text></TouchableOpacity>
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => handleAddToCart(product)}
-                      style={styles.callServiceButtonText}
-                    >
-                      <Ionicons name="cart" size={24} color={"red"} />
-                      <Text style={{ color: "red", fontSize: 12 }}>კალათში დამატება</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => handleAddToCart(product)}
-                      style={styles.callServiceButtonText}
-                    >
-                      <Ionicons name="construct-outline" size={24} color="red" />
-                      <Text style={{ color: "red", fontSize: 12 }}>სერვისის გამოძახება</Text>
-                    </TouchableOpacity>
+
                   </View>
 
+                </View>
+                <View style={styles.calculateButtonsContainer}>
+
+                  <Text style={{ margin: 0 }}>ნივთის რაოდენობა: </Text>
+                  <TouchableOpacity style={styles.calculateButtonsContainer}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
+                  <View>
+                    <Text style={styles.calculatorButtons}>{product.quantity_for_user || 0}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.calculateButtonsContainer}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
+                </View>
+                <Text style={{ textAlign: "center" }}>რაოდენობა: 1 ლიტრი</Text>
+                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }} >ფასი: {product.price} ლარი</Text>
+                <View style={{ justifyContent: "flex-start" }}>
+                  <TouchableOpacity
+                    onPress={() => handleAddToCart(product)}
+                    style={styles.callServiceButtonText}
+                  >
+                    <Ionicons name="cart" size={24} color={"red"} />
+                    <Text style={{ color: "red", fontSize: 14 }}>კალათში დამატება</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleAddToCart(product)}
+                    style={styles.callServiceButtonText}
+                  >
+                    <Ionicons name="construct-outline" size={24} color="red" />
+                    <Text style={{ color: "red", fontSize: 14 }}>სერვისის გამოძახება</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
@@ -187,6 +183,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginRight: 10,
   },
+  // productTitle: {
+  //   fontSize: 14,
+  //   fontWeight: "bold",
+  //   marginBottom: 5,
+  //   width: "80%",
+  //   marginLeft: 10,
+  // },
   sendButton: {
     backgroundColor: "black",
     paddingVertical: 10,
@@ -206,22 +209,80 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
   },
   productCard: {
-    borderWidth: 1,
-    height: 300,
-    borderRadius: 8,
-    marginTop: 10,
-    padding: 10,
-    shadowColor: "red",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
+    backgroundColor: "#ffffff",
+    borderWidth: 0,
+    borderRadius: 10,
+    marginVertical: 10,
+    padding: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 3,
   },
+  productImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 8,
+    marginRight: 15,
+  },
+  productDetails: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  productTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+  },
+  productPrice: {
+    fontSize: 14,
+    color: "#666",
+    marginVertical: 5,
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+
+  },
+  actionButton: {
+    backgroundColor: "#ff6347",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  actionButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 5,
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  quantityButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#f0f0f0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  quantityText: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginHorizontal: 10,
+  },
+
   callServiceButtonText: {
-    backgroundColor: "transparent",
+    backgroundColor: "black",
     color: "red",
     // height: 50,
     borderRadius: 8,
@@ -229,11 +290,31 @@ const styles = StyleSheet.create({
     textAlign: "center",
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     gap: 10,
+    marginTop: 10,
+    padding: 10,
   },
-
+  calculateButtonsContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 5,
+    backgroundColor: "#f1f1f1",
+    textAlign: "center",
+    padding: 5,
+    borderRadius: 6,
+  },
+  calculatorButtons: {
+    width: 20,
+    height: 20,
+    color: "red",
+    fontWeight: "bold",
+    fontSize: 20,
+    // textAlign: "center",
+  },
   detailPageButtonText: {
     color: "red",
   },
