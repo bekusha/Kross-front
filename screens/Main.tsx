@@ -18,7 +18,7 @@ import Footer from "@/components/Footer";
 
 
 const { width } = Dimensions.get('window');
-const cardWidth = width * 0.92;
+const cardWidth = width - 20;
 
 type MainProps = {
   navigation: any;
@@ -71,21 +71,22 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         {content.map((item, index) => (
-          <TouchableOpacity 
-            key={index} 
-            style={styles.cardWrapper}
-            onPress={item.action}
-            activeOpacity={0.9}
-          >
-            <View style={styles.overlay}>
-              <Text style={styles.cardText}>{item.text}</Text>
-            </View>
-            <Image 
-              style={styles.image} 
-              source={item.image}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
+          <View key={index} style={styles.shadowContainer}>
+            <TouchableOpacity 
+              style={styles.cardWrapper}
+              onPress={item.action}
+              activeOpacity={0.9}
+            >
+              <View style={styles.overlay}>
+                <Text style={styles.cardText}>{item.text}</Text>
+              </View>
+              <Image 
+                style={styles.image} 
+                source={item.image}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          </View>
         ))}
       </ScrollView>
       <Footer/>
@@ -105,36 +106,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   cardContainer: {
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    gap: 15,
+    paddingVertical: 20,
     alignItems: 'center',
+    gap: 20,
   },
-  cardWrapper: {
+  shadowContainer: {
     width: cardWidth,
-    height: 200,
-    borderRadius: 20,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
+    marginHorizontal: 10,
+    transform: [
+      { scaleX: 0.95 }
+    ],
+    shadowColor: 'red',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  cardWrapper: {
+    width: '100%',
+    height: 300,
+    borderRadius: 30,
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: '100%',
+    bottom: 0,
     zIndex: 1,
+    borderRadius: 30,
     justifyContent: 'flex-start',
     padding: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   cardText: {
     color: '#ffffff',
@@ -147,7 +155,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    position: 'absolute',
+    resizeMode: 'cover',
   },
 });
 

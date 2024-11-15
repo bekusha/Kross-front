@@ -59,7 +59,7 @@ const Footer = () => {
             onPress={() => handleNavigation("OilChangeScreen")}
           >
             <Ionicons name="construct-outline" size={24} color="#FFF" />
-            <Text style={styles.menuText}>სერვისის გამოძახება</Text>
+            <Text style={styles.menuText}>ზეთის შეცვლა გამოძახებით</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -67,7 +67,7 @@ const Footer = () => {
             onPress={() => handleNavigation("ChatScreen")}
           >
             <Ionicons name="chatbubble-ellipses-outline" size={24} color="#FFF" />
-            <Text style={styles.menuText}>AI ჩატი</Text>
+            <Text style={styles.menuText}>შეარჩიე სწორი ზეთი</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
