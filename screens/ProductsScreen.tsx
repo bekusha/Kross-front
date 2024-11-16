@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useProducts } from "../context/productContext";
 import { Product } from "@/types/product";
+import * as Animatable from 'react-native-animatable';
 
 const ProductsScreen = ({ navigation, route }: any) => {
   const { fetchProducts, fetchProductsByCategory, products } = useProducts();
@@ -46,6 +47,30 @@ const ProductsScreen = ({ navigation, route }: any) => {
     setFilteredProducts(filtered);
   }, [searchQuery, products]);
 
+  const renderProduct = ({ item, index }: { item: Product; index: number }) => (
+    <Animatable.View
+      animation="slideInUp"
+      duration={800}
+      delay={index * 100}
+      useNativeDriver={true}
+    >
+      <TouchableOpacity
+        style={styles.productCard}
+        onPress={() =>
+          navigation.navigate("ProductDetails", { productId: item.id })
+        }
+      >
+        <Image
+          source={{ uri: item.image1 }}
+          style={styles.productImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.productName}>{item.name}</Text>
+        <Text style={styles.productPrice}>{item.price} ლარი</Text>
+      </TouchableOpacity>
+    </Animatable.View>
+  );
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -63,22 +88,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           columnWrapperStyle={styles.columnWrapper}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.productCard}
-              onPress={() =>
-                navigation.navigate("ProductDetails", { productId: item.id })
-              }
-            >
-              <Image
-                source={{ uri: item.image1 }}
-                style={styles.productImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.productName}>{item.name}</Text>
-              <Text style={styles.productPrice}>{item.price} ლარი</Text>
-            </TouchableOpacity>
-          )}
+          renderItem={renderProduct}
         />
       ) : (
         <Text style={styles.noProducts}>No products available</Text>

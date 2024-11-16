@@ -12,6 +12,7 @@ import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
 import Footer from "@/components/Footer";
+import * as Animatable from "react-native-animatable";
 
 
 type MainProps = {
@@ -55,14 +56,32 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.cardContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.cardContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {content.map((item, index) => (
-          <View key={index} style={styles.cardWrapper}>
+          <Animatable.View 
+            key={index} 
+            animation="slideInUp"
+            duration={800}
+            delay={index * 100}
+            useNativeDriver={true}
+            style={styles.cardWrapper}
+          >
             <Text style={styles.cardText}>{item.text}</Text>
-            <TouchableOpacity style={styles.card} onPress={item.action}>
-              <Image style={styles.image} source={item.image} />
+            <TouchableOpacity 
+              style={styles.card} 
+              onPress={item.action}
+              activeOpacity={0.7}
+            >
+              <Image 
+                style={styles.image} 
+                source={item.image}
+                resizeMode="cover"
+              />
             </TouchableOpacity>
-          </View>
+          </Animatable.View>
         ))}
       </ScrollView>
       <Footer/>
