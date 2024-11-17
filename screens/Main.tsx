@@ -7,42 +7,39 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-import { useProducts } from "../context/productContext"; // Import the useProducts hook
+import * as Animatable from 'react-native-animatable';
+import { useProducts } from "../context/productContext";
 import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
 import Footer from "@/components/Footer";
-import * as Animatable from "react-native-animatable";
-
 
 type MainProps = {
   navigation: any;
 };
 
 const Main: React.FC<MainProps> = ({ navigation }) => {
-  const { categories } = useProducts(); // Use the categories from context
+  const { categories } = useProducts();
   const { isLoggedIn } = useAuth();
   const [content, setContent] = useState<any[]>([]);
 
   useEffect(() => {
-    // Fetch data from the backend using Axios
     axios
       .get(`${API_BASE_URL}content/main/`)
       .then((response) => {
         const formattedContent = response.data.map((item: any) => ({
           text: item.title,
-          image: { uri: item.image }, // Assuming the backend returns the full image URL
+          image: { uri: item.image },
           action: () => {
-            // Find the category based on the title
             const category = categories.find((cat) => cat.name === item.title);
             if (category) {
-              navigation.navigate("Products", { categoryId: category.id }); // Use fetched category ID
+              navigation.navigate("Products", { categoryId: category.id });
             } else if (item.action === "oil-change") {
               navigation.navigate("OilChangeScreen");
             } else if (item.action === "chat") {
               navigation.navigate("ChatScreen");
             } else if (item.title === "ყველა პროდუქტი") {
-              navigation.navigate("Products", { categoryId: null }); // Pass null for all products
+              navigation.navigate("Products", { categoryId: null });
             }
           },
         }));
@@ -53,34 +50,49 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
       });
   }, [categories]);
 
-
   return (
     <View style={styles.container}>
-      <ScrollView 
-        contentContainerStyle={styles.cardContainer}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.cardContainer}>
         {content.map((item, index) => (
           <Animatable.View 
             key={index} 
-            animation="slideInUp"
-            duration={800}
-            delay={index * 100}
+            animation="fadeInDown"
+            duration={600}
+            delay={index * 150}
+            easing="ease-out"
             useNativeDriver={true}
             style={styles.cardWrapper}
           >
             <Text style={styles.cardText}>{item.text}</Text>
-            <TouchableOpacity 
-              style={styles.card} 
-              onPress={item.action}
-              activeOpacity={0.7}
-            >
-              <Image 
-                style={styles.image} 
-                source={item.image}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
+            <View style={{ overflow: 'hidden' }}>
+              <Animatable.View 
+                animation={{
+                  0: { 
+                    translateY: 200,
+                    opacity: 0,
+                  },
+                  1: { 
+                    translateY: 0,
+                    opacity: 1,
+                  }
+                }}
+                duration={700}
+                delay={index * 150 + 200}
+                easing="ease-out"
+                useNativeDriver={true}
+              >
+                <TouchableOpacity 
+                  style={styles.card} 
+                  onPress={item.action}
+                  activeOpacity={0.7}
+                >
+                  <Image
+                    style={styles.image}
+                    source={item.image}
+                  />
+                </TouchableOpacity>
+              </Animatable.View>
+            </View>
           </Animatable.View>
         ))}
       </ScrollView>
@@ -120,14 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4, // Adds shadow for Android
+  
   },
   cardText: {
     color: "red", // A softer, more readable color

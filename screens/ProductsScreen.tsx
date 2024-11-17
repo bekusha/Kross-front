@@ -10,9 +10,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import * as Animatable from 'react-native-animatable';
 import { useProducts } from "../context/productContext";
 import { Product } from "@/types/product";
-import * as Animatable from 'react-native-animatable';
 
 const ProductsScreen = ({ navigation, route }: any) => {
   const { fetchProducts, fetchProductsByCategory, products } = useProducts();
@@ -48,40 +48,69 @@ const ProductsScreen = ({ navigation, route }: any) => {
   }, [searchQuery, products]);
 
   const renderProduct = ({ item, index }: { item: Product; index: number }) => (
-    <Animatable.View
-      animation="slideInUp"
-      duration={800}
-      delay={index * 100}
+    <Animatable.View 
+      key={index} 
+      animation="fadeInDown"
+      duration={600}
+      delay={index * 150}
+      easing="ease-out"
       useNativeDriver={true}
+      style={styles.productCard}
     >
-      <TouchableOpacity
-        style={styles.productCard}
-        onPress={() =>
-          navigation.navigate("ProductDetails", { productId: item.id })
-        }
-      >
-        <Image
-          source={{ uri: item.image1 }}
-          style={styles.productImage}
-          resizeMode="contain"
-        />
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>{item.price} ლარი</Text>
-      </TouchableOpacity>
+      <Text style={styles.productName}>{item.name}</Text>
+      <View style={{ overflow: 'hidden' }}>
+        <Animatable.View 
+          animation={{
+            0: { 
+              translateY: 200,
+              opacity: 0,
+            },
+            1: { 
+              translateY: 0,
+              opacity: 1,
+            }
+          }}
+          duration={700}
+          delay={index * 150 + 200}
+          easing="ease-out"
+          useNativeDriver={true}
+        >
+          <TouchableOpacity 
+            onPress={() => navigation.navigate("ProductDetails", { productId: item.id })}
+            activeOpacity={0.7}
+          >
+            <Image
+              source={{ uri: item.image1 }}
+              style={styles.productImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.productPrice}>{item.price} ლარი</Text>
+          </TouchableOpacity>
+        </Animatable.View>
+      </View>
     </Animatable.View>
   );
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.filterInput}
-        placeholder="რას ეძებ..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
+      <Animatable.View 
+        animation="fadeInDown"
+        duration={600}
+        easing="ease-out"
+        useNativeDriver
+        style={styles.searchContainer}
+      >
+        <TextInput
+          style={styles.filterInput}
+          placeholder="რას ეძებ..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </Animatable.View>
+
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
-      ) : filteredProducts.length > 0 ? (
+      ) : (
         <FlatList
           style={styles.productList}
           data={filteredProducts}
@@ -90,8 +119,6 @@ const ProductsScreen = ({ navigation, route }: any) => {
           columnWrapperStyle={styles.columnWrapper}
           renderItem={renderProduct}
         />
-      ) : (
-        <Text style={styles.noProducts}>No products available</Text>
       )}
     </View>
   );
@@ -100,10 +127,12 @@ const ProductsScreen = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
-    paddingHorizontal: 10,
-    paddingTop: 20,
     backgroundColor: "#f9f9f9",
+  },
+  searchContainer: {
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    zIndex: 1,
   },
   filterInput: {
     height: 40,
@@ -111,7 +140,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
-    marginBottom: 10,
+    backgroundColor: '#fff',
   },
   columnWrapper: {
     flexDirection: "column",
@@ -159,3 +188,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProductsScreen;
+
