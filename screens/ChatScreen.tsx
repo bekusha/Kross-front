@@ -10,7 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Modal,
-  Image
+  Image,
+  Alert
 } from "react-native";
 import { useAI } from "@/context/aiContext";
 import { useAuth } from "@/context/authContext";
@@ -22,13 +23,17 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   const [modalVisible, setModalVisible] = useState(true);
   const flatListRef = useRef<FlatList>(null);
   const { addToCart } = useCart();
+  const [quantity, setQuantity] = useState(1);
 
 
 
   useEffect(() => {
-    console.log(aiResponses)
-    flatListRef.current?.scrollToEnd({ animated: true });
+    const timeout = setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 300); // Add debounce delay
+    return () => clearTimeout(timeout);
   }, [aiResponses]);
+
 
   const handleSend = () => {
     if (input.trim()) {
@@ -38,15 +43,35 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   };
 
   const handleAddToCart = (product: any) => {
-
+    addToCart(product, quantity);
+    Alert.alert(
+      "პროდუქტი წარმატებით დაემატა",
+      "შეგიძლიათ იხილოთ თაბზე, ჩემი გვერდი",
+      [
+        {
+          text: "OK",
+          onPress: () => navigation.navigate("Cart"),
+        },
+      ],
+      { cancelable: false }
+    )
   };
+  const incrementQuantity = () => {
+    setQuantity(quantity + 1);
+  }
 
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  }
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 120}
       style={styles.container}>
-      {error && <Text style={styles.error}>Error: {error}</Text>}
+      {error && <Text>{typeof error === "string" ? error : JSON.stringify(error)}</Text>}
+
       {loading && (
         <ActivityIndicator
           size="large"
@@ -81,15 +106,15 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
                 </View>
                 <View style={styles.calculateButtonsContainer}>
 
-                  <Text style={{ margin: 0 }}>ნივთის რაოდენობა: </Text>
-                  <TouchableOpacity style={styles.calculateButtonsContainer}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
+                  {/* <Text style={{ margin: 0 }}>ნივთის რაოდენობა: </Text> */}
+                  <TouchableOpacity style={styles.calculateButtonsContainer} onPress={decrementQuantity}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
                   <View>
-                    <Text style={styles.calculatorButtons}>{product.quantity_for_user || 0}</Text>
+                    <Text style={styles.calculatorButtons}>{quantity}</Text>
                   </View>
-                  <TouchableOpacity style={styles.calculateButtonsContainer}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
+                  <TouchableOpacity style={styles.calculateButtonsContainer} onPress={incrementQuantity}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
                 </View>
-                <Text style={{ textAlign: "center" }}>რაოდენობა: 1 ლიტრი</Text>
-                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }} >ფასი: {product.price} ლარი</Text>
+                <Text style={{ textAlign: "center" }}>რაოდენობა: {quantity * product.liter} ლიტრი</Text>
+                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }} >ფასი:{quantity * product.price} ლარი</Text>
                 <View style={{ justifyContent: "flex-start" }}>
                   <TouchableOpacity
                     onPress={() => handleAddToCart(product)}

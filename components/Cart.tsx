@@ -7,14 +7,23 @@ import {
   ScrollView,
   StyleSheet,
   Animated,
+  Alert,
+  Modal,
+  TextInput
 } from "react-native";
 import { useCart } from "@/context/cartContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { API_BASE_URL } from "@env";
+
 
 const Cart = () => {
-  const { cart, removeFromCart } = useCart();
+  const { cart, removeFromCart, purchase } = useCart();
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [additionalInfo, setAdditionalInfo] = useState({
+    phone: "",
+    address: "",
+    email: "",
+  })
   const [rotateAnims, setRotateAnims] = useState<{
     [key: number]: Animated.Value;
   }>({});
@@ -34,37 +43,39 @@ const Cart = () => {
     }
   }, [cart]);
 
-  function getImageUrl(path: any) {
-    if (path.startsWith("http")) {
-      return path; // Path is already a full URL
-    }
-    return `${API_BASE_URL}${path}`;
-  }
 
-  const toggleExpand = (index: number) => {
-    if (!rotateAnims[index]) return; // Ensure animation state exists
-
-    const isExpanded = expandedItems.includes(index);
-    if (isExpanded) {
-      setExpandedItems(expandedItems.filter((i) => i !== index));
-    } else {
-      setExpandedItems([...expandedItems, index]);
+  const handlePurchase = async () => {
+    if (!cart || cart.items.length === 0) {
+      Alert.alert("შეცდომა", "თქვენი კალათი ცარიელია!");
+      return;
     }
 
-    // Trigger arrow rotation animation for the specific index
-    Animated.timing(rotateAnims[index], {
-      toValue: isExpanded ? 0 : 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    const orderItems = cart.items.map((item) => ({
+      product_id: item.product.id,
+      quantity: item.quantity,
+    }));
+
+
+
+    try {
+      // პროდუქტის მიწოდების შეკვეთის გაფორმება
+      await purchase(orderItems, "product_delivery", additionalInfo);
+      Alert.alert("წარმატება", "შეკვეთა წარმატებით გაფორმდა!");
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Failed to purchase:", error);
+      Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
+    }
   };
+
+
 
   const handleRemoveFromCart = (productId: number) => {
     removeFromCart(productId);
   };
 
   return (
-    <View style={styles.cartContainer}>
+    <View style={styles.container}>
       {cart && cart.items.length > 0 ? (
         <ScrollView>
           {cart.items.map((item, index) => {
@@ -79,41 +90,101 @@ const Cart = () => {
               <View key={index} style={styles.cartItem}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemName}>{item.product.name}</Text>
-                  <Text>{item.product.price} ლ</Text>
-                  <Icon style={{ fontSize: 25 }} onPress={() => {
-                    removeFromCart(item.id)
-                  }} name="close" />
-                </View>
 
+                  <Icon style={{ fontSize: 25 }} onPress={() => {
+                    handleRemoveFromCart(item.id)
+                  }} name="delete" />
+                </View>
+                <Text>რაოდენობა: {item.quantity} ცალი</Text>
+                <Text>თითო ნივთის ფასი: {item.product.price} ლ</Text>
               </View>
             );
           })}
         </ScrollView>
       ) : (
-        <View style={styles.emptyCartContainer}>
-          <Text style={styles.emptyCart}>შენი კალათი ცარიელია</Text>
-        </View>
+        <Text>თქვენი კალათა ცარიელია!</Text>
       )}
       <View style={styles.summary}>
         <Text style={[styles.emptyCart, { color: '#00FF00' }]}>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
         {/* i want to bold only ჯამური ფასი */}
 
         <Text style={styles.checkoutInfo}>ჯამური ფასი: <Text>{cart?.totalPrice || 0} ლ</Text></Text>
-        <TouchableOpacity style={styles.checkoutButton}>
+        <TouchableOpacity onPress={() => setIsModalVisible(true)} style={styles.checkoutButton}>
           <Text style={styles.buttonText}>შეძენა</Text>
         </TouchableOpacity>
       </View>
 
-    </View>
-  );
+
+      {/* Modal for additionalInfo */}
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>შეიყვანეთ ინფორმაცია</Text>
+
+            {/* Input for Phone */}
+            <TextInput
+              style={styles.input}
+              placeholder="ტელეფონი"
+              keyboardType="phone-pad"
+              value={additionalInfo.phone}
+              onChangeText={(text) =>
+                setAdditionalInfo((prev) => ({ ...prev, phone: text }))
+              }
+            />
+
+            {/* Input for Address */}
+            <TextInput
+              style={styles.input}
+              placeholder="მისამართი"
+              value={additionalInfo.address}
+              onChangeText={(text) =>
+                setAdditionalInfo((prev) => ({ ...prev, address: text }))
+              }
+            />
+
+            {/* Input for Email */}
+            <TextInput
+              style={styles.input}
+              placeholder="ელფოსტა"
+              keyboardType="email-address"
+              value={additionalInfo.email}
+              onChangeText={(text) =>
+                setAdditionalInfo((prev) => ({ ...prev, email: text }))
+              }
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={() => setIsModalVisible(false)}
+                style={[styles.button, styles.cancelButton]}
+              >
+                <Text style={styles.buttonText}>გაუქმება</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handlePurchase}
+                style={[styles.button, styles.confirmButton]}
+              >
+                <Text style={styles.buttonText}>დადასტურება</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>);
 };
 
 const styles = StyleSheet.create({
   cartContainer: {
-    width: "80%",
+    width: "100%",
     height: "68%",
     backgroundColor: "white",
-    padding: 16,
+
     borderRadius: 8,
     shadowColor: "#000",
     shadowOpacity: 0.2,
@@ -127,6 +198,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
+    height: 100,
+    width: "100%",
   },
   itemHeader: {
     flexDirection: "row",
@@ -188,6 +261,58 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  // checkoutButton: {
+  //   backgroundColor: "#000",
+  //   padding: 16,
+  //   borderRadius: 8,
+  //   marginTop: 16,
+  //   alignItems: "center",
+  // },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  input: {
+    width: "100%",
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  cancelButton: {
+    backgroundColor: "#ddd",
+  },
+  confirmButton: {
+    backgroundColor: "#000",
+  },
+
+
 });
 
 export default Cart;

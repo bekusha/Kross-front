@@ -12,6 +12,11 @@ interface CartContextType {
   addToCart: (product: Product, quantity: number) => Promise<void>;
   removeFromCart: (productId: number) => Promise<void>;
   updateCartItem: (productId: number, quantity: number) => Promise<void>;
+  purchase: (
+    orderItems: { product_id: number; quantity: number }[],
+    orderType: "product_delivery" | "oil_change",
+    additionalInfo: { phone: string; address: string; email: string }
+  ) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType>({
@@ -20,6 +25,7 @@ const CartContext = createContext<CartContextType>({
   addToCart: async () => { },
   removeFromCart: async () => { },
   updateCartItem: async () => { },
+  purchase: async () => { },
 });
 
 export function useCart() {
@@ -44,6 +50,59 @@ export const CartProvider = ({ children }: any) => {
       fetchCart();
     }
   }, [user]);
+
+  // receive array of products
+
+  const purchase = async (
+    orderItems: { product_id: number; quantity: number }[], // პროდუქტის სია
+    orderType: "product_delivery" | "oil_change",          // შეკვეთის ტიპი
+    additionalInfo: { phone: string; address: string; email: string } // დამატებითი ინფორმაცია
+  ) => {
+    const token = await getToken();
+
+    if (!token) {
+      console.error("User token not found.");
+      Alert.alert("შეცდომა", "მომხმარებლის ავტორიზაცია საჭირო იქნება.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}order/purchase/`,
+        {
+          order_items: orderItems,       // პროდუქტის სია
+          order_type: orderType,        // შეკვეთის ტიპი
+          phone: additionalInfo.phone,  // ტელეფონი
+          address: additionalInfo.address, // მისამართი
+          email: additionalInfo.email,  // ელფოსტა
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        Alert.alert("შეკვეთა წარმატებით გაფორმდა", `Order ID: ${response.data.order_id}`);
+        console.log("Order created successfully:", response.data);
+
+        // კალათის გასუფთავება შეკვეთის შემდეგ
+        setCart({
+          items: [],
+          totalItems: 0,
+          totalPrice: 0,
+        });
+      } else {
+        console.error("Unexpected response:", response);
+        Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
+      }
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
+    }
+  };
+
 
   const fetchCart = async () => {
     setLoading(true);
@@ -285,6 +344,7 @@ export const CartProvider = ({ children }: any) => {
     addToCart,
     removeFromCart,
     updateCartItem,
+    purchase
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
