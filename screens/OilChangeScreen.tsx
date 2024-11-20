@@ -17,12 +17,16 @@ import { useOilChange } from "../context/OilChangeContext";
 import { useAuth } from "@/context/authContext";
 import { NavigationProp, useNavigation, } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
+import { Picker } from "@react-native-picker/picker";
+import { useCart } from "@/context/cartContext";
 
-const OilChangeScreen = () => {
+const OilChangeScreen = ({ route }: { route: any }) => {
   const { deliveries, loading, error, fetchDeliveries, createDelivery } = useOilChange();
+  const { purchase } = useCart();
   const { user, isLoggedIn } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
   const navigation = useNavigation<AuthScreenNavigationProp>();
+  const { selectedProduct, quantity } = route.params || {};
 
   // State for form inputs
   const [formData, setFormData] = useState({
@@ -34,6 +38,8 @@ const OilChangeScreen = () => {
     address: user?.address || "",
     email: user?.email || "",
     ordered_at: "",
+    product: selectedProduct?.id || 0,
+    quantity: quantity
   });
 
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -53,44 +59,24 @@ const OilChangeScreen = () => {
     }));
   };
 
-
-  const handleCreateDelivery = () => {
-    // if (!formData.phone || !formData.address || !formData.email || !formData.product) {
-    //   Alert.alert("Error", "Please fill all required fields.");
-    //   return;
-    // }
-
-    if (!user) {
-      Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
-      return;
-    }
-    console.log('working')
-
-    const newDelivery = {
-      user: user.id,
-      phone: formData.phone,
-      car_make: user.car_make,
-      car_model: user.car_model,
-      car_year: user.car_year,
-      car_mileage: user.car_mileage,
-      address: formData.address,
-      email: formData.email,
-      ordered_at: '',
-    };
-
-    createDelivery(newDelivery)
-      .then(() => {
-        Alert.alert("Success", "Delivery created successfully.");
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          phone: "",
-          address: "",
-          email: "",
-          ordered_at: '',
-        }));
-      })
-      .catch((err) => Alert.alert("Error", err.message));
+  const handlePurchase = async () => {
+    const orderItems = [
+      {
+        product_id: formData.product,
+        quantity: formData.quantity,
+      },
+    ],
+      orderType = "oil_change",
+      additionalInfo = {
+        phone: formData.phone,
+        address: formData.address,
+        email: formData.email,
+      };
+    console.log(orderItems, orderType, additionalInfo);
+    purchase(orderItems, orderType, additionalInfo);
   };
+
+
 
   const toggleExpand = (id: number) => {
     setExpanded(expanded === id ? null : id);
@@ -125,7 +111,6 @@ const OilChangeScreen = () => {
   return (
     <KeyboardAvoidingView style={styles.container}>
       <ScrollView>
-        {/* <Text style={styles.title} >სერვისის მისამართზე გამოძახება <Text style={styles.redText}>{user?.username}</Text></Text> */}
         <View style={styles.form}>
           <TextInput
             placeholder="მობილურის ნომერი"
@@ -169,23 +154,20 @@ const OilChangeScreen = () => {
             onChangeText={(value) => handleInputChange("email", value)}
             style={styles.input}
           /> */}
+          {selectedProduct ? (
+            <View><Text>შერჩეული პროდუქტი: {selectedProduct.name}</Text>
+              <Text>რაოდენობა: {quantity} ბოთლი</Text>
+              <Text>ფასი: {selectedProduct.price * quantity} ლარი</Text>
+            </View>
 
-          {/* <Picker
-            selectedValue={formData.product}
-            onValueChange={(value) => handleInputChange("product", value)}
-            style={styles.input}
-          >
-            <Picker.Item label="აირჩიეთ პროდუქტი" value="" />
-            {products.map((product) => (
-              <Picker.Item key={product.id} label={product.name} value={product.id.toString()} />
-            ))}
-          </Picker> */}
+          ) : null}
 
 
 
           <TouchableOpacity
 
-            onPress={handleCreateDelivery}
+            onPress={handlePurchase}
+
             style={styles.submitButton}
 
           ><Text style={styles.submitButtonText}>სერვისის გამოძახება</Text></TouchableOpacity>

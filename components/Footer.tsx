@@ -26,11 +26,11 @@ const Footer = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={[styles.button, isOpen && styles.buttonActive]} 
+      <TouchableOpacity
+        style={[styles.button, isOpen && styles.buttonActive]}
         onPress={toggleFooter}
       >
-        <Animated.View 
+        <Animated.View
           style={{
             transform: [{
               rotate: heightAnimation.interpolate({
@@ -46,7 +46,7 @@ const Footer = () => {
 
       {isOpen && (
         <Animated.View style={[styles.popupContainer, { height: heightAnimation }]}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleNavigation("Products")}
           >
@@ -54,7 +54,7 @@ const Footer = () => {
             <Text style={styles.menuText}>ყველა პროდუქტი</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleNavigation("OilChangeScreen")}
           >
@@ -62,7 +62,7 @@ const Footer = () => {
             <Text style={styles.menuText}>ზეთის შეცვლა გამოძახებით</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleNavigation("ChatScreen")}
           >
@@ -122,6 +122,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
     gap: 15,
+    width: "100%",
+    height: 60,
   },
   menuText: {
     color: '#FFF',

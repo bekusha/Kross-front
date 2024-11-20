@@ -17,6 +17,7 @@ import { useAI } from "@/context/aiContext";
 import { useAuth } from "@/context/authContext";
 import { useCart } from "@/context/cartContext";
 import { Ionicons } from '@expo/vector-icons';
+import { Product } from "@/types/product";
 const ChatScreen = ({ navigation }: { navigation: any }) => {
   const { aiResponses, loading, error, fetchAIResponse } = useAI();
   const [input, setInput] = useState("");
@@ -30,9 +31,39 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
-    }, 300); // Add debounce delay
+    }, 300);
     return () => clearTimeout(timeout);
   }, [aiResponses]);
+
+  const handleCallService = (product: Product) => {
+    if (!product) {
+      console.error("Product is missing!");
+      return;
+    }
+
+    console.log("Selected product:", JSON.stringify(product, null, 2));
+
+    const orderItems = [
+      { product_id: product.id, quantity: quantity, product: product },
+    ];
+    const orderType = "oil_change";
+    const additionalInfo = {
+      phone: "",
+      address: "",
+      email: "",
+    };
+
+    navigation.navigate("OilChangeScreen", {
+      orderItems,
+      orderType,
+      additionalInfo,
+      selectedProduct: product,
+      quantity,
+    });
+  };
+
+
+
 
 
   const handleSend = () => {
@@ -107,11 +138,11 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
                 <View style={styles.calculateButtonsContainer}>
 
                   {/* <Text style={{ margin: 0 }}>ნივთის რაოდენობა: </Text> */}
-                  <TouchableOpacity style={styles.calculateButtonsContainer} onPress={decrementQuantity}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={decrementQuantity}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
                   <View>
                     <Text style={styles.calculatorButtons}>{quantity}</Text>
                   </View>
-                  <TouchableOpacity style={styles.calculateButtonsContainer} onPress={incrementQuantity}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={incrementQuantity}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
                 </View>
                 <Text style={{ textAlign: "center" }}>რაოდენობა: {quantity * product.liter} ლიტრი</Text>
                 <Text style={{ color: "red", textAlign: "center", marginTop: 10 }} >ფასი:{quantity * product.price} ლარი</Text>
@@ -124,7 +155,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
                     <Text style={{ color: "red", fontSize: 14 }}>კალათში დამატება</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => handleAddToCart(product)}
+                    onPress={() => handleCallService(product)}
                     style={styles.callServiceButtonText}
                   >
                     <Ionicons name="construct-outline" size={24} color="red" />
@@ -331,14 +362,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 5,
     borderRadius: 6,
+    height: 40,
   },
   calculatorButtons: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
     color: "red",
     fontWeight: "bold",
-    fontSize: 20,
-    // textAlign: "center",
+    fontSize: 18,
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
   },
   detailPageButtonText: {
     color: "red",
