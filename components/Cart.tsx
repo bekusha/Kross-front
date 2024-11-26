@@ -16,7 +16,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 
 const Cart = () => {
-  const { cart, removeFromCart, purchase } = useCart();
+  const { cart, removeFromCart, purchase, oilChangeOrders } = useCart();
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState({
@@ -97,6 +97,7 @@ const Cart = () => {
                 </View>
                 <Text>რაოდენობა: {item.quantity} ცალი</Text>
                 <Text>თითო ნივთის ფასი: {item.product.price} ლ</Text>
+                <Text>შეკვეთის სტატუსი: {cart?.order_status}</Text>
               </View>
             );
           })}
@@ -109,6 +110,7 @@ const Cart = () => {
         {/* i want to bold only ჯამური ფასი */}
 
         <Text style={styles.checkoutInfo}>ჯამური ფასი: <Text>{cart?.totalPrice || 0} ლ</Text></Text>
+
         <TouchableOpacity onPress={() => setIsModalVisible(true)} style={styles.checkoutButton}>
           <Text style={styles.buttonText}>შეძენა</Text>
         </TouchableOpacity>

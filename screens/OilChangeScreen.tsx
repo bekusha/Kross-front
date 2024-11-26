@@ -2,31 +2,27 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  ActivityIndicator,
   FlatList,
   Button,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-
-  Alert,
   KeyboardAvoidingView,
   ScrollView,
 } from "react-native";
-import { useOilChange } from "../context/OilChangeContext";
 import { useAuth } from "@/context/authContext";
 import { NavigationProp, useNavigation, } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
-import { Picker } from "@react-native-picker/picker";
 import { useCart } from "@/context/cartContext";
 
 const OilChangeScreen = ({ route }: { route: any }) => {
-  const { deliveries, loading, error, fetchDeliveries, createDelivery } = useOilChange();
-  const { purchase } = useCart();
+  const { purchase, oilChangeOrders } = useCart();
   const { user, isLoggedIn } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
   const navigation = useNavigation<AuthScreenNavigationProp>();
   const { selectedProduct, quantity } = route.params || {};
+
+  const [deliveries, setDeliveries] = useState([]);
 
   // State for form inputs
   const [formData, setFormData] = useState({
@@ -47,7 +43,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
 
 
   useEffect(() => {
-    fetchDeliveries();
+
 
   }, []);
 
@@ -91,26 +87,13 @@ const OilChangeScreen = ({ route }: { route: any }) => {
     }).format(date);
   };
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
 
-  if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>Error: {error}</Text>
-        <Button title="Retry" onPress={fetchDeliveries} color="#ff6347" />
-      </View>
-    );
-  }
+
+
 
   return (
     <KeyboardAvoidingView style={styles.container}>
-      <ScrollView>
+      <KeyboardAvoidingView>
         <View style={styles.form}>
           <TextInput
             placeholder="მობილურის ნომერი"
@@ -175,11 +158,11 @@ const OilChangeScreen = ({ route }: { route: any }) => {
 
         {/* <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text> */}
         {/* if changedeliveries.length !== 0 show view above */}
-        {!loading && !error && deliveries.length > 0 && (
+        {oilChangeOrders.length > 0 && (
           <Text style={styles.title}>შენი სერვისების ისტორია</Text>
         )}
         <FlatList
-          data={deliveries}
+          data={oilChangeOrders}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.card}>
@@ -204,7 +187,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
             </View>
           )}
         />
-      </ScrollView>
+      </KeyboardAvoidingView>
     </KeyboardAvoidingView>
   );
 };

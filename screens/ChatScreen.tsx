@@ -24,7 +24,8 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   const [modalVisible, setModalVisible] = useState(true);
   const flatListRef = useRef<FlatList>(null);
   const { addToCart } = useCart();
-  const [quantity, setQuantity] = useState(1);
+  // const [quantity, setQuantity] = useState(1);
+  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
 
 
@@ -40,6 +41,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
       console.error("Product is missing!");
       return;
     }
+    const quantity = quantities[product.id] || 1;
 
     console.log("Selected product:", JSON.stringify(product, null, 2));
 
@@ -74,6 +76,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   };
 
   const handleAddToCart = (product: any) => {
+    const quantity = quantities[product.id] || 1;
     addToCart(product, quantity);
     Alert.alert(
       "პროდუქტი წარმატებით დაემატა",
@@ -87,15 +90,20 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
       { cancelable: false }
     )
   };
-  const incrementQuantity = () => {
-    setQuantity(quantity + 1);
-  }
+  const incrementQuantity = (productId: string) => {
+    setQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [productId]: (prevQuantities[productId] || 1) + 1,
+    }));
+  };
 
-  const decrementQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  }
+  const decrementQuantity = (productId: string) => {
+    setQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [productId]: prevQuantities[productId] > 1 ? prevQuantities[productId] - 1 : 1,
+    }));
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -138,14 +146,14 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
                 <View style={styles.calculateButtonsContainer}>
 
                   {/* <Text style={{ margin: 0 }}>ნივთის რაოდენობა: </Text> */}
-                  <TouchableOpacity onPress={decrementQuantity}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => decrementQuantity(product.id)}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
                   <View>
-                    <Text style={styles.calculatorButtons}>{quantity}</Text>
+                    <Text style={styles.calculatorButtons}>{quantities[product.id] || 1}</Text>
                   </View>
-                  <TouchableOpacity onPress={incrementQuantity}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => incrementQuantity(product.id)}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
                 </View>
-                <Text style={{ textAlign: "center" }}>რაოდენობა: {quantity * product.liter} ლიტრი</Text>
-                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }} >ფასი:{quantity * product.price} ლარი</Text>
+                <Text style={{ textAlign: "center" }}>რაოდენობა: {(quantities[product.id] || 1) * product.liter} ლიტრი ლიტრი</Text>
+                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }} >ფასი: {(quantities[product.id] || 1) * product.price} ლარი</Text>
                 <View style={{ justifyContent: "flex-start" }}>
                   <TouchableOpacity
                     onPress={() => handleAddToCart(product)}

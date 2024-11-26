@@ -6,6 +6,7 @@ import {
   Text,
   StyleSheet,
   Image,
+  Button,
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useProducts } from "../context/productContext";
@@ -13,6 +14,8 @@ import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
 import Footer from "@/components/Footer";
+import OrderModal from "@/components/OrderModal";
+import { useCart } from "@/context/cartContext";
 
 type MainProps = {
   navigation: any;
@@ -22,6 +25,8 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
   const { categories } = useProducts();
   const { isLoggedIn } = useAuth();
   const [content, setContent] = useState<any[]>([]);
+  const { orderModalButtonVisible, setOrderModalButtonVisible } = useCart();
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     axios
@@ -54,8 +59,8 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
         {content.map((item, index) => (
-          <Animatable.View 
-            key={index} 
+          <Animatable.View
+            key={index}
             animation="fadeInDown"
             duration={600}
             delay={index * 150}
@@ -65,13 +70,13 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
           >
             <Text style={styles.cardText}>{item.text}</Text>
             <View style={{ overflow: 'hidden' }}>
-              <Animatable.View 
+              <Animatable.View
                 animation={{
-                  0: { 
+                  0: {
                     translateY: 200,
                     opacity: 0,
                   },
-                  1: { 
+                  1: {
                     translateY: 0,
                     opacity: 1,
                   }
@@ -81,8 +86,8 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
                 easing="ease-out"
                 useNativeDriver={true}
               >
-                <TouchableOpacity 
-                  style={styles.card} 
+                <TouchableOpacity
+                  style={styles.card}
                   onPress={item.action}
                   activeOpacity={0.7}
                 >
@@ -91,12 +96,32 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
                     source={item.image}
                   />
                 </TouchableOpacity>
+                {modalVisible && <OrderModal
+                  visible={modalVisible}
+                  onClose={() => setModalVisible(false)}
+
+                />}
+                {/* შეკვეთის სტატუსის ღილაკი */}
+
+                <OrderModal
+                  visible={modalVisible}
+                  onClose={() => setModalVisible(false)}
+
+                />
               </Animatable.View>
             </View>
           </Animatable.View>
         ))}
+        {orderModalButtonVisible && (
+          <View style={styles.buttonContainer}>
+            <Button
+              title="შეკვეთის სტატუსის ნახვა"
+              onPress={() => setModalVisible(true)}
+            />
+          </View>
+        )}
       </ScrollView>
-      <Footer/>
+      <Footer />
     </View>
   );
 };
@@ -144,6 +169,11 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "contain",
+  },
+  buttonContainer: {
+    position: "absolute",
+    bottom: 20,
+    alignSelf: "center",
   },
 });
 export default Main;

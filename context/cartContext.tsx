@@ -6,6 +6,7 @@ import { useAuth } from "./authContext";
 import { API_BASE_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from 'react-native';
+import { set } from "mongoose";
 interface CartContextType {
   cart: Cart | null;
   loading: boolean;
@@ -17,6 +18,9 @@ interface CartContextType {
     orderType: "product_delivery" | "oil_change",
     additionalInfo: { phone: string; address: string; email: string }
   ) => Promise<void>;
+  oilChangeOrders: any;
+  orderModalButtonVisible: boolean;
+  setOrderModalButtonVisible: (visible: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType>({
@@ -26,6 +30,9 @@ const CartContext = createContext<CartContextType>({
   removeFromCart: async () => { },
   updateCartItem: async () => { },
   purchase: async () => { },
+  oilChangeOrders: [],
+  orderModalButtonVisible: false,
+  setOrderModalButtonVisible: () => { },
 });
 
 export function useCart() {
@@ -39,7 +46,12 @@ export const CartProvider = ({ children }: any) => {
     totalPrice: 0,
   });
   const [loading, setLoading] = useState(false);
+  // const [oilChangeOrders, setOilChangeOrders] = useState([]);
   const { user } = useAuth()!;
+  const [oilChangeOrders, setOilChangeOrders] = useState<OilChangeOrder | null>(null);
+
+
+  const [orderModalButtonVisible, setOrderModalButtonVisible] = useState(false);
 
   const getToken = async () => {
     return await AsyncStorage.getItem("access");
@@ -82,26 +94,49 @@ export const CartProvider = ({ children }: any) => {
           },
         }
       );
+      const { order_id, status } = response.data;
 
       if (response.status === 201) {
-        Alert.alert("შეკვეთა წარმატებით გაფორმდა", `Order ID: ${response.data.order_id}`);
+        Alert.alert(
+          "შეკვეთა წარმატებით გაფორმდა",
+          `Order ID: ${order_id}, Status: ${status}`
+        );
         console.log("Order created successfully:", response.data);
 
+        fetchOilChangeOrders(order_id);
+
+        setOrderModalButtonVisible(true);
+
+
         // კალათის გასუფთავება შეკვეთის შემდეგ
-        setCart({
-          items: [],
-          totalItems: 0,
-          totalPrice: 0,
-        });
-      } else {
-        console.error("Unexpected response:", response);
-        Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
+        // setCart({
+        //   items: [],
+        //   totalItems: 0,
+        //   totalPrice: 0,
+        // });
       }
     } catch (error) {
       console.error("Failed to create order:", error);
-      Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
     }
   };
+
+  const fetchOilChangeOrders = async (order_id: number) => {
+    try {
+      const token = await getToken();
+      const response = await axios.get(`${API_BASE_URL}order/${order_id}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        setOilChangeOrders(response.data); // მონაცემების შენახვა სრულად
+      }
+    } catch (error) {
+      console.error("Failed to fetch oil change orders:", error);
+    }
+  };
+
 
 
   const fetchCart = async () => {
@@ -344,7 +379,10 @@ export const CartProvider = ({ children }: any) => {
     addToCart,
     removeFromCart,
     updateCartItem,
-    purchase
+    purchase,
+    oilChangeOrders,
+    orderModalButtonVisible,
+    setOrderModalButtonVisible
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
