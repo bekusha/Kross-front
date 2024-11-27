@@ -158,7 +158,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
 
         {/* <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text> */}
         {/* if changedeliveries.length !== 0 show view above */}
-        {oilChangeOrders.length > 0 && (
+        {oilChangeOrders && (
           <Text style={styles.title}>შენი სერვისების ისტორია</Text>
         )}
         <FlatList

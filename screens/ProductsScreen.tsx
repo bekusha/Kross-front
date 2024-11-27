@@ -45,8 +45,8 @@ const ProductsScreen = ({ navigation, route }: any) => {
   }, [searchQuery, products]);
 
   const renderProduct = ({ item, index }: { item: Product; index: number }) => (
-    <Animatable.View 
-      key={index} 
+    <Animatable.View
+      key={index}
       animation="fadeInDown"
       duration={600}
       delay={index * 150}
@@ -56,13 +56,13 @@ const ProductsScreen = ({ navigation, route }: any) => {
     >
       <Text style={styles.productName}>{item.name}</Text>
       <View style={{ overflow: 'hidden' }}>
-        <Animatable.View 
+        <Animatable.View
           animation={{
-            0: { 
+            0: {
               translateY: 200,
               opacity: 0,
             },
-            1: { 
+            1: {
               translateY: 0,
               opacity: 1,
             }
@@ -72,7 +72,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
           easing="ease-out"
           useNativeDriver={true}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => navigation.navigate("ProductDetails", { productId: item.id })}
             activeOpacity={0.7}
           >
@@ -90,7 +90,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
 
   return (
     <View style={styles.container}>
-      <Animatable.View 
+      <Animatable.View
         animation="fadeInDown"
         duration={600}
         easing="ease-out"
@@ -106,7 +106,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
       </Animatable.View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator color="#0000ff" />
       ) : (
         <FlatList
           style={styles.productList}

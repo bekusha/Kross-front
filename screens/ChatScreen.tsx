@@ -113,7 +113,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
 
       {loading && (
         <ActivityIndicator
-          size="large"
+          size={50}
           color="#0000ff"
           style={styles.loadingIndicator}
         />
@@ -131,9 +131,9 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
               <View style={styles.productCard} key={index} >
 
                 <View style={{ flexDirection: "row" }}>
-                  <Image source={require('assets/engine.webp')}
+                  {/* <Image source={require('assets/engine.webp')}
                     style={{ width: 50, height: 40, borderRadius: 10, marginRight: 5 }}
-                  />
+                  /> */}
                   <View style={{ justifyContent: "flex-start" }}>
                     <Text style={styles.productTitle}>{product.name}</Text>
 
