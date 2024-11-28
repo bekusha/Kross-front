@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, Platform, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
+
+const { width } = Dimensions.get('window'); // Get the screen width
 
 const Footer = () => {
   const navigation = useNavigation();
@@ -11,7 +13,7 @@ const Footer = () => {
   const toggleFooter = () => {
     setIsOpen(!isOpen);
     Animated.timing(heightAnimation, {
-      toValue: isOpen ? 0 : 240,
+      toValue: isOpen ? 0 : 260, // Slightly increased height for better spacing
       duration: 300,
       easing: Easing.bezier(0.4, 0, 0.2, 1),
       useNativeDriver: false,
@@ -34,7 +36,7 @@ const Footer = () => {
           style={{
             transform: [{
               rotate: heightAnimation.interpolate({
-                inputRange: [0, 240],
+                inputRange: [0, 260],
                 outputRange: ['0deg', '0deg']
               })
             }]
@@ -106,7 +108,8 @@ const styles = StyleSheet.create({
     bottom: 70,
     backgroundColor: 'rgba(17, 24, 39, 0.95)', // Dark background with opacity
     borderRadius: 20,
-    width: 290,
+    width: width * 0.95, // Make it occupy 95% of the screen width
+    maxWidth: 400, // Cap the maximum width
     padding: 20,
     gap: 15,
     shadowColor: '#000',
@@ -128,9 +131,8 @@ const styles = StyleSheet.create({
   menuText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });
 
 export default Footer;
-

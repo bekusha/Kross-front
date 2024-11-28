@@ -77,6 +77,7 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
           <TextInput
             style={styles.input}
             placeholder="Password"
+            autoCapitalize="none"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
