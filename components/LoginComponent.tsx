@@ -78,6 +78,7 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
             style={styles.input}
             placeholder="Password"
             value={password}
+            autoCapitalize="none"
             onChangeText={setPassword}
             secureTextEntry
             placeholderTextColor="#666"
