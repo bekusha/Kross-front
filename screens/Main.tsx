@@ -6,7 +6,7 @@ import {
   Text,
   StyleSheet,
   Image,
-  Button,
+
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useProducts } from "../context/productContext";
@@ -16,18 +16,17 @@ import { API_BASE_URL } from "@env";
 import Footer from "@/components/Footer";
 import OrderModal from "@/components/OrderModal";
 import { useCart } from "@/context/cartContext";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 type MainProps = {
   navigation: any;
 };
-
 const Main: React.FC<MainProps> = ({ navigation }) => {
   const { categories } = useProducts();
   const { isLoggedIn } = useAuth();
   const [content, setContent] = useState<any[]>([]);
   const { orderModalButtonVisible, setOrderModalButtonVisible } = useCart();
   const [modalVisible, setModalVisible] = useState(false);
-
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}content/main/`)
@@ -54,7 +53,6 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
         console.error("Error fetching data: ", error);
       });
   }, [categories]);
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
@@ -99,32 +97,31 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
                 {modalVisible && <OrderModal
                   visible={modalVisible}
                   onClose={() => setModalVisible(false)}
-
                 />}
                 {/* შეკვეთის სტატუსის ღილაკი */}
-
                 <OrderModal
                   visible={modalVisible}
                   onClose={() => setModalVisible(false)}
-
                 />
               </Animatable.View>
             </View>
           </Animatable.View>
         ))}
-        {orderModalButtonVisible && (
-          <View style={styles.buttonContainer}>
-            <Button
-              title="შეკვეთის სტატუსის ნახვა"
-              onPress={() => setModalVisible(true)}
-            />
-          </View>
-        )}
       </ScrollView>
+      {/* Fixed Timer Icon Button */}
+      {orderModalButtonVisible && (
+        <TouchableOpacity 
+          style={styles.timerButton} 
+          onPress={() => setModalVisible(true)}
+        >
+          <Icon name="timer" size={50} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
       <Footer />
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -156,7 +153,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
-
   },
   cardText: {
     color: "red", // A softer, more readable color
@@ -170,10 +166,18 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "contain",
   },
-  buttonContainer: {
-    position: "absolute",
+  timerButton: {
+    position: 'absolute',
     bottom: 20,
-    alignSelf: "center",
+    right: 10,
+    backgroundColor: '#D32F2F', // Match footer color
+    borderRadius: 50, // Circular button
+    width: 60, // Set width to 50
+    height: 60, // Set height to 50
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
   },
 });
+
 export default Main;
