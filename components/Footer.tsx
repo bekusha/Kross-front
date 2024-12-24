@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
+
+
+const { width } = Dimensions.get('window');
 
 const Footer = () => {
   const navigation = useNavigation();
@@ -26,11 +29,11 @@ const Footer = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={[styles.button, isOpen && styles.buttonActive]}
+      <TouchableOpacity 
+        style={[styles.button, isOpen && styles.buttonActive]} 
         onPress={toggleFooter}
       >
-        <Animated.View
+        <Animated.View 
           style={{
             transform: [{
               rotate: heightAnimation.interpolate({
@@ -46,7 +49,7 @@ const Footer = () => {
 
       {isOpen && (
         <Animated.View style={[styles.popupContainer, { height: heightAnimation }]}>
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.menuItem}
             onPress={() => handleNavigation("Products")}
           >
@@ -54,7 +57,7 @@ const Footer = () => {
             <Text style={styles.menuText}>ყველა პროდუქტი</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.menuItem}
             onPress={() => handleNavigation("OilChangeScreen")}
           >
@@ -62,7 +65,7 @@ const Footer = () => {
             <Text style={styles.menuText}>ზეთის შეცვლა გამოძახებით</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.menuItem}
             onPress={() => handleNavigation("ChatScreen")}
           >
@@ -102,12 +105,13 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '180deg' }],
   },
   popupContainer: {
-    position: 'absolute',
+     position: 'absolute',
     bottom: 70,
     backgroundColor: 'rgba(17, 24, 39, 0.95)', // Dark background with opacity
     borderRadius: 20,
-    width: 290,
-    padding: 20,
+    width: width * 0.85, // 85% of the screen width
+    paddingVertical: 20,
+    paddingHorizontal: 15, // Ensures padding is uniform across devices
     gap: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
@@ -122,15 +126,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
     gap: 15,
-    width: "100%",
-    height: 60,
   },
   menuText: {
     color: '#FFF',
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 17,
+    fontWeight: '600',
   },
 });
 
 export default Footer;
-

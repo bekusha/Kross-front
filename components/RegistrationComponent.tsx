@@ -94,6 +94,7 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
               <TextInput
                 style={styles.input}
                 placeholder="Password"
+                autoCapitalize="none"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -105,6 +106,7 @@ const Registration: React.FC<RegistrationProps> = ({ onSwitch }) => {
               <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
+                autoCapitalize="none"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
