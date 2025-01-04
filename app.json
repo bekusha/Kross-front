@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "krossGeorgia",
-    "slug": "krossGeorgia",
+    "name": "krossgeorgia",
+    "slug": "krossgeorgia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,9 +12,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.krossgeorgia",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.krossgeorgia",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -22,6 +24,22 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "1294078445247345",
+          "clientToken": "980cc27ca70b820f4f17f33152489624",
+          "displayName": "KROSSGEORGIA",
+          "scheme": "fb1294078445247345",
+          "advertiserIDCollectionEnabled": false,
+          "autoLogAppEventsEnabled": false,
+          "isAutoInitEnabled": true,
+          "iosUserTrackingPermission": "This identifier will be used to deliver personalized ads to you."
+        }
+      ],
+      "expo-tracking-transparency"
+    ]
   }
 }
