@@ -14,6 +14,7 @@ import { CommonActions, NavigationProp, useNavigation } from "@react-navigation/
 import { RootStackParamList } from "@/types/routes";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Cart from "@/components/Cart";
+import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 
 const MyPageScreen: React.FC = () => {
   type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
@@ -81,9 +82,46 @@ const MyPageScreen: React.FC = () => {
   //     { cancelable: false }
   //   );
   // };
+
+
   const handleLogOut = () => {
-    logout();
-  }
+    Alert.alert(
+      "ექაუნთიდან გასვლა",
+      "ნამდვილად გსურთ ექაუნთიდან გასვლა?",
+      [
+        {
+          text: "არა",
+          style: "cancel",
+        },
+        {
+          text: "დიახ",
+          onPress: async () => {
+            // Facebook-იდან გამოსვლა
+            try {
+              const currentAccessToken = await AccessToken.getCurrentAccessToken();
+              if (currentAccessToken) {
+                LoginManager.logOut();
+                console.log("Facebook logged out");
+              }
+            } catch (error) {
+              console.error("Facebook logout error:", error);
+            }
+
+            // აპლიკაციიდან გამოსვლა
+            logout();
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: "AuthScreen" }], // გადაყვანა ავტორიზაციის გვერდზე
+              })
+            );
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
 
 
   // const handleLogOut = () => {

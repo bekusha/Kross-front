@@ -24,6 +24,7 @@ interface AuthContextType {
   logout: () => void;
   addPaypalAddress: (paypalAddress: string) => Promise<boolean>;
   isLoggedIn: boolean;
+  loadUserDetails: (accessToken: string) => Promise<void>;
   register: (
     email: string,
     username: string,
@@ -148,6 +149,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setUser(userDetailsResponse.data);
+      console.log("User details:", userDetailsResponse.data);
+      setIsLoggedIn(true);
       if (userDetailsResponse.data.role === "CONSUMER") {
         setIsLoggedIn(true);
       }
@@ -255,6 +258,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoggedIn,
     register,
     role,
+    loadUserDetails
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
