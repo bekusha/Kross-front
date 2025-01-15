@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   View,
@@ -18,6 +18,9 @@ const OrderModal = ({
   onClose: () => void;
 }) => {
   const { oilChangeOrders } = useCart();
+  useEffect(() => {
+    console.log("oilchangeorders", oilChangeOrders);
+  }, [oilChangeOrders]);
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>

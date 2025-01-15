@@ -19,7 +19,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onSwitch }) => {
-  const { login } = useAuth() || {};
+  // const { login } = useAuth() || {};
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -35,25 +35,25 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
     };
   }, []);
 
-  const handleSubmit = async () => {
-    if (login) {
-      setLoading(true);
-      const success = await login(username, password);
-      if (success) {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: "Home" }],
-          })
-        );
-      } else {
-        setError("Login failed. Please check your credentials.");
-      }
-      setLoading(false);
-    } else {
-      setError("Authentication service is not available.");
-    }
-  };
+  // const handleSubmit = async () => {
+  //   if (login) {
+  //     setLoading(true);
+  //     const success = await login(username, password);
+  //     if (success) {
+  //       navigation.dispatch(
+  //         CommonActions.reset({
+  //           index: 0,
+  //           routes: [{ name: "Home" }],
+  //         })
+  //       );
+  //     } else {
+  //       setError("Login failed. Please check your credentials.");
+  //     }
+  //     setLoading(false);
+  //   } else {
+  //     setError("Authentication service is not available.");
+  //   }
+  // };
 
   return (
     <KeyboardAvoidingView style={styles.container}>
@@ -90,7 +90,7 @@ const Login: React.FC<LoginProps> = ({ onSwitch }) => {
         <Animatable.View animation="fadeInUp" duration={600} delay={700} easing="ease-in-out">
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonLoading]}
-            onPress={handleSubmit}
+          // onPress={handleSubmit}
           >
             <Text style={loading ? styles.buttonTextLoading : styles.buttonText}>
               {loading ? "Loading..." : "შესვლა"}

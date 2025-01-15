@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import axios from "axios";
+import apiClient from "./axiosInstance"; // გამოიყენება axiosInstance
 import { API_BASE_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // AsyncStorage დამატებულია
 
@@ -50,8 +50,6 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Base URL for your API (adjust this according to your server's base path)
-
   // Updated endpoints to match your Django urlpatterns
   const endpoints = {
     list: `${API_BASE_URL}user/mileage/list/`,
@@ -60,15 +58,9 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
 
   // Function to get oil records for the authenticated user
   const fetchOilRecords = async () => {
-    console.log(API_BASE_URL)
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც
-      const response = await axios.get<OilRecord[]>(endpoints.list, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Token გადაეცა
-        },
-      });
+      const response = await apiClient.get<OilRecord[]>(endpoints.list);
       setOilRecords(response.data);
     } catch (err: any) {
       setError(err.message);
@@ -81,16 +73,9 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
   const createOilRecord = async (currentMileage: number) => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც
-      const response = await axios.post<OilRecord>(
-        endpoints.create,
-        { current_mileage: currentMileage },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Token გადაეცა აქაც
-          },
-        }
-      );
+      const response = await apiClient.post<OilRecord>(endpoints.create, {
+        current_mileage: currentMileage,
+      });
       setOilRecords([...oilRecords, response.data]);
       fetchOilRecords();
     } catch (err: any) {
@@ -104,12 +89,7 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
   const deleteOilRecords = async () => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem("access"); // await დაემატა აქაც
-      await axios.delete(endpoints.list, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Token გადაეცა აქაც
-        },
-      });
+      await apiClient.delete(endpoints.list);
       setOilRecords([]); // Clear the records in the state
     } catch (err: any) {
       setError(err.message);
@@ -127,7 +107,8 @@ export const OilProvider: React.FC<{ children: ReactNode }> = ({
         fetchOilRecords,
         createOilRecord,
         deleteOilRecords,
-      }}>
+      }}
+    >
       {children}
     </OilContext.Provider>
   );

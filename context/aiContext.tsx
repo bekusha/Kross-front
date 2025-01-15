@@ -7,8 +7,9 @@ import React, {
   useEffect,
 } from "react";
 import axios from "axios";
-import { API_BASE_URL } from "@env"; // Ensure this points to your backend API base URL
-import { Product } from "@/types/product";
+import axiosInstance from './axiosInstance';
+
+
 
 // Define types for AI responses and context
 interface AIResponse {
@@ -49,15 +50,15 @@ export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   // API endpoint for AI interactions (adjust according to your backend setup)
-  const endpoint = `${API_BASE_URL}ai/oil/`; // Assuming this is the correct endpoint for AI responses
+  const endpoint = "/ai/oil/";
 
   // Function to fetch AI response based on user input
   const fetchAIResponse = async (prompt: string) => {
-    console.log(API_BASE_URL)
+
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(endpoint, { car_model_year: prompt });
+      const response = await axiosInstance.post(endpoint, { car_model_year: prompt });
       const aiMessage = response.data.message;
       const aiResponsedProduct = response.data.products;
 
