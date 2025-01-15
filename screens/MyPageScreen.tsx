@@ -14,7 +14,7 @@ import { CommonActions, NavigationProp, useNavigation } from "@react-navigation/
 import { RootStackParamList } from "@/types/routes";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Cart from "@/components/Cart";
-import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
+// import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 
 const MyPageScreen: React.FC = () => {
   type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
@@ -85,41 +85,41 @@ const MyPageScreen: React.FC = () => {
 
 
   const handleLogOut = () => {
-    Alert.alert(
-      "ექაუნთიდან გასვლა",
-      "ნამდვილად გსურთ ექაუნთიდან გასვლა?",
-      [
-        {
-          text: "არა",
-          style: "cancel",
-        },
-        {
-          text: "დიახ",
-          onPress: async () => {
-            // Facebook-იდან გამოსვლა
-            try {
-              const currentAccessToken = await AccessToken.getCurrentAccessToken();
-              if (currentAccessToken) {
-                LoginManager.logOut();
-                console.log("Facebook logged out");
-              }
-            } catch (error) {
-              console.error("Facebook logout error:", error);
-            }
+    // Alert.alert(
+    //   "ექაუნთიდან გასვლა",
+    //   "ნამდვილად გსურთ ექაუნთიდან გასვლა?",
+    //   [
+    //     {
+    //       text: "არა",
+    //       style: "cancel",
+    //     },
+    //     {
+    //       text: "დიახ",
+    //       onPress: async () => {
+    //         // Facebook-იდან გამოსვლა
+    //         try {
+    //           const currentAccessToken = await AccessToken.getCurrentAccessToken();
+    //           if (currentAccessToken) {
+    //             LoginManager.logOut();
+    //             console.log("Facebook logged out");
+    //           }
+    //         } catch (error) {
+    //           console.error("Facebook logout error:", error);
+    //         }
 
-            // აპლიკაციიდან გამოსვლა
-            logout();
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: "AuthScreen" }], // გადაყვანა ავტორიზაციის გვერდზე
-              })
-            );
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+    //         // აპლიკაციიდან გამოსვლა
+    //         logout();
+    //         navigation.dispatch(
+    //           CommonActions.reset({
+    //             index: 0,
+    //             routes: [{ name: "AuthScreen" }], // გადაყვანა ავტორიზაციის გვერდზე
+    //           })
+    //         );
+    //       },
+    //     },
+    //   ],
+    //   { cancelable: false }
+    // );
   };
 
 
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: (Platform.OS === 'android') ? 5 : 0,
+    // elevation: (Platform.OS === 'android') ? 5 : 0,
   },
   accountButtons: {
     display: "flex",

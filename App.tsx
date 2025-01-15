@@ -22,10 +22,10 @@ import * as Font from "expo-font";
 import { Text } from "react-native";
 import { Image } from "react-native";
 import { Dimensions } from 'react-native';
-import { Platform } from "react-native";
+// import { Platform } from "react-native";
 import ContactScreen from "./screens/ContactScreen";
-import { Settings } from 'react-native-fbsdk-next';
-import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
+// import { Settings } from 'react-native-fbsdk-next';
+// import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 
 
 
@@ -39,16 +39,16 @@ export default function App() {
 
 
 
-  useEffect(() => {
-    const initializeApp = async () => {
-      Settings.initializeSDK(); // Initialize Facebook SDK
-      const { status } = await requestTrackingPermissionsAsync();
-      if (status === "granted") {
-        await Settings.setAdvertiserTrackingEnabled(true);
-      }
-    };
-    initializeApp();
-  }, []);
+  // useEffect(() => {
+  //   const initializeApp = async () => {
+  //     Settings.initializeSDK(); // Initialize Facebook SDK
+  //     const { status } = await requestTrackingPermissionsAsync();
+  //     if (status === "granted") {
+  //       await Settings.setAdvertiserTrackingEnabled(true);
+  //     }
+  //   };
+  //   initializeApp();
+  // }, []);
 
 
   useEffect(() => {

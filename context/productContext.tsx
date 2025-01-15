@@ -6,10 +6,8 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // AsyncStorage დამატებულია
 import { Product, ProductContextType, Category } from "../types/product";
-import { API_BASE_URL } from "@env";
+import apiClient from "./axiosInstance"; // გამოიყენება apiClient
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
@@ -17,21 +15,13 @@ interface ProductProviderProps {
   children: ReactNode;
 }
 
-export const ProductProvider: React.FC<ProductProviderProps> = ({
-  children,
-}) => {
+export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const getAuthHeader = async () => {
-    const token = await AsyncStorage.getItem("access"); // AsyncStorage და await დაემატა
-    return { Authorization: `Bearer ${token}` };
-  };
-
   const deleteProduct = useCallback(async (productId: number) => {
     try {
-      const headers = await getAuthHeader();
-      await axios.delete(`${API_BASE_URL}product/${productId}/`, { headers });
+      await apiClient.delete(`/product/${productId}/`);
       setProducts((currentProducts) =>
         currentProducts.filter((product) => product.id !== productId)
       );
@@ -43,60 +33,43 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
 
   const fetchProductById = useCallback(async (productId: number) => {
     try {
-      const headers = await getAuthHeader();
-      const response = await axios.get(`${API_BASE_URL}product/${productId}/`, {
-        headers,
-      });
+      const response = await apiClient.get(`/product/${productId}/`);
       return response.data;
     } catch (error) {
       console.error("Failed to fetch product:", error);
     }
   }, []);
 
-  const editProduct = useCallback(
-    async (productId: number, formData: FormData) => {
-      try {
-        const headers = await getAuthHeader();
-        const response = await axios.put(
-          `${API_BASE_URL}product/${productId}/`,
-          formData,
-          { headers }
-        );
-        setProducts((currentProducts) =>
-          currentProducts.map((product) =>
-            product.id === productId ? response.data : product
-          )
-        );
-        console.log("Product edited successfully:", response.data);
-      } catch (error) {
-        console.error("Failed to edit product:", error);
-      }
-    },
-    []
-  );
+  const editProduct = useCallback(async (productId: number, formData: FormData) => {
+    try {
+      const response = await apiClient.put(`/product/${productId}/`, formData);
+      setProducts((currentProducts) =>
+        currentProducts.map((product) =>
+          product.id === productId ? response.data : product
+        )
+      );
+      console.log("Product edited successfully:", response.data);
+    } catch (error) {
+      console.error("Failed to edit product:", error);
+    }
+  }, []);
 
-  const addProduct = useCallback(
-    async (formData: FormData, categoryId: number) => {
-      try {
-        const headers = await getAuthHeader();
-        const response = await axios.post(`${API_BASE_URL}product/`, formData, {
-          headers,
-          params: { category: categoryId },
-        });
-        setProducts((currentProducts) => [...currentProducts, response.data]);
-      } catch (error) {
-        console.error("Failed to add product:", error);
-      }
-    },
-    []
-  );
+  const addProduct = useCallback(async (formData: FormData, categoryId: number) => {
+    try {
+      const response = await apiClient.post(`/product/`, formData, {
+        params: { category: categoryId },
+      });
+      setProducts((currentProducts) => [...currentProducts, response.data]);
+    } catch (error) {
+      console.error("Failed to add product:", error);
+    }
+  }, []);
 
   const fetchProducts = useCallback(async () => {
     try {
-      console.log(API_BASE_URL)
-      const response = await axios.get(`${API_BASE_URL}product/`);
+      const response = await apiClient.get(`/product/`);
       setProducts(response.data);
-      console.log(response.data)
+      console.log("Products fetched:", response.data);
       return response.data;
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -106,7 +79,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}product/categories/`);
+      const response = await apiClient.get(`/product/categories/`);
       setCategories(response.data);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
@@ -115,10 +88,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
 
   const fetchProductsByCategory = useCallback(async (categoryId: number) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}product/?category=${categoryId}`
-      );
-      console.log(response.data);
+      const response = await apiClient.get(`/product/`, {
+        params: { category: categoryId },
+      });
+      console.log("Products by category fetched:", response.data);
       setProducts(response.data);
       return response.data;
     } catch (error) {
@@ -132,9 +105,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
 
   const fetchProductsByVendor = useCallback(async (vendorId: number) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}product/products/by_vendor/${vendorId}/`
-      );
+      const response = await apiClient.get(`/product/products/by_vendor/${vendorId}/`);
       setProducts(response.data);
       return response.data;
     } catch (error) {
@@ -159,7 +130,8 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
         editProduct,
         deleteProduct,
         fetchProductsByVendor,
-      }}>
+      }}
+    >
       {children}
     </ProductContext.Provider>
   );

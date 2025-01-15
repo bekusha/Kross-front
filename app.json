@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "krossgeorgia",
-    "slug": "krossgeorgia",
+    "name": "krosseorgia",
+    "slug": "krossGeorgia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,54 +12,16 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "bundleIdentifier": "com.krossgeorgia",
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you.",
-        "SKAdNetworkItems": [
-          {
-            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
-          },
-          {
-            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
-          }
-        ]
-      }
+      "supportsTablet": true
     },
     "android": {
-      "package": "com.krossgeorgia",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "permissions": [
-        "android.permission.INTERNET",
-        "com.google.android.gms.permission.AD_ID"
-      ]
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      [
-        "react-native-fbsdk-next",
-        {
-          "appID": "1294078445247345",
-          "clientToken": "980cc27ca70b820f4f17f33152489624",
-          "displayName": "KROSSGEORGIA",
-          "scheme": "fb1294078445247345",
-          "advertiserIDCollectionEnabled": false,
-          "autoLogAppEventsEnabled": false,
-          "isAutoInitEnabled": true,
-          "iosUserTrackingPermission": "This identifier will be used to deliver personalized ads to you."
-        }
-      ],
-      "expo-tracking-transparency"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "65d82fb7-b1ff-42b2-9af6-1b64dfb6aebc"
-      }
     }
   }
 }
