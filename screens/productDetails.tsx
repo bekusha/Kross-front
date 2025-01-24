@@ -22,7 +22,7 @@ const ProductDetails = ({ route, navigation }: any) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const { isLoggedIn } = useAuth();
-  const { addToCart } = useCart();
+  const { addToCart, orderModalButtonVisible } = useCart();
 
   const productId = route.params?.productId; // მიღებულია productId from route params
 
@@ -59,11 +59,15 @@ const ProductDetails = ({ route, navigation }: any) => {
   // };
 
   const handleOpenOilChangeDelivery = () => {
-    if (isLoggedIn) {
-      navigation.navigate("OilChangeScreen");
+    if (orderModalButtonVisible) {
+      alert("თქვენ უკვე გაქვთ აქტიური შეკვეთა")
     } else {
-      Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
-      setModalVisible(true);
+      if (isLoggedIn) {
+        navigation.navigate("OilChangeScreen");
+      } else {
+        Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
+        setModalVisible(true);
+      }
     }
   }
 

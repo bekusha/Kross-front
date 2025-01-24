@@ -1,11 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Platform } from "react-native";
-import { API_BASE_URL } from "@env";
-import { useEffect } from "react";
 
-// I want to do url compatible for ios and android simulators
- 
+import { API_BASE_URL } from "@env";
+
 
 
 // Axios instance შექმნა

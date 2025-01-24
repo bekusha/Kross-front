@@ -16,7 +16,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 
 const Cart = () => {
-  const { cart, removeFromCart, purchase, oilChangeOrders } = useCart();
+  const { cart, removeFromCart, purchase, oilChangeOrders, orderModalButtonVisible } = useCart();
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState({
@@ -45,26 +45,30 @@ const Cart = () => {
 
 
   const handlePurchase = async () => {
-    if (!cart || cart.items.length === 0) {
-      Alert.alert("შეცდომა", "თქვენი კალათი ცარიელია!");
-      return;
-    }
+    if (orderModalButtonVisible) {
+      alert("თქვენ უკვე გაქვთ აქტიური შეკვეთა")
+    } else {
+      if (!cart || cart.items.length === 0) {
+        Alert.alert("შეცდომა", "თქვენი კალათი ცარიელია!");
+        return;
+      }
 
-    const orderItems = cart.items.map((item) => ({
-      product_id: item.product.id,
-      quantity: item.quantity,
-    }));
+      const orderItems = cart.items.map((item) => ({
+        product_id: item.product.id,
+        quantity: item.quantity,
+      }));
 
 
 
-    try {
-      // პროდუქტის მიწოდების შეკვეთის გაფორმება
-      await purchase(orderItems, "product_delivery", additionalInfo);
-      Alert.alert("წარმატება", "შეკვეთა წარმატებით გაფორმდა!");
-      setIsModalVisible(false);
-    } catch (error) {
-      console.error("Failed to purchase:", error);
-      Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
+      try {
+        // პროდუქტის მიწოდების შეკვეთის გაფორმება
+        await purchase(orderItems, "product_delivery", additionalInfo);
+        Alert.alert("წარმატება", "შეკვეთა წარმატებით გაფორმდა!");
+        setIsModalVisible(false);
+      } catch (error) {
+        console.error("Failed to purchase:", error);
+        Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
+      }
     }
   };
 

@@ -14,9 +14,9 @@ import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
 import Footer from "@/components/Footer";
-import OrderModal from "@/components/OrderModal";
-import { useCart } from "@/context/cartContext";
-import Icon from 'react-native-vector-icons/MaterialIcons';
+
+
+
 
 type MainProps = {
   navigation: any;
@@ -25,8 +25,7 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
   const { categories } = useProducts();
   const { isLoggedIn } = useAuth();
   const [content, setContent] = useState<any[]>([]);
-  const { orderModalButtonVisible, setOrderModalButtonVisible } = useCart();
-  const [modalVisible, setModalVisible] = useState(false);
+
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}content/main/`)
@@ -94,29 +93,16 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
                     source={item.image}
                   />
                 </TouchableOpacity>
-                {modalVisible && <OrderModal
-                  visible={modalVisible}
-                  onClose={() => setModalVisible(false)}
-                />}
-                {/* შეკვეთის სტატუსის ღილაკი */}
-                <OrderModal
-                  visible={modalVisible}
-                  onClose={() => setModalVisible(false)}
-                />
+
+
               </Animatable.View>
             </View>
           </Animatable.View>
         ))}
       </ScrollView>
-      {/* Fixed Timer Icon Button */}
-      {orderModalButtonVisible && (
-        <TouchableOpacity 
-          style={styles.timerButton} 
-          onPress={() => setModalVisible(true)}
-        >
-          <Icon name="timer" size={50} color="#FFFFFF" />
-        </TouchableOpacity>
-      )}
+
+
+
       <Footer />
     </View>
   );

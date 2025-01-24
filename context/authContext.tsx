@@ -270,13 +270,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // import DeviceInfo from 'react-native-device-info';
 import * as Device from 'expo-device';
 import axiosInstance from "./axiosInstance";
+import { User } from "@/types/user";
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 interface AuthContextType {
-  user: any | null; // Adjust based on your User type definition
+  user: User | null; // Adjust based on your User type definition
   loading: boolean;
   initializeUser: (deviceId: string) => Promise<boolean>;
   logout: () => void;
@@ -336,12 +337,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const initializeUser = async (deviceId: string): Promise<boolean> => {
     try {
       // Send device_id to the server
-      const response = await axiosInstance.post('/user/create-consumer/', {
-        device_id: deviceId,
-      });
+      const response = await axiosInstance.post(`/user/create-consumer/${deviceId}/`);
 
       // Save the user details
-      setUser(response.data);
+      console.log("User details:", response.data);
+      setUser(response.data.user);
 
       setIsLoggedIn(true);
       return true;
