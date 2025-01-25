@@ -1,7 +1,5 @@
-// ContactScreen.tsx
-
 import React from 'react';
-import { View, Text, Linking, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Linking, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -21,14 +19,14 @@ const ContactScreen = () => {
         <Text style={styles.intro}>მოგვწერეთ მაილზე ან დაგვირეკეთ ქვემოთ მითითებულ ნომერზე</Text>
 
         <Animatable.View animation="fadeInUp" delay={300} style={styles.contactItem}>
-          <Ionicons name="mail-outline" size={28} color="#D32F2F" />
+          <Ionicons name="mail-outline" size={24} color="#D32F2F" />
           <TouchableOpacity onPress={handleEmailPress}>
             <Text style={styles.contactText}>Kross Gorgia</Text>
           </TouchableOpacity>
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" delay={500} style={styles.contactItem}>
-          <Ionicons name="call-outline" size={28} color="#D32F2F" />
+          <Ionicons name="call-outline" size={24} color="#D32F2F" />
           <TouchableOpacity onPress={handlePhonePress}>
             <Text style={styles.contactText}>+955 577442003</Text>
           </TouchableOpacity>
@@ -40,17 +38,15 @@ const ContactScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    top: -10,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-
-
+    paddingHorizontal: '5%',
   },
   contactContainer: {
-    top: -90,
-    width: '90%',
-    padding: 20,
+    width: '100%',
+    maxWidth: 500, 
+    padding: '5%',
     borderRadius: 15,
     backgroundColor: '#F9F9F9',
     shadowColor: 'black',
@@ -58,26 +54,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
+    marginVertical: '10%',
   },
   heading: {
-    fontSize: 28,
+    fontSize: Platform.OS === 'ios' ? 28 : 24,
     fontWeight: 'bold',
     color: '#D32F2F',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: '3%',
   },
   intro: {
-    fontSize: 16,
+    fontSize: Platform.OS === 'ios' ? 16 : 14,
     color: '#333333',
-    marginBottom: 20,
+    marginBottom: '6%',
     textAlign: 'center',
+    paddingHorizontal: '2%',
   },
   contactItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    padding: 15,
-    marginVertical: 8,
+    padding: '4%',
+    marginVertical: '2%',
     borderRadius: 10,
     borderColor: '#D32F2F',
     borderWidth: 1,
@@ -89,9 +87,10 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   contactText: {
-    fontSize: 18,
+    fontSize: Platform.OS === 'ios' ? 18 : 16,
     color: '#000000',
     marginLeft: 10,
+    flex: 1,
   },
 });
 
