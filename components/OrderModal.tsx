@@ -17,10 +17,13 @@ const OrderModal = ({
   visible: boolean;
   onClose: () => void;
 }) => {
-  const { oilChangeOrders } = useCart();
+  const { orders } = useCart();
+
   useEffect(() => {
-    console.log("oilchangeorders", oilChangeOrders);
-  }, [oilChangeOrders]);
+    if (visible && orders) {
+      console.log("Order modal opened:", orders.order_id);
+    }
+  }, [visible, orders]);
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
@@ -29,74 +32,40 @@ const OrderModal = ({
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
               <Text style={styles.title}>შეკვეთის დეტალები</Text>
-              {/* მონაცემების შემოწმება */}
-              {oilChangeOrders && oilChangeOrders.order ? (
+              {orders ? (
                 <ScrollView>
-                  {/* შეკვეთის ძირითადი ინფორმაცია */}
                   <View style={styles.orderDetails}>
                     <Text style={styles.orderText}>
                       Order ID:{" "}
-                      <Text style={styles.orderValue}>
-                        {oilChangeOrders.order.id}
-                      </Text>
+                      <Text style={styles.orderValue}>{orders.order_id}</Text>
                     </Text>
                     <Text style={styles.orderText}>
                       Order Type:{" "}
-                      <Text style={styles.orderValue}>
-                        {oilChangeOrders.order.order_type}
-                      </Text>
+                      <Text style={styles.orderValue}>{orders.order_type}</Text>
                     </Text>
                     <Text style={styles.orderText}>
                       Status:{" "}
-                      <Text style={styles.orderValue}>
-                        {oilChangeOrders.order.status}
-                      </Text>
+                      <Text style={styles.orderValue}>{orders.status}</Text>
                     </Text>
                     <Text style={styles.orderText}>
-                      Ordered At:{" "}
-                      <Text style={styles.orderValue}>
-                        {new Date(
-                          oilChangeOrders.order.ordered_at
-                        ).toLocaleString()}
-                      </Text>
+                      Phone:{" "}
+                      <Text style={styles.orderValue}>{orders.phone || "N/A"}</Text>
                     </Text>
                     <Text style={styles.orderText}>
-                      User ID:{" "}
+                      Email:{" "}
+                      <Text style={styles.orderValue}>{orders.email || "N/A"}</Text>
+                    </Text>
+                    <Text style={styles.orderText}>
+                      Address:{" "}
                       <Text style={styles.orderValue}>
-                        {oilChangeOrders.order.user}
+                        {orders.address || "N/A"}
                       </Text>
                     </Text>
                   </View>
-
-                  {/* შეკვეთის ელემენტები */}
-                  <Text style={styles.itemsTitle}>პროდუქტები:</Text>
-                  {oilChangeOrders.order_items ? (
-                    oilChangeOrders.order_items.map((item: any, index: any) => (
-                      <View key={index} style={styles.orderItem}>
-                        <Text style={styles.orderItemText}>
-                          Product ID:{" "}
-                          <Text style={styles.orderItemValue}>
-                            {item.product}
-                          </Text>
-                        </Text>
-                        <Text style={styles.orderItemText}>
-                          Quantity:{" "}
-                          <Text style={styles.orderItemValue}>
-                            {item.quantity}
-                          </Text>
-                        </Text>
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.noItemsText}>
-                      პროდუქტები არ არის დამატებული.
-                    </Text>
-                  )}
                 </ScrollView>
               ) : (
                 <Text style={styles.noOrdersText}>შეკვეთები არ არის</Text>
               )}
-
               <Button title="დახურვა" onPress={onClose} color="#FF6347" />
             </View>
           </TouchableWithoutFeedback>
@@ -130,18 +99,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
     textAlign: "center",
-    color: "#FF6347", // Title color
+    color: "#FF6347",
   },
   orderDetails: {
     marginBottom: 20,
     padding: 15,
-    backgroundColor: "#f9f9f9", // Light background for order details
+    backgroundColor: "#f9f9f9",
     borderRadius: 8,
     shadowColor: "gray",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
@@ -149,39 +115,14 @@ const styles = StyleSheet.create({
   orderText: {
     fontSize: 16,
     marginBottom: 8,
-    color: "#333", // Darker text for better readability
+    color: "#333",
   },
   orderValue: {
     fontWeight: "bold",
-    color: "#FF6347", // Highlighted value color
-  },
-  itemsTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#FF6347", // Title color for items
-  },
-  orderItem: {
-    marginBottom: 12,
-    padding: 12,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#ddd", // Light border for separation
-  },
-  orderItemText: {
-    color: "#333", // Darker text for better readability
-  },
-  orderItemValue: {
-    fontWeight: "bold",
-    color: "#FF6347", // Highlighted value color for items
-  },
-  noItemsText: {
-    color: "#999", // Lighter color for no items message
-    textAlign: "center",
+    color: "#FF6347",
   },
   noOrdersText: {
-    color: "#999", // Lighter color for no orders message
+    color: "#999",
     textAlign: "center",
   },
 });

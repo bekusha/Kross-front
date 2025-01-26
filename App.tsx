@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { Button, StyleSheet, View } from "react-native";
+import { Button, StyleSheet, TouchableOpacity, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import WelcomeScreen from "./screens/WelcomeScreen";
@@ -16,7 +16,7 @@ import MyPageScreen from "./screens/MyPageScreen";
 import { OilProvider } from "./context/oilContext";
 import { AIProvider } from "./context/aiContext";
 import ChatScreen from "./screens/ChatScreen";
-import { CartProvider } from "./context/cartContext";
+import { CartProvider, useCart } from "./context/cartContext";
 import OilChangeScreen from "./screens/OilChangeScreen";
 import * as Font from "expo-font";
 import { Text } from "react-native";
@@ -24,6 +24,9 @@ import { Image } from "react-native";
 import { Dimensions } from 'react-native';
 // import { Platform } from "react-native";
 import ContactScreen from "./screens/ContactScreen";
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import OrderButton from "./components/OrderButton";
+import OrderModal from "./components/OrderModal";
 // import { Settings } from 'react-native-fbsdk-next';
 // import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 
@@ -36,19 +39,9 @@ import ContactScreen from "./screens/ContactScreen";
 const { width } = Dimensions.get('window');
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const { orderModalButtonVisible, setOrderModalButtonVisible } = useCart();
 
-
-
-  // useEffect(() => {
-  //   const initializeApp = async () => {
-  //     Settings.initializeSDK(); // Initialize Facebook SDK
-  //     const { status } = await requestTrackingPermissionsAsync();
-  //     if (status === "granted") {
-  //       await Settings.setAdvertiserTrackingEnabled(true);
-  //     }
-  //   };
-  //   initializeApp();
-  // }, []);
 
 
   useEffect(() => {
@@ -61,6 +54,10 @@ export default function App() {
     };
     loadFonts();
   }, []);
+
+  const handleOrderModal = (value: boolean) => {
+    setShowOrderModal(!value);
+  }
 
 
   return (
@@ -170,7 +167,24 @@ export default function App() {
                   />
 
                 </Stack.Navigator>
+                <OrderButton
+                  onPress={() => handleOrderModal(showOrderModal)}
+                  visible={orderModalButtonVisible}
+                  initialPosition={{ top: 700, left: 300 }} // პოზიციის განსაზღვრა
+                />
                 {/* <StatusBar style="auto" /> */}
+                {showOrderModal && (
+                  <OrderModal
+                    visible={showOrderModal} // მართავს მოდალის ხილვადობას
+                    onClose={() => setShowOrderModal(false)} // დახურვის ფუნქცია
+                  />
+                  // <View style={styles.modalContainer}>
+                  //   <Text style={styles.modalText}>Order Modal Content</Text>
+                  //   <TouchableOpacity onPress={() => setShowOrderModal(false)} style={styles.closeButton}>
+                  //     <Text style={styles.closeButtonText}>Close</Text>
+                  //   </TouchableOpacity>
+                  // </View>
+                )}
 
               </NavigationContainer>
             </OilProvider>
@@ -215,5 +229,37 @@ const styles = StyleSheet.create({
     justifyContent: "center", // კონტეინერის შიგთავსის ცენტრში განთავსება
     alignItems: "center",
     overflow: "visible", // დარწმუნდით, რომ არაფერი დაიმალება
+  },
+  timerButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 10,
+    backgroundColor: '#D32F2F', // Match footer color
+    borderRadius: 50, // Circular button
+    width: 60, // Set width to 50
+    height: 60, // Set height to 50
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)", // ნახევრად გამჭვირვალე ფონი
+  },
+  modalText: {
+    color: "#fff",
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  closeButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

@@ -4,7 +4,9 @@ import { Cart, CartItem } from "@/types/cart";
 import { Product } from "@/types/product";
 import { useAuth } from "./authContext";
 import axiosInstance from "./axiosInstance";
-import { API_BASE_URL } from "@env";
+import { API_BASE_URL, WS_BASE_URL } from "@env";
+
+import { useRef } from "react";
 
 
 interface CartContextType {
@@ -18,9 +20,11 @@ interface CartContextType {
     orderType: "product_delivery" | "oil_change",
     additionalInfo: { phone: string; address: string; email: string }
   ) => Promise<void>;
-  oilChangeOrders: any;
+  orders: any;
   orderModalButtonVisible: boolean;
   setOrderModalButtonVisible: (visible: boolean) => void;
+  sendWebSocketMessage: (message: any) => void;
+  fetchOrders: (orderId: any) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType>({
@@ -30,9 +34,11 @@ const CartContext = createContext<CartContextType>({
   removeFromCart: async () => { },
   updateCartItem: async () => { },
   purchase: async () => { },
-  oilChangeOrders: [],
+  orders: [],
   orderModalButtonVisible: false,
   setOrderModalButtonVisible: () => { },
+  sendWebSocketMessage: () => { },
+  fetchOrders: async () => { },
 });
 
 export function useCart() {
@@ -47,20 +53,69 @@ export const CartProvider = ({ children }: any) => {
   });
   const [loading, setLoading] = useState(false);
   const { user } = useAuth()!;
-  const [oilChangeOrders, setOilChangeOrders] = useState<any>(null);
+  const [orders, setOrders] = useState<any>(null);
   const [orderModalButtonVisible, setOrderModalButtonVisible] = useState(false);
 
+  const socketRef = useRef<WebSocket | null>(null);
+
   useEffect(() => {
-    console.log("api base url", API_BASE_URL)
-    if (user && user.role === "CONSUMER") {
-      fetchCart();
-    }
+    // console.log("api base url", API_BASE_URL)
+    fetchCart();
+    console.log("API_BASE_URL", API_BASE_URL)
   }, [user]);
 
-  const fetchOilChangeOrders = async (orderId: any) => {
+  useEffect(() => {
+    console.log("API:", API_BASE_URL);
+    if (!user || !user.id) return;
+
+    // const wsUrl = `ws://127.0.0.1:8000/ws/order/${user.id}/${user.device_id}/`;
+    const wsUrl = `${WS_BASE_URL}order/${user.id}/${user.device_id}/`;
+    socketRef.current = new WebSocket(wsUrl);
+
+    socketRef.current.onopen = () => console.log("WebSocket connected" + wsUrl);
+
+    socketRef.current.onmessage = (event) => {
+      console.log("Received WebSocket message:", JSON.parse(event.data));
+      setOrders(JSON.parse(event.data));
+    };
+    // socketRef.current.onmessage = (event) => {
+    //   const data = JSON.parse(event.data);
+
+
+    //   // Set the received order directly
+    //   setOrders(data);
+
+    // };
+
+    socketRef.current.onerror = (event) => {
+      console.error("WebSocket error:", event);
+    };
+
+    socketRef.current.onclose = (event) => {
+      console.log("WebSocket closed:", event.code, event.reason);
+    };
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, [user]);
+
+
+
+
+  const sendWebSocketMessage = (message: any) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify(message));
+    }
+  };
+
+
+  const fetchOrders = async (orderId: any) => {
     try {
       const response = await axiosInstance.get(`/order/${orderId}/`);
-      setOilChangeOrders(response.data);
+      setOrders(response.data);
     } catch (error) {
       console.error("Failed to fetch oil change orders:", error);
     }
@@ -69,21 +124,23 @@ export const CartProvider = ({ children }: any) => {
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/cart/detail/");
-      setCart({
-        items: response.data,
-        totalItems: response.data.reduce(
-          (acc: number, item: CartItem) => acc + item.quantity,
-          0
-        ),
-        totalPrice: response.data
-          .reduce(
-            (acc: number, item: CartItem) =>
-              acc + item.quantity * parseFloat(item.product.price.toString()),
+      if (user) {
+        const response = await axiosInstance.get("/cart/detail/");
+        setCart({
+          items: response.data,
+          totalItems: response.data.reduce(
+            (acc: number, item: CartItem) => acc + item.quantity,
             0
-          )
-          .toFixed(2),
-      });
+          ),
+          totalPrice: response.data
+            .reduce(
+              (acc: number, item: CartItem) =>
+                acc + item.quantity * parseFloat(item.product.price.toString()),
+              0
+            )
+            .toFixed(2),
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch cart:", error);
     } finally {
@@ -163,17 +220,20 @@ export const CartProvider = ({ children }: any) => {
                     acc + item.quantity * parseFloat(item.product.price.toString()),
                   0
                 );
+
                 return {
                   ...currentCart,
                   items: updatedItems,
                   totalItems: updatedTotalItems,
                   totalPrice: parseFloat(updatedTotalPrice.toFixed(2)),
                 };
+
               });
             } catch (error) {
               console.error("Failed to remove item from cart:", error);
             } finally {
               setLoading(false);
+              fetchCart();
             }
           },
         },
@@ -217,18 +277,22 @@ export const CartProvider = ({ children }: any) => {
     orderType: "product_delivery" | "oil_change",
     additionalInfo: { phone: string; address: string; email: string }
   ) => {
-    try {
-      const response = await axiosInstance.post("/order/purchase/", {
-        order_items: orderItems,
-        order_type: orderType,
-        ...additionalInfo,
-      });
-      console.log("Order created successfully:", response.data);
-      fetchCart();
-      fetchOilChangeOrders(response.data.order_id);
-      setOrderModalButtonVisible(true);
-    } catch (error) {
-      console.error("Failed to create order:", error);
+    if (!orderModalButtonVisible) {
+      try {
+        const response = await axiosInstance.post("/order/purchase/", {
+          order_items: orderItems,
+          order_type: orderType,
+          ...additionalInfo,
+        });
+        console.log("Order created successfully:", response.data);
+        fetchCart();
+        // fetchOrders(response.data.order_id);
+        setOrderModalButtonVisible(true);
+      } catch (error) {
+        console.error("Failed to create order:", error);
+      }
+    } else {
+      alert("თქვენ უკვე გაქვთ შეკვეთა")
     }
   };
 
@@ -241,9 +305,11 @@ export const CartProvider = ({ children }: any) => {
         removeFromCart,
         updateCartItem,
         purchase,
-        oilChangeOrders,
+        orders,
         orderModalButtonVisible,
         setOrderModalButtonVisible,
+        sendWebSocketMessage,
+        fetchOrders,
       }}
     >
       {children}
