@@ -141,24 +141,24 @@ const MyPageScreen: React.FC = () => {
       {showSettings && (
         <View style={[styles.settingsPopup, { zIndex: 10 }]}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut}>
-            <Icon name="logout" size={24} color="#FF3B30" />
-            <Text style={styles.logoutButtonText}>ექაუნთიდან გასვლა</Text>
+            <Icon name="logout" size={24} color="black" />
+            <Text style={styles.logoutButtonText}>ექაუნთიდან  </Text>
           </TouchableOpacity>
         </View>
       )}
       <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View style={styles.userInfo}>
-            <Text style={styles.username}>
-              {user?.username ? capitalizeFirstLetter(user.username) : "User"}
-              <Text style={styles.pageText}>'s Page</Text>
-            </Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.settingsButton} 
-            onPress={() => setShowSettings(!showSettings)}
-          >
-            <Icon name="settings" size={24} color="#ffffff" />
+        <Text style={styles.cardTitle}>
+          <Text style={styles.username}>
+            {user?.username
+              ? capitalizeFirstLetter(user.username)
+              : "User"}'s
+          </Text>
+          <Text>  Page</Text>
+        </Text>
+
+        <View style={styles.accountSettings}>
+          <TouchableOpacity onPress={() => setShowSettings(!showSettings)}>
+            <Icon name="settings" size={30} color="black" />
           </TouchableOpacity>
         </View>
 
@@ -179,40 +179,32 @@ const MyPageScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.contentContainer}>
-          {activeComponent === "ჩემი პროდუქტი" && <Cart />}
-          {activeComponent === "შენახული გარბენი" && (
-            <View style={styles.mileageContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="ჩაწერეთ გარბენი"
-                placeholderTextColor="#888"
-                keyboardType="numeric"
-                value={mileage}
-                onChangeText={setMileage}
-              />
-              <TouchableOpacity style={styles.button} onPress={handleSaveMileage}>
-                <Text style={styles.buttonText}>შენახვა</Text>
-              </TouchableOpacity>
-              {oilRecords.length > 0 && (
-                <View style={styles.recordsContainer}>
-                  <View style={styles.recordItem}>
-                    <Icon name="trending-up" size={20} color="#4CAF50" />
-                    <Text style={styles.savedText}>
-                      შემდეგი შეცვლა: {oilRecords[0].next_change_mileage} km
-                    </Text>
-                  </View>
-                  <View style={styles.recordItem}>
-                    <Icon name="history" size={20} color="#FF9800" />
-                    <Text style={styles.savedText}>
-                      ძველი შეცვლა: {oilRecords[0].current_mileage} km
-                    </Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          )}
-        </View>
+        {activeComponent === "ჩემი პროდუქტი" && <Cart />}
+        {activeComponent === "შენახული გარბენი" && (
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="ჩაწერეთ გარბენი"
+              placeholderTextColor="#888"
+              keyboardType="numeric"
+              value={mileage}
+              onChangeText={setMileage}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleSaveMileage}>
+              <Text style={styles.buttonText}>შენახვა</Text>
+            </TouchableOpacity>
+            {oilRecords.length > 0 && (
+              <View>
+                <Text style={styles.savedText}>
+                  შემდეგი შეცვლა: {oilRecords[0].next_change_mileage} km
+                </Text>
+                <Text style={styles.savedText}>
+                  ძველი შეცვლა: {oilRecords[0].current_mileage} km
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -222,157 +214,136 @@ const MyPageScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
+    padding: 20,
+    backgroundColor: "#f7f7f7",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
   },
-  card: {
-    width: "100%",
-    minHeight: 500,
-    backgroundColor: "#ffffff",
-    borderRadius: 20,
+  username: {
+    color: "red",
+  },
+  accountSettings: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+  },
+  settingsPopup: {
+    position: "absolute",
+    zIndex: 5,
+    top: 40, // Adjust this based on your needs
+    right: 50,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 10,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 15,
-    elevation: 5,
-   
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    // elevation: (Platform.OS === 'android') ? 5 : 0,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderRadius: 20,
+  accountButtons: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 20,
+    zIndex: 5,
+  },
+  logoutButton: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  deleteButton: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  logoutButtonText: {
+    marginLeft: 10,
+  },
+  card: {
+    width: "100%",
+    height: 500,
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#1a1a1a',
+    borderRadius: 10,
+    backgroundColor: "#ffffff",
+    shadowColor: "#000",
+    position: "absolute",
+    top: 20,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    alignItems: "center",
   },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  username: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#ffffff',
-    
-  },
-  pageText: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: '400',
-  },
-  settingsButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: '#333333',
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 12,
-    backgroundColor: '#ffffff',
+    flexDirection: "row",
+    marginBottom: 20,
   },
   toggleButton: {
     flex: 1,
-    height: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    justifyContent: "center",
+    width: 130,
+    backgroundColor: "#ecf0f1",
+    borderRadius: 8,
+    marginHorizontal: 5,
+    height: 40,
+
   },
   activeButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: "black",
   },
   toggleButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1a1a1a',
+    textAlign: "center",
+    fontWeight: 400,
+    color: "black",
+    fontSize: 14,
+
   },
   activeButtonText: {
-    color: '#ffffff',
-  },
-  contentContainer: {
-    padding: 16,
-    backgroundColor: '#ffffff',
-  },
-  mileageContainer: {
-    alignItems: 'center',
-    padding: 16,
+    color: "white",
   },
   input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#1a1a1a',
+    width: 200,
+    height: 44,
+    padding: 10,
+    borderColor: "#ddd",
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderRadius: 12,
+    marginBottom: 20,
+    backgroundColor: "#fff",
   },
   button: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#FF3B30',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
+    backgroundColor: "#ecf0f1",
+    paddingVertical: 5,
+    borderRadius: 10,
+
   },
   buttonText: {
-    color: '#ffffff',
+    color: "black",
     fontSize: 16,
-    fontWeight: '600',
-  },
-  recordsContainer: {
-    width: '100%',
-    gap: 12,
-  },
-  recordItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1a1a1a',
-    padding: 16,
-    borderRadius: 12,
-    gap: 12,
+    fontWeight: "500",
+    textAlign: "center",
   },
   savedText: {
-    fontSize: 15,
-    color: '#ffffff',
-    fontWeight: '500',
-  },
-  settingsPopup: {
-    position: 'absolute',
-    top: 80,
-    right: 16,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    gap: 8,
-  },
-  logoutButtonText: {
-    color: '#FF3B30',
-    fontSize: 15,
-    fontWeight: '500',
+    marginTop: 20,
+    fontSize: 14,
+    width: "100%",
+    color: "#2c3e50",
+    fontWeight: "bold",
   },
 });
 
