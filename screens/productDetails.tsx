@@ -58,18 +58,44 @@ const ProductDetails = ({ route, navigation }: any) => {
   //   }
   // };
 
-  const handleOpenOilChangeDelivery = () => {
-    if (orderModalButtonVisible) {
-      alert("თქვენ უკვე გაქვთ აქტიური შეკვეთა")
-    } else {
-      if (isLoggedIn) {
-        navigation.navigate("OilChangeScreen");
-      } else {
-        Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
-        setModalVisible(true);
-      }
+  // const handleOpenOilChangeDelivery = () => {
+  //   if (orderModalButtonVisible) {
+  //     alert("თქვენ უკვე გაქვთ აქტიური შეკვეთა")
+  //   } else {
+  //     if (isLoggedIn) {
+  //       navigation.navigate("OilChangeScreen");
+  //     } else {
+  //       Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
+  //       setModalVisible(true);
+  //     }
+  //   }
+  // }
+
+  const handleCallService = () => {
+    if (!product) {
+      console.error("პროდუქტი არ არსებობს!");
+      return;
     }
-  }
+
+    const orderItems = [
+      { product_id: product.id, quantity: quantity, product: product },
+    ];
+    const orderType = "oil_change";
+    const additionalInfo = {
+      phone: "",
+      address: "",
+      email: "",
+    };
+
+    navigation.navigate("OilChangeScreen", {
+      orderItems,
+      orderType,
+      additionalInfo,
+      selectedProduct: product,
+      quantity,
+    });
+  };
+
 
   const incrementQuantity = () => {
     setQuantity(quantity + 1);
@@ -98,7 +124,7 @@ const ProductDetails = ({ route, navigation }: any) => {
       <ScrollView><Text style={styles.productDescription}>{product.description}</Text></ScrollView>
 
       {/* <Button title="კალათში დამატება" onPress={handleAddToCart} /> */}
-      <TouchableOpacity onPress={handleOpenOilChangeDelivery} style={styles.basketButton} >
+      <TouchableOpacity onPress={handleCallService} style={styles.basketButton} >
         <Text style={styles.basketButtonText}>სერვისის ადგილზე გამოძახება</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.basketButton} onPress={handleAddToCart}>
