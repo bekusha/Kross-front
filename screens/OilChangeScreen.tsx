@@ -14,9 +14,10 @@ import { useAuth } from "@/context/authContext";
 import { NavigationProp, useNavigation, } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
 import { useCart } from "@/context/cartContext";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const OilChangeScreen = ({ route }: { route: any }) => {
-  const { purchase, oilChangeOrders } = useCart();
+  const { purchase, orders } = useCart();
   const { user, isLoggedIn } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
   const navigation = useNavigation<AuthScreenNavigationProp>();
@@ -53,6 +54,10 @@ const OilChangeScreen = ({ route }: { route: any }) => {
       ...prevFormData,
       [name]: value,
     }));
+  };
+
+  const navigateToProducts = () => {
+    navigation.navigate("Products");
   };
 
   const handlePurchase = async () => {
@@ -138,12 +143,28 @@ const OilChangeScreen = ({ route }: { route: any }) => {
             style={styles.input}
           /> */}
           {selectedProduct ? (
-            <View><Text>შერჩეული პროდუქტი: {selectedProduct.name}</Text>
+            <View>
+              <Text>შერჩეული პროდუქტი: {selectedProduct.name}</Text>
               <Text>რაოდენობა: {quantity} ბოთლი</Text>
               <Text>ფასი: {selectedProduct.price * quantity} ლარი</Text>
             </View>
+          ) : (
+            <View style={styles.center}>
+              <Text style={styles.infoText}>
+                სერვისის გამოძახებისთვის გთხოვთ, ჯერ აირჩიოთ პროდუქტი.
+                თუ რამე შეგეშლება პროდუქტის რაოდენობის შერჩევის დროს არაუშავს, ჩვენი ოპერატორი დაგიკავშირდება და დეტალებს დააზუსტებს
 
-          ) : null}
+              </Text>
+              <Icon name="done" style={{ marginBottom: 10 }} size={25} color="green" />
+              <TouchableOpacity
+                style={styles.navigateButton}
+                onPress={navigateToProducts}
+              >
+                <Text style={styles.navigateButtonText}>პროდუქტების ნახვა</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
 
 
 
@@ -158,11 +179,11 @@ const OilChangeScreen = ({ route }: { route: any }) => {
 
         {/* <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text> */}
         {/* if changedeliveries.length !== 0 show view above */}
-        {oilChangeOrders && (
+        {orders && (
           <Text style={styles.title}>შენი სერვისების ისტორია</Text>
         )}
         <FlatList
-          data={oilChangeOrders}
+          data={orders}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.card}>
@@ -213,6 +234,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+    height: "100%",
   },
   title: {
     fontSize: 18,
@@ -231,6 +253,25 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     // height: 35,
+  },
+  navigateButton: {
+    backgroundColor: "black",
+    padding: 10,
+    borderRadius: 8,
+  },
+  navigateButtonText: {
+    color: "white",
+    fontSize: 14,
+    textAlign: "center",
+  },
+
+  infoText: {
+    fontSize: 14,
+    color: "gray",
+    textAlign: "center",
+
+    padding: 10,
+
   },
   dropdown: {
     backgroundColor: '#fafafa',
@@ -259,6 +300,8 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
   },
+
+
   card: {
     backgroundColor: "#fff",
     padding: 15,
