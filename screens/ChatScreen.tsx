@@ -26,8 +26,13 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   const { addToCart } = useCart();
   // const [quantity, setQuantity] = useState(1);
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  // FOR MAIN CALCULATOR
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalLiters, setTotalLiters] = useState(0);
 
-
+  useEffect(() => {
+    calculateTotals();
+  }, [quantities]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -65,7 +70,55 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   };
 
 
+  const handleOrder = (orderType: "cart" | "service") => {
+    const selectedProducts = aiResponses
+      .reduce((acc: Product[], item) => acc.concat(item.products || []), [])
+      .filter((product) => quantities[product.id] > 0);
 
+    if (selectedProducts.length === 0) {
+      Alert.alert("შეცდომა", "აირჩიეთ პროდუქტი");
+      return;
+    }
+
+    if (orderType === "cart") {
+      selectedProducts.forEach((product) => {
+        addToCart(product, quantities[product.id]);
+      });
+      Alert.alert("პროდუქტები დაემატა კალათაში", "შეგიძლიათ იხილოთ კალათაში");
+    } else if (orderType === "service") {
+      navigation.navigate("OilChangeScreen", {
+        orderItems: selectedProducts.map((product) => ({
+          product_id: product.id,
+          quantity: quantities[product.id],
+          name: product.name,
+          price: product.price,
+        })),
+        orderType: "oil_change",
+        additionalInfo: {
+          phone: "",
+          address: "",
+          email: "",
+        },
+      });
+    }
+  };
+
+
+  const calculateTotals = () => {
+    let price = 0;
+    let liters = 0;
+
+    aiResponses.forEach((item) => {
+      item.products.forEach((product) => {
+        const quantity = quantities[product.id] || 0;
+        price += quantity * product.price;
+        liters += quantity * product.liter;
+      });
+    });
+
+    setTotalPrice(price);
+    setTotalLiters(liters);
+  };
 
 
   const handleSend = () => {
@@ -93,14 +146,14 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   const incrementQuantity = (productId: string) => {
     setQuantities((prevQuantities) => ({
       ...prevQuantities,
-      [productId]: (prevQuantities[productId] || 1) + 1,
+      [productId]: (prevQuantities[productId] || 0) + 1, // თავიდან თუ 0-ია, უნდა დაიწყოს 1-დან
     }));
   };
 
   const decrementQuantity = (productId: string) => {
     setQuantities((prevQuantities) => ({
       ...prevQuantities,
-      [productId]: prevQuantities[productId] > 1 ? prevQuantities[productId] - 1 : 1,
+      [productId]: Math.max((prevQuantities[productId] || 0) - 1, 0), // არ უნდა იყოს უარყოფითი
     }));
   };
 
@@ -128,50 +181,60 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
 
             {/* პროდუქტის რენდერი map ფუნქციით */}
             {item.products && item.products.map((product: any, index: any) => (
-              <View style={styles.productCard} key={index} >
-
+              <View style={styles.productCard} key={index}>
                 <View style={{ flexDirection: "row" }}>
-                  {/* <Image source={require('assets/engine.webp')}
-                    style={{ width: 50, height: 40, borderRadius: 10, marginRight: 5 }}
-                  /> */}
                   <View style={{ justifyContent: "flex-start" }}>
                     <Text style={styles.productTitle}>{product.name}</Text>
-
-
-                    {/* how to import image from assets */}
-
                   </View>
-
                 </View>
+
                 <View style={styles.calculateButtonsContainer}>
-
-                  {/* <Text style={{ margin: 0 }}>ნივთის რაოდენობა: </Text> */}
-                  <TouchableOpacity onPress={() => decrementQuantity(product.id)}><Text style={styles.calculatorButtons}>-</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => decrementQuantity(product.id)}>
+                    <Text style={styles.calculatorButtons}>-</Text>
+                  </TouchableOpacity>
                   <View>
-                    <Text style={styles.calculatorButtons}>{quantities[product.id] || 1}</Text>
+                    <Text style={styles.calculatorButtons}>{quantities[product.id] || 0}</Text>
                   </View>
-                  <TouchableOpacity onPress={() => incrementQuantity(product.id)}><Text style={styles.calculatorButtons}>+</Text></TouchableOpacity>
-                </View>
-                <Text style={{ textAlign: "center" }}>რაოდენობა: {(quantities[product.id] || 1) * product.liter} ლიტრი ლიტრი</Text>
-                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }} >ფასი: {(quantities[product.id] || 1) * product.price} ლარი</Text>
-                <View style={{ justifyContent: "flex-start" }}>
-                  <TouchableOpacity
-                    onPress={() => handleAddToCart(product)}
-                    style={styles.callServiceButtonText}
-                  >
-                    <Ionicons name="cart" size={24} color={"red"} />
-                    <Text style={{ color: "red", fontSize: 14 }}>კალათში დამატება</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleCallService(product)}
-                    style={styles.callServiceButtonText}
-                  >
-                    <Ionicons name="construct-outline" size={24} color="red" />
-                    <Text style={{ color: "red", fontSize: 14 }}>სერვისის გამოძახება</Text>
+                  <TouchableOpacity onPress={() => incrementQuantity(product.id)}>
+                    <Text style={styles.calculatorButtons}>+</Text>
                   </TouchableOpacity>
                 </View>
+
+                <Text style={{ textAlign: "center" }}>
+                  რაოდენობა: {(quantities[product.id] || 0) * product.liter} ლიტრი
+                </Text>
+                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }}>
+                  ფასი: {(quantities[product.id] || 1) * product.price} ლარი
+                </Text>
+
               </View>
             ))}
+
+            {/* საერთო ღილაკები ყველა პროდუქტისთვის */}
+            <View style={{ justifyContent: "space-between", marginTop: 20 }}>
+              <View style={{ marginTop: 15, padding: 10, backgroundColor: "#fff", borderRadius: 8 }}>
+                <Text style={{ fontSize: 18, fontWeight: "bold", textAlign: "center" }}>
+                  საერთო ფასი: {totalPrice.toFixed(2)} ₾
+                </Text>
+                <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", marginTop: 5 }}>
+                  საერთო ლიტრები: {totalLiters.toFixed(2)}
+                </Text>
+              </View>
+
+              <View style={{ justifyContent: "space-between", marginTop: 20 }}>
+                <TouchableOpacity onPress={() => handleOrder("cart")} style={styles.actionButton}>
+                  <Ionicons name="cart" size={24} color={"white"} />
+                  <Text style={styles.actionButtonText}>კალათში დამატება</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => handleOrder("service")} style={styles.actionButton}>
+                  <Ionicons name="construct-outline" size={24} color="white" />
+                  <Text style={styles.actionButtonText}>სერვისის გამოძახება</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
           </View>
         )}
         contentContainerStyle={styles.chatContainer}

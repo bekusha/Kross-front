@@ -21,8 +21,8 @@ const OilChangeScreen = ({ route }: { route: any }) => {
   const { user, isLoggedIn } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
   const navigation = useNavigation<AuthScreenNavigationProp>();
-  const { selectedProduct, quantity } = route.params || {};
-
+  const { selectedProduct, quantity, orderItems = [], additionalInfo = {} } = route.params || {};
+  const isMultipleProducts = Array.isArray(orderItems) && orderItems.length > 0;
   const [deliveries, setDeliveries] = useState([]);
 
   // State for form inputs
@@ -35,8 +35,8 @@ const OilChangeScreen = ({ route }: { route: any }) => {
     address: user?.address || "",
     email: user?.email || "",
     ordered_at: "",
-    product: selectedProduct?.id || 0,
-    quantity: quantity
+    product: isMultipleProducts ? orderItems : selectedProduct?.id || 0,
+    quantity: isMultipleProducts ? orderItems : quantity || 1,
   });
 
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -61,20 +61,19 @@ const OilChangeScreen = ({ route }: { route: any }) => {
   };
 
   const handlePurchase = async () => {
-    const orderItems = [
-      {
-        product_id: formData.product,
-        quantity: formData.quantity,
-      },
-    ],
-      orderType = "oil_change",
-      additionalInfo = {
-        phone: formData.phone,
-        address: formData.address,
-        email: formData.email,
-      };
-    console.log(orderItems, orderType, additionalInfo);
-    purchase(orderItems, orderType, additionalInfo);
+    const orderType = "oil_change";
+    const additionalInfo = {
+      phone: formData.phone,
+      address: formData.address,
+      email: formData.email,
+    };
+
+    let orderPayload = isMultipleProducts
+      ? orderItems
+      : [{ product_id: selectedProduct?.id, quantity: quantity }];
+
+    console.log("შეკვეთის მონაცემები:", { orderPayload, orderType, additionalInfo });
+    purchase(orderPayload, orderType, additionalInfo);
   };
 
 
@@ -142,7 +141,19 @@ const OilChangeScreen = ({ route }: { route: any }) => {
             onChangeText={(value) => handleInputChange("email", value)}
             style={styles.input}
           /> */}
-          {selectedProduct ? (
+          {isMultipleProducts ? (
+            <View>
+              <Text style={styles.title}>შერჩეული პროდუქტები:</Text>
+              {orderItems.map((product, index) => (
+                <View key={index} >
+                  <Text>პროდუქტი: {product.name}</Text>
+                  <Text>რაოდენობა: {product.quantity} ბოთლი</Text>
+                  <Text>ფასი: {product.price * product.quantity} ლარი</Text>
+                </View>
+              ))}
+              <Text>ჯამი: {orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)} ლარი</Text>
+            </View>
+          ) : selectedProduct ? (
             <View>
               <Text>შერჩეული პროდუქტი: {selectedProduct.name}</Text>
               <Text>რაოდენობა: {quantity} ბოთლი</Text>
@@ -152,8 +163,6 @@ const OilChangeScreen = ({ route }: { route: any }) => {
             <View style={styles.center}>
               <Text style={styles.infoText}>
                 სერვისის გამოძახებისთვის გთხოვთ, ჯერ აირჩიოთ პროდუქტი.
-                თუ რამე შეგეშლება პროდუქტის რაოდენობის შერჩევის დროს არაუშავს, ჩვენი ოპერატორი დაგიკავშირდება და დეტალებს დააზუსტებს
-
               </Text>
               <Icon name="done" style={{ marginBottom: 10 }} size={25} color="green" />
               <TouchableOpacity
@@ -164,6 +173,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
               </TouchableOpacity>
             </View>
           )}
+
 
 
 
