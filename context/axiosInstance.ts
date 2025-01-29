@@ -8,7 +8,7 @@ import { API_BASE_URL } from "@env";
 // Axios instance შექმნა
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL, 
-  timeout: 10000, 
+  timeout: 20000, 
 });
 
 // Interceptor-ი Device-ID-ის დასამატებლად
