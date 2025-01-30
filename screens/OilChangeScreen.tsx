@@ -57,7 +57,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
   };
 
   const navigateToProducts = () => {
-    navigation.navigate("Products");
+    navigation.navigate("Products", { fromOilChangeScreen: true });
   };
 
   const handlePurchase = async () => {

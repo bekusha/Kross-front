@@ -69,7 +69,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     try {
       const response = await apiClient.get(`/product/`);
       setProducts(response.data);
-      console.log("Products fetched:", response.data);
+      console.log("Products fetched:");
       return response.data;
     } catch (error) {
       console.error("Failed to fetch products:", error);

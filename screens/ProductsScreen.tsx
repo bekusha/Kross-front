@@ -13,14 +13,19 @@ import {
 import * as Animatable from 'react-native-animatable';
 import { useProducts } from "../context/productContext";
 import { Product } from "@/types/product";
+import SelectedProductsBar from "@/components/SelectedProductsBar";
 
 const ProductsScreen = ({ navigation, route }: any) => {
   const { fetchProducts, fetchProductsByCategory, products } = useProducts();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [filter, setFilter] = useState(route.params?.filter || "");
+  // const [filter, setFilter] = useState(route.params?.filter || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const categoryId = route.params?.categoryId || null;
+  // const [isFromOilChangeScreen, setIsFromOilChangeScreen] = useState(false);
+  const isFromOilChangeScreen = route.params?.fromOilChangeScreen || false;
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+
   // Fetch products when the component mounts or categoryId changes
   useEffect(() => {
     const fetchData = async () => {
@@ -36,6 +41,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
     };
     fetchData();
   }, [fetchProductsByCategory, fetchProducts, categoryId]);
+
   // Filter products based on the search query
   useEffect(() => {
     const filtered = products.filter((product) =>
@@ -44,49 +50,103 @@ const ProductsScreen = ({ navigation, route }: any) => {
     setFilteredProducts(filtered);
   }, [searchQuery, products]);
 
-  const renderProduct = ({ item, index }: { item: Product; index: number }) => (
-    <Animatable.View
-      key={index}
-      animation="fadeInDown"
-      duration={600}
-      delay={index * 150}
-      easing="ease-out"
-      useNativeDriver={true}
-      style={styles.productCard}
-    >
-      <Text style={styles.productName}>{item.name}</Text>
-      <View style={{ overflow: 'hidden' }}>
-        <Animatable.View
-          animation={{
-            0: {
-              translateY: 200,
-              opacity: 0,
-            },
-            1: {
-              translateY: 0,
-              opacity: 1,
-            }
-          }}
-          duration={700}
-          delay={index * 150 + 200}
-          easing="ease-out"
-          useNativeDriver={true}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ProductDetails", { productId: item.id })}
-            activeOpacity={0.7}
+  const changeQuantity = (productId: number, amount: number) => {
+    setSelectedProducts((prevSelected) =>
+      prevSelected.map((product) =>
+        product.id === productId
+          ? { ...product, quantity: Math.max(1, product.quantity! + amount) }
+          : product
+      )
+    );
+  };
+
+  const toggleProductSelection = (product: Product) => {
+    setSelectedProducts((prevSelected) => {
+      const isAlreadySelected = prevSelected.some((p) => p.id === product.id);
+      if (isAlreadySelected) {
+        return prevSelected.filter((p) => p.id !== product.id);
+      } else {
+        return [...prevSelected, { ...product, quantity: 1 }];
+      }
+    });
+  };
+
+  const renderProduct = ({ item, index }: { item: Product; index: number }) => {
+    const isSelected = selectedProducts.some((p) => p.id === item.id);
+    const selectedProduct = selectedProducts.find((p) => p.id === item.id);
+
+    return (
+      <Animatable.View
+        key={index}
+        animation="fadeInDown"
+        duration={600}
+        delay={index * 150}
+        easing="ease-out"
+        useNativeDriver={true}
+        style={[styles.productCard, isSelected && styles.selectedProduct]}
+      >
+        <Text style={styles.productName}>{item.name}</Text>
+        <View style={{ overflow: "hidden" }}>
+          <Animatable.View
+            animation={{
+              0: { translateY: 200, opacity: 0 },
+              1: { translateY: 0, opacity: 1 },
+            }}
+            duration={700}
+            delay={index * 150 + 200}
+            easing="ease-out"
+            useNativeDriver={true}
           >
-            <Image
-              source={{ uri: item.image1 }}
-              style={styles.productImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.productPrice}>{item.price} ლარი</Text>
-          </TouchableOpacity>
-        </Animatable.View>
-      </View>
-    </Animatable.View>
-  );
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("ProductDetails", { productId: item.id })
+              }
+              activeOpacity={0.7}
+            >
+              <Image
+                source={{ uri: item.image1 }}
+                style={styles.productImage}
+                resizeMode="contain"
+              />
+              <Text style={styles.productPrice}>{item.price} ლარი</Text>
+            </TouchableOpacity>
+          </Animatable.View>
+        </View>
+
+        {isFromOilChangeScreen && (
+          <View style={styles.buttonsContainer}>
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                onPress={() => changeQuantity(item.id, -1)}
+                disabled={!isSelected}
+              >
+                <Text style={[styles.calcButtons, !isSelected && styles.disabledButton]}>-</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.quantityText}>
+                {selectedProduct?.quantity ?? 0}
+              </Text>
+
+              <TouchableOpacity onPress={() => changeQuantity(item.id, 1)}>
+                <Text style={[styles.calcButtons, !isSelected && styles.disabledButton]}>+</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.selectButton}
+              onPress={() => toggleProductSelection(item)}
+            >
+              <Text style={styles.selectButtonText}>
+                {isSelected ? "წაშლა" : "დაამატე პროდუქტი"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </Animatable.View>
+    );
+  };
+
+
 
   return (
     <View style={styles.container}>
@@ -97,6 +157,15 @@ const ProductsScreen = ({ navigation, route }: any) => {
         useNativeDriver
         style={styles.searchContainer}
       >
+        <SelectedProductsBar
+          selectedProducts={selectedProducts}
+          onRemove={(productId) =>
+            setSelectedProducts((prev) => prev.filter((p) => p.id !== productId))
+          }
+          onConfirm={() =>
+            navigation.navigate("OilChangeScreen", { orderItems: selectedProducts.map((p) => ({ product_id: p.id, quantity: p.quantity || 1, price: p.price || 0 })) })
+          }
+        />
         <TextInput
           style={styles.filterInput}
           placeholder="რას ეძებ..."
@@ -159,6 +228,62 @@ const styles = StyleSheet.create({
     elevation: 5,
     alignItems: "center",
   },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+
+  },
+  selectButton: {
+    backgroundColor: "#000",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  selectButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  buttonsContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  confirmButton: {
+    backgroundColor: "#ff4500",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 20,
+    alignSelf: "center",
+  },
+  confirmButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  calcButtons: {
+    backgroundColor: "#000",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginTop: 10,
+    marginRight: 5,
+    marginLeft: 5,
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 20,
+  },
+  selectedProduct: {
+    borderColor: "green",
+    borderWidth: 2,
+  },
+
   productName: {
     fontSize: 16,
     fontWeight: "bold",
@@ -180,6 +305,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: "red",
+  },
+  disabledButton: {
+    backgroundColor: "#ccc", // გამორთული ფერი
+  },
+  quantityText: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });
 
