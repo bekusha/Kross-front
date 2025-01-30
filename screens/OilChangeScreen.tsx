@@ -9,6 +9,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useAuth } from "@/context/authContext";
 import { NavigationProp, useNavigation, } from "@react-navigation/native";
@@ -44,9 +45,12 @@ const OilChangeScreen = ({ route }: { route: any }) => {
 
 
   useEffect(() => {
+    console.log("User" + JSON.stringify(user))
+    if (user?.phone) {
+      setFormData((prev) => ({ ...prev, phone: user.phone || "" }));
+    }
 
-
-  }, []);
+  }, [user]);
 
 
   const handleInputChange = (name: string, value: string) => {
@@ -61,6 +65,13 @@ const OilChangeScreen = ({ route }: { route: any }) => {
   };
 
   const handlePurchase = async () => {
+    if (!formData.phone.trim()) {
+      Alert.alert("შეცდომა", "გთხოვთ შეიყვანოთ მობილურის ნომერი.");
+      return;
+    } else if (!formData.address.trim()) {
+      Alert.alert("შეცდომა", "გთხოვთ შეიყვანოთ მისამართი.");
+      return;
+    }
     const orderType = "oil_change";
     const additionalInfo = {
       phone: formData.phone,
@@ -103,8 +114,9 @@ const OilChangeScreen = ({ route }: { route: any }) => {
             placeholder="მობილურის ნომერი"
             value={formData.phone}
             onChangeText={(value) => handleInputChange("phone", value)}
-            style={styles.input}
+            style={[styles.input, { borderColor: !formData.phone.trim() ? "red" : "#ccc" }]}
           />
+
           <TextInput
             placeholder="მანქანის მწარმოებელი"
             value={formData.car_make}

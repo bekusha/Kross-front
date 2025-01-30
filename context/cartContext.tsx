@@ -284,6 +284,9 @@ export const CartProvider = ({ children }: any) => {
           order_type: orderType,
           ...additionalInfo,
         });
+        if (response.data.order_id) {
+          Alert.alert("შეკვეთა შექმნილია", `შეკვეთის ნომერი: ${response.data.order_id}`);
+        }
         console.log("Order created successfully:", response.data);
         fetchCart();
         // fetchOrders(response.data.order_id);
@@ -292,7 +295,7 @@ export const CartProvider = ({ children }: any) => {
         console.error("Failed to create order:", error);
       }
     } else {
-      alert("თქვენ უკვე გაქვთ შეკვეთა")
+      alert("თქვენ უკვე გაქვთ აქტიური შეკვეთა")
     }
   };
 

@@ -58,14 +58,18 @@ const Cart = () => {
 
 
     try {
-      // პროდუქტის მიწოდების შეკვეთის გაფორმება
+      if (!additionalInfo.phone || !additionalInfo.address) {
+        Alert.alert("შეცდომა", "გთხოვთ შეავსოთ ველები");
+        return;
+      }
       await purchase(orderItems, "product_delivery", additionalInfo);
-      Alert.alert("წარმატება", "შეკვეთა წარმატებით გაფორმდა!");
+
       setIsModalVisible(false);
     } catch (error) {
       console.error("Failed to purchase:", error);
       Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
     }
+
   };
 
 
@@ -150,7 +154,7 @@ const Cart = () => {
             />
 
             {/* Input for Email */}
-            <TextInput
+            {/* <TextInput
               style={styles.input}
               placeholder="ელფოსტა"
               keyboardType="email-address"
@@ -158,7 +162,7 @@ const Cart = () => {
               onChangeText={(text) =>
                 setAdditionalInfo((prev) => ({ ...prev, email: text }))
               }
-            />
+            /> */}
 
             <View style={styles.modalButtons}>
               <TouchableOpacity

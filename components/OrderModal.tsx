@@ -28,7 +28,7 @@ const OrderModal = ({
   const renderStatusMessage = (status: string) => {
     switch (status) {
       case "pending":
-        return "მოლოდინის რეჟიმი: შეკვეთა ელოდება კურიერის მიმაგრებას.";
+        return "მოლოდინის რეჟიმი: მალე დაგიკავშირდებით! მოლოდინის რეჟიმი 10 წუთი";
       case "in_progress":
         return `შეკვეთა მიმდინარეობს.`;
       case "completed":
@@ -68,28 +68,22 @@ const OrderModal = ({
                 <ScrollView>
                   <View style={styles.orderDetails}>
                     <Text style={styles.orderText}>
-                      Order ID:{" "}
+                      შეკვეთის ნომერი:{" "}
                       <Text style={styles.orderValue}>{orders.order_id}</Text>
                     </Text>
                     <Text style={styles.orderText}>
-                      Order Type:{" "}
+                      შეკვეთის ტიპი:{" "}
                       <Text style={styles.orderValue}>{orders.order_type}</Text>
                     </Text>
                     <Text style={styles.orderText}>
-                      Status:{" "}
+                      შეკვეთის სტატუსი:{" "}
                       <Text style={styles.orderValue}>
                         {renderStatusMessage(orders.status)}
                       </Text>
                     </Text>
                     {renderCourierDetails()}
-                    <Text style={styles.orderText}>
-                      Phone:{" "}
-                      <Text style={styles.orderValue}>{orders.phone || "N/A"}</Text>
-                    </Text>
-                    <Text style={styles.orderText}>
-                      Email:{" "}
-                      <Text style={styles.orderValue}>{orders.email || "N/A"}</Text>
-                    </Text>
+
+
                     <Text style={styles.orderText}>
                       Address:{" "}
                       <Text style={styles.orderValue}>
