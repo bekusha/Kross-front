@@ -56,7 +56,9 @@ export default function App() {
   }, []);
 
   const handleOrderModal = (value: boolean) => {
+    console.log("Before toggle", showOrderModal)
     setShowOrderModal(!value);
+    console.log("After toggle", !value)
   }
 
 

@@ -20,19 +20,22 @@ const OrderButton = ({
     // PanResponder to handle drag gestures
     const panResponder = useRef(
         PanResponder.create({
-            onMoveShouldSetPanResponder: () => true, // Allow dragging
+            onMoveShouldSetPanResponder: (_, gestureState) => {
+                return Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5;
+            },
             onPanResponderGrant: () => {
-                pan.extractOffset(); // Extract the current offset
+                pan.extractOffset();
             },
             onPanResponderMove: Animated.event(
                 [null, { dx: pan.x, dy: pan.y }],
-                { useNativeDriver: false } // JavaScript-driven animations
+                { useNativeDriver: false }
             ),
             onPanResponderRelease: () => {
-                pan.flattenOffset(); // Merge offset and base value
+                pan.flattenOffset();
             },
         })
     ).current;
+
 
     // If button visibility is off, return null
     if (!orderModalButtonVisible) return null;
@@ -45,7 +48,13 @@ const OrderButton = ({
             ]}
             {...panResponder.panHandlers} // Bind PanResponder handlers
         >
-            <TouchableOpacity style={styles.timerButton} onPress={onPress}>
+            <TouchableOpacity
+                style={styles.timerButton}
+                onPress={() => {
+                    console.log("🔥 OrderButton Pressed!"); // ლოგირება დავამატოთ
+                    onPress();
+                }}
+            >
                 <Icon name="timer" size={30} color="#FFFFFF" />
             </TouchableOpacity>
         </Animated.View>

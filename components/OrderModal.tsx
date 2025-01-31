@@ -9,6 +9,8 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { useCart } from "@/context/cartContext";
+import moment from "moment";
+import OrderCountdown from "@/components/OrderCountdown";
 
 const OrderModal = ({
   visible,
@@ -18,6 +20,11 @@ const OrderModal = ({
   onClose: () => void;
 }) => {
   const { orders } = useCart();
+  useEffect(() => {
+    console.log("Order modal visibility:", visible);
+    console.log("Orders data:", orders);
+  }, [visible, orders]);
+
 
   useEffect(() => {
     if (visible && orders) {
@@ -48,8 +55,11 @@ const OrderModal = ({
           <Text style={styles.courierText}>
             ტელეფონი:{" "}
             <Text style={styles.orderValue}>
-              {orders.courier_number || "მიუწვდომელია"}
+              {orders.courier_phone || "მიუწვდომელია"}
             </Text>
+          </Text>
+          <Text style={styles.courierText}>
+            სერვისის ჯგუფის მოსვლის დრო: <OrderCountdown deliveryTime={orders.delivery_time} />
           </Text>
         </View>
       );
