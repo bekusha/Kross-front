@@ -101,7 +101,7 @@ const Cart = () => {
                 </View>
                 <Text>რაოდენობა: {item.quantity} ცალი</Text>
                 <Text>თითო ნივთის ფასი: {item.product.price} ლ</Text>
-                <Text>შეკვეთის სტატუსი: {cart?.order_status}</Text>
+
               </View>
             );
           })}
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    height: 100,
+
     width: "100%",
   },
   itemHeader: {

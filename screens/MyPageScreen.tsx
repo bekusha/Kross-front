@@ -14,6 +14,7 @@ import { CommonActions, NavigationProp, useNavigation } from "@react-navigation/
 import { RootStackParamList } from "@/types/routes";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Cart from "@/components/Cart";
+import SavedOrders from "@/components/SavedOrders";
 // import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 
 const MyPageScreen: React.FC = () => {
@@ -57,82 +58,13 @@ const MyPageScreen: React.FC = () => {
     }
   };
 
-  // const handleLogOut = () => {
-  //   Alert.alert(
-  //     "ექაუნთიდან გასვლა",
-  //     "ნამდვილად გსურთ ექაუნთიდან გასვლა?",
-  //     [
-  //       {
-  //         text: "არა",
-  //         style: "cancel",
-  //       },
-  //       {
-  //         text: "დიახ",
-  //         onPress: () => {
-  //           logout();
-  //           navigation.dispatch(
-  //             CommonActions.reset({
-  //               index: 0,
-  //               routes: [{ name: "Home" }], // გადაყვანა ავტორიზაციის გვერდზე ლოგაუთის შემდეგ
-  //             })
-  //           );
-  //         },
-  //       },
-  //     ],
-  //     { cancelable: false }
-  //   );
-  // };
 
 
   const handleLogOut = () => {
-    // Alert.alert(
-    //   "ექაუნთიდან გასვლა",
-    //   "ნამდვილად გსურთ ექაუნთიდან გასვლა?",
-    //   [
-    //     {
-    //       text: "არა",
-    //       style: "cancel",
-    //     },
-    //     {
-    //       text: "დიახ",
-    //       onPress: async () => {
-    //         // Facebook-იდან გამოსვლა
-    //         try {
-    //           const currentAccessToken = await AccessToken.getCurrentAccessToken();
-    //           if (currentAccessToken) {
-    //             LoginManager.logOut();
-    //             console.log("Facebook logged out");
-    //           }
-    //         } catch (error) {
-    //           console.error("Facebook logout error:", error);
-    //         }
 
-    //         // აპლიკაციიდან გამოსვლა
-    //         logout();
-    //         navigation.dispatch(
-    //           CommonActions.reset({
-    //             index: 0,
-    //             routes: [{ name: "AuthScreen" }], // გადაყვანა ავტორიზაციის გვერდზე
-    //           })
-    //         );
-    //       },
-    //     },
-    //   ],
-    //   { cancelable: false }
-    // );
   };
 
 
-
-  // const handleLogOut = () => {
-  //   logout();
-  //   // navigation.dispatch(
-  //   //   CommonActions.reset({
-  //   //     index: 0,
-  //   //     routes: [{ name: "Home" }],
-  //   //   })
-  //   // );
-  // };
 
 
 
@@ -167,43 +99,21 @@ const MyPageScreen: React.FC = () => {
             style={[styles.toggleButton, activeComponent === "ჩემი პროდუქტი" && styles.activeButton]}
             onPress={() => setActiveComponent("ჩემი პროდუქტი")}>
             <Text style={[styles.toggleButtonText, activeComponent === "ჩემი პროდუქტი" && styles.activeButtonText]}>
-              პროდუქტი
+              კალათი<Icon name="shopping-cart" size={20} color="white" style={{ marginLeft: 10 }} />
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.toggleButton, activeComponent === "შენახული გარბენი" && styles.activeButton]}
             onPress={() => setActiveComponent("შენახული გარბენი")}>
             <Text style={[styles.toggleButtonText, activeComponent === "შენახული გარბენი" && styles.activeButtonText]}>
-              გარბენი
+              ისტორია<Icon name="history" size={20} color="white" style={{ marginLeft: 10 }} />
             </Text>
           </TouchableOpacity>
         </View>
 
         {activeComponent === "ჩემი პროდუქტი" && <Cart />}
         {activeComponent === "შენახული გარბენი" && (
-          <View>
-            <TextInput
-              style={styles.input}
-              placeholder="ჩაწერეთ გარბენი"
-              placeholderTextColor="#888"
-              keyboardType="numeric"
-              value={mileage}
-              onChangeText={setMileage}
-            />
-            <TouchableOpacity style={styles.button} onPress={handleSaveMileage}>
-              <Text style={styles.buttonText}>შენახვა</Text>
-            </TouchableOpacity>
-            {oilRecords.length > 0 && (
-              <View>
-                <Text style={styles.savedText}>
-                  შემდეგი შეცვლა: {oilRecords[0].next_change_mileage} km
-                </Text>
-                <Text style={styles.savedText}>
-                  ძველი შეცვლა: {oilRecords[0].current_mileage} km
-                </Text>
-              </View>
-            )}
-          </View>
+          <SavedOrders />
         )}
       </View>
     </View>
@@ -310,7 +220,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: 400,
     color: "black",
-    fontSize: 14,
+    fontSize: 16,
 
   },
   activeButtonText: {

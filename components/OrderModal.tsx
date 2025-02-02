@@ -9,7 +9,6 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { useCart } from "@/context/cartContext";
-import moment from "moment";
 import OrderCountdown from "@/components/OrderCountdown";
 
 const OrderModal = ({
