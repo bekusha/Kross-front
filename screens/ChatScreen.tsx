@@ -38,6 +38,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
     const timeout = setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 300);
+    console.log("AI Responses:", JSON.stringify(aiResponses, null, 2));
     return () => clearTimeout(timeout);
   }, [aiResponses]);
 
@@ -70,38 +71,20 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
   };
 
 
-  const handleOrder = (orderType: "cart" | "service") => {
-    const selectedProducts = aiResponses
-      .reduce((acc: Product[], item) => acc.concat(item.products || []), [])
-      .filter((product) => quantities[product.id] > 0);
-
-    if (selectedProducts.length === 0) {
-      Alert.alert("შეცდომა", "აირჩიეთ პროდუქტი");
-      return;
-    }
-
+  const handleOrder = (orderType: "cart" | "service", products: Product[]) => {
     if (orderType === "cart") {
-      selectedProducts.forEach((product) => {
-        addToCart(product, quantities[product.id]);
-      });
+      products.forEach(product => addToCart(product, product.recommended_quantity || 1));
       Alert.alert("პროდუქტები დაემატა კალათაში", "შეგიძლიათ იხილოთ კალათაში");
     } else if (orderType === "service") {
       navigation.navigate("OilChangeScreen", {
-        orderItems: selectedProducts.map((product) => ({
-          product_id: product.id,
-          quantity: quantities[product.id],
-          name: product.name,
-          price: product.price,
-        })),
+        orderItems: products,  // 🛠️ აქ ვაგზავნით products მთლიანად!
         orderType: "oil_change",
-        additionalInfo: {
-          phone: "",
-          address: "",
-          email: "",
-        },
+        additionalInfo: { phone: "", address: "", email: "" },
       });
     }
   };
+
+
 
 
   const calculateTotals = () => {
@@ -128,34 +111,22 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  const handleAddToCart = (product: any) => {
-    const quantity = quantities[product.id] || 1;
-    addToCart(product, quantity);
-    Alert.alert(
-      "პროდუქტი წარმატებით დაემატა",
-      "შეგიძლიათ იხილოთ თაბზე, ჩემი გვერდი",
-      [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Cart"),
-        },
-      ],
-      { cancelable: false }
-    )
-  };
-  const incrementQuantity = (productId: string) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: (prevQuantities[productId] || 0) + 1, // თავიდან თუ 0-ია, უნდა დაიწყოს 1-დან
-    }));
-  };
+  // const handleAddToCart = (product: any) => {
+  //   const quantity = quantities[product.id] || 1;
+  //   addToCart(product, quantity);
+  //   Alert.alert(
+  //     "პროდუქტი წარმატებით დაემატა",
+  //     "შეგიძლიათ იხილოთ თაბზე, ჩემი გვერდი",
+  //     [
+  //       {
+  //         text: "OK",
+  //         onPress: () => navigation.navigate("Cart"),
+  //       },
+  //     ],
+  //     { cancelable: false }
+  //   )
+  // };
 
-  const decrementQuantity = (productId: string) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: Math.max((prevQuantities[productId] || 0) - 1, 0), // არ უნდა იყოს უარყოფითი
-    }));
-  };
 
   return (
     <KeyboardAvoidingView
@@ -175,74 +146,55 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
         ref={flatListRef}
         data={aiResponses}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.botResponseCard}>
-            <Text style={styles.messageText}>{item.message}</Text>
+        renderItem={({ item }) => {
+          // ვთვლით პროდუქტების საერთო ფასსა და ლიტრაჟს
+          const totalLiters = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.liter, 0);
+          const totalPrice = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.price, 0);
 
-            {/* პროდუქტის რენდერი map ფუნქციით */}
-            {item.products && item.products.map((product: any, index: any) => (
-              <View style={styles.productCard} key={index}>
-                <View style={{ flexDirection: "row" }}>
-                  <View style={{ justifyContent: "flex-start" }}>
+          return (
+            <View style={styles.botResponseCard}>
+              {/* AI-ს მიერ დაბრუნებული ინფორმაცია */}
+              <Text style={styles.messageText}>{item.message}</Text>
+
+              {/* პროდუქტის დეტალები */}
+              <View style={styles.productContainer}>
+                {item.products.map((product: Product, index: any) => (
+                  <View key={index} style={styles.productRow}>
                     <Text style={styles.productTitle}>{product.name}</Text>
+                    <Text> ცალი ({product.liter} ლ/ბოთლი)</Text>
+                    <Text>რაოდენობა: {product.recommended_quantity}ც</Text>
+                    <Text style={{ color: "red" }}>ფასი: {product.recommended_quantity! * product.price} ლარი</Text>
                   </View>
-                </View>
-
-                <View style={styles.calculateButtonsContainer}>
-                  <TouchableOpacity onPress={() => decrementQuantity(product.id)}>
-                    <Text style={styles.calculatorButtons}>-</Text>
-                  </TouchableOpacity>
-                  <View>
-                    <Text style={styles.calculatorButtons}>{quantities[product.id] || 0}</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => incrementQuantity(product.id)}>
-                    <Text style={styles.calculatorButtons}>+</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <Text style={{ textAlign: "center" }}>
-                  რაოდენობა: {(quantities[product.id] || 0) * product.liter} ლიტრი
-                </Text>
-                <Text style={{ color: "red", textAlign: "center", marginTop: 10 }}>
-                  ფასი: {(quantities[product.id] || 1) * product.price} ლარი
-                </Text>
-
-              </View>
-            ))}
-
-            {/* საერთო ღილაკები ყველა პროდუქტისთვის */}
-            <View style={{ justifyContent: "space-between", marginTop: 20 }}>
-              <View style={{ marginTop: 15, padding: 10, backgroundColor: "#fff", borderRadius: 8 }}>
-                <Text style={{ fontSize: 18, fontWeight: "bold", textAlign: "center" }}>
-                  საერთო ფასი: {totalPrice.toFixed(2)} ₾
-                </Text>
-                <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", marginTop: 5 }}>
-                  საერთო ლიტრები: {totalLiters.toFixed(2)}
-                </Text>
+                ))}
               </View>
 
-              <View style={{ justifyContent: "space-between", marginTop: 20 }}>
-                <TouchableOpacity onPress={() => handleOrder("cart")} style={styles.actionButton}>
+              {/* საერთო რაოდენობა და ღილაკები */}
+              <View style={styles.summaryContainer}>
+                <Text style={styles.summaryText}>საერთო ლიტრები: {totalLiters} ლ</Text>
+                <Text style={styles.summaryText}>საერთო ფასი: {totalPrice} ლ</Text>
+              </View>
+
+              <View style={styles.actionButtonsContainer}>
+                <TouchableOpacity onPress={() => handleOrder("cart", item.products)} style={styles.actionButton}>
                   <Ionicons name="cart" size={24} color={"white"} />
-                  <Text style={styles.actionButtonText}>კალათში დამატება</Text>
+                  <Text style={styles.actionButtonText}>კალათაში დამატება</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => handleOrder("service")} style={styles.actionButton}>
+                <TouchableOpacity onPress={() => handleOrder("service", item.products)} style={styles.actionButton}>
                   <Ionicons name="construct-outline" size={24} color="white" />
                   <Text style={styles.actionButtonText}>სერვისის გამოძახება</Text>
                 </TouchableOpacity>
               </View>
-
             </View>
-
-          </View>
-        )}
+          );
+        }}
         contentContainerStyle={styles.chatContainer}
         onContentSizeChange={() =>
           flatListRef.current?.scrollToEnd({ animated: true })
         }
         showsVerticalScrollIndicator={false}
       />
+
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -252,6 +204,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
           placeholder="მარკა, მოდელი, ძრავი, წელი"
           onSubmitEditing={handleSend}
         />
+
         <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
           <Text style={styles.sendButtonText}>გაგზავნა</Text>
         </TouchableOpacity>
@@ -300,10 +253,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderColor: "#e0e0e0",
+    marginBottom: 100,
   },
   input: {
     flex: 1,
-    height: 40,
+    height: 60,
     borderColor: "gray",
     borderWidth: 1,
     borderRadius: 8,
@@ -334,6 +288,17 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     alignSelf: "center",
     maxWidth: "80%",
+  },
+  summaryContainer: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  summaryText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   productCard: {
     backgroundColor: "#ffffff",
@@ -367,14 +332,28 @@ const styles = StyleSheet.create({
     color: "#666",
     marginVertical: 5,
   },
+  productContainer: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+  },
+  productRow: {
+    marginBottom: 10,
+  },
+  // productTitle: {
+  //   fontSize: 16,
+  //   fontWeight: "bold",
+  // },
   actionButtonsContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
+    gap: 8,
     marginTop: 10,
 
   },
   actionButton: {
-    backgroundColor: "#ff6347",
+    backgroundColor: "red",
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -492,6 +471,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+
 });
 
 export default ChatScreen;

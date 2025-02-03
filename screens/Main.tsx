@@ -13,7 +13,7 @@ import { useProducts } from "../context/productContext";
 import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
 
 
 
@@ -103,7 +103,7 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
 
 
 
-      <Footer />
+      {/* <Footer /> */}
     </View>
   );
 };
@@ -120,17 +120,17 @@ const styles = StyleSheet.create({
   cardWrapper: {
     width: "90%",
     marginBottom: 20,
-    backgroundColor: "#f9f9f9", // Lighter background color
+    backgroundColor: "#f9f9f9",
     padding: 10,
     borderRadius: 10,
-    shadowColor: "gray",
+    shadowColor: "black",
     shadowOffset: {
       width: 2,
       height: 2,
     },
     shadowOpacity: 0.85,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 5,
   },
   card: {
     aspectRatio: 1,

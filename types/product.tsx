@@ -15,6 +15,7 @@ export interface Product {
   quantity?: number;
   viscosity: string;
   liter: number;
+  recommended_quantity?: number;
 }
 
 export interface ProductContextType {

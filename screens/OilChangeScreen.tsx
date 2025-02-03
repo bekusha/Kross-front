@@ -109,7 +109,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
   return (
     <KeyboardAvoidingView style={styles.container}>
       <KeyboardAvoidingView>
-        <View style={styles.form}>
+        <ScrollView style={styles.form}>
           <TextInput
             placeholder="მობილურის ნომერი"
             value={formData.phone}
@@ -157,13 +157,15 @@ const OilChangeScreen = ({ route }: { route: any }) => {
             <View>
               <Text style={styles.title}>შერჩეული პროდუქტები:</Text>
               {orderItems.map((product, index) => (
-                <View key={index} >
+                <View key={index}>
                   <Text>პროდუქტი: {product.name}</Text>
-                  <Text>რაოდენობა: {product.quantity} ბოთლი</Text>
-                  <Text>ფასი: {product.price * product.quantity} ლარი</Text>
+                  <Text>რაოდენობა: {product.recommended_quantity} ბოთლი</Text>
+                  <Text>ფასი: {product.price * product.recommended_quantity} ლარი</Text>
                 </View>
               ))}
-              <Text>ჯამი: {orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)} ლარი</Text>
+              <Text>ჯამი: {orderItems.reduce((acc, item) => acc + (item.price * item.recommended_quantity), 0)} ლარი</Text> {/* ✅ აქაც სწორი გამოთვლა */}
+
+              {/* <Text >ჯამი: {orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)} ლარი</Text> */}
             </View>
           ) : selectedProduct ? (
             <View>
@@ -197,7 +199,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
             style={styles.submitButton}
 
           ><Text style={styles.submitButtonText}>სერვისის გამოძახება</Text></TouchableOpacity>
-        </View>
+        </ScrollView>
 
         {/* <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text> */}
         {/* if changedeliveries.length !== 0 show view above */}

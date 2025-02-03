@@ -108,6 +108,7 @@ const ProductsScreen = ({ navigation, route }: any) => {
                 style={styles.productImage}
                 resizeMode="contain"
               />
+              <Text style={styles.productVolume}>ბოთლის მოცულობა {item.liter}L</Text>
               <Text style={styles.productPrice}>{item.price} ლარი</Text>
             </TouchableOpacity>
           </Animatable.View>
@@ -163,7 +164,9 @@ const ProductsScreen = ({ navigation, route }: any) => {
             setSelectedProducts((prev) => prev.filter((p) => p.id !== productId))
           }
           onConfirm={() =>
-            navigation.navigate("OilChangeScreen", { orderItems: selectedProducts.map((p) => ({ product_id: p.id, quantity: p.quantity || 1, price: p.price || 0 })) })
+            navigation.navigate("OilChangeScreen", {
+              orderItems: selectedProducts // მთლიანად გადავცემთ 
+            })
           }
         />
         <TextInput
@@ -208,8 +211,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   columnWrapper: {
-    flexDirection: "column",
+    flexDirection: "row",
     justifyContent: "space-between",
+
+  },
+  productVolume: {
+    fontSize: 12,
+    color: "black",
   },
   productList: {},
   productCard: {
@@ -218,11 +226,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     backgroundColor: "#fff",
-    shadowColor: "red",
+    shadowColor: "black",
     shadowOffset: {
       width: 0,
       height: 2,
     },
+
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
@@ -292,8 +301,9 @@ const styles = StyleSheet.create({
   },
   productPrice: {
     fontSize: 14,
-    color: "gray",
+    color: "red",
     marginTop: 4,
+
   },
   productImage: {
     width: Dimensions.get("window").width / 2 - 40,

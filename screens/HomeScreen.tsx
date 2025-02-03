@@ -43,12 +43,12 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     switch (selectedTab) {
       case "Main":
         return <Main navigation={navigation} />;
-      case "MyPage":
-        return <MyPageScreen />;
-      case "Contact":
-        return <ContactScreen />;
-      default:
-        return <Main navigation={navigation} />;
+      // case "MyPage":
+      //   return <MyPageScreen />;
+      // case "Contact":
+      //   return <ContactScreen />;
+      // default:
+      //   return <Main navigation={navigation} />;
     }
   };
 
@@ -68,7 +68,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         value={filter}
         onChangeText={setFilter}
       /> */}
-      <View style={styles.tabContainer}>
+      {/* <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, selectedTab === "Main" && styles.activeTab]}
           onPress={() => setSelectedTab("Main")}>
@@ -103,7 +103,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
             კონტაქტი
           </Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <View style={styles.contentContainer}>{renderContent()}</View>
     </View>
   );
