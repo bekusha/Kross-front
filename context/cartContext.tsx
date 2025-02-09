@@ -25,6 +25,8 @@ interface CartContextType {
   setOrderModalButtonVisible: (visible: boolean) => void;
   sendWebSocketMessage: (message: any) => void;
   fetchOrders: (orderId: any) => Promise<void>;
+  setOrders: any;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType>({
@@ -39,6 +41,8 @@ const CartContext = createContext<CartContextType>({
   setOrderModalButtonVisible: () => { },
   sendWebSocketMessage: () => { },
   fetchOrders: async () => { },
+  setOrders: () => { },
+  clearCart: async () => { },
 });
 
 export function useCart() {
@@ -57,50 +61,104 @@ export const CartProvider = ({ children }: any) => {
   const [orderModalButtonVisible, setOrderModalButtonVisible] = useState(false);
 
   const socketRef = useRef<WebSocket | null>(null);
+  const reconnectIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttempts = useRef(0);
+  const MAX_RETRIES = 5; // მაქსიმალური მცდელობები
+  const RECONNECT_DELAY = 3000;
 
-  useEffect(() => {
-    // console.log("api base url", API_BASE_URL)
-    fetchCart();
-    console.log("API_BASE_URL", API_BASE_URL)
-  }, [user]);
-
-  useEffect(() => {
-    console.log("API:", API_BASE_URL);
+  const connectWebSocket = () => {
     if (!user || !user.id) return;
 
-    // const wsUrl = `ws://127.0.0.1:8000/ws/order/${user.id}/${user.device_id}/`;
     const wsUrl = `${WS_BASE_URL}order/${user.id}/${user.device_id}/`;
     socketRef.current = new WebSocket(wsUrl);
 
-    socketRef.current.onopen = () => console.log("WebSocket connected" + wsUrl);
+    socketRef.current.onopen = () => {
+      console.log("✅ WebSocket connected:", wsUrl);
+      reconnectAttempts.current = 0; // reset retry count
+    };
 
     socketRef.current.onmessage = (event) => {
-      console.log("Received WebSocket message:", JSON.parse(event.data));
-      setOrders(JSON.parse(event.data));
+      const data = JSON.parse(event.data);
+      console.log("📩 Received WebSocket message:", data);
+      setOrders(data);  // აქ ხდება შეკვეთის შენახვა
     };
-    // socketRef.current.onmessage = (event) => {
-    //   const data = JSON.parse(event.data);
-
-
-    //   // Set the received order directly
-    //   setOrders(data);
-
-    // };
 
     socketRef.current.onerror = (event) => {
-      console.error("WebSocket error:", event);
+      console.error("⚠️ WebSocket error:", event);
     };
 
     socketRef.current.onclose = (event) => {
-      console.log("WebSocket closed:", event.code, event.reason);
+      console.warn("⚠️ WebSocket closed:", event.code, event.reason);
+
+      if (reconnectAttempts.current < MAX_RETRIES) {
+        reconnectAttempts.current += 1;
+        console.log(`🔄 Retrying WebSocket connection... Attempt ${reconnectAttempts.current}`);
+
+        reconnectIntervalRef.current = setTimeout(() => {
+          connectWebSocket();
+        }, RECONNECT_DELAY * reconnectAttempts.current);
+      } else {
+        console.error("❌ WebSocket reconnect failed after max attempts");
+      }
     };
+  };
+
+  useEffect(() => {
+    connectWebSocket();
 
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
       }
+      if (reconnectIntervalRef.current) {
+        clearTimeout(reconnectIntervalRef.current);
+      }
     };
   }, [user]);
+
+  // useEffect(() => {
+  //   // console.log("api base url", API_BASE_URL)
+  //   fetchCart();
+  //   console.log("API_BASE_URL", API_BASE_URL)
+  // }, [user]);
+
+  // useEffect(() => {
+  //   console.log("API:", API_BASE_URL);
+  //   if (!user || !user.id) return;
+
+  //   // const wsUrl = `ws://127.0.0.1:8000/ws/order/${user.id}/${user.device_id}/`;
+  //   const wsUrl = `${WS_BASE_URL}order/${user.id}/${user.device_id}/`;
+  //   socketRef.current = new WebSocket(wsUrl);
+
+  //   socketRef.current.onopen = () => console.log("WebSocket connected" + wsUrl);
+
+  //   socketRef.current.onmessage = (event) => {
+  //     console.log("Received WebSocket message:", JSON.parse(event.data));
+  //     setOrders(JSON.parse(event.data));
+  //   };
+  //   // socketRef.current.onmessage = (event) => {
+  //   //   const data = JSON.parse(event.data);
+
+
+  //   //   // Set the received order directly
+  //   //   setOrders(data);
+
+  //   // };
+
+  //   socketRef.current.onerror = (event) => {
+  //     console.error("WebSocket error:", event);
+  //   };
+
+  //   socketRef.current.onclose = (event) => {
+  //     console.log("WebSocket closed:", event.code, event.reason);
+  //   };
+
+  //   return () => {
+  //     if (socketRef.current) {
+  //       socketRef.current.close();
+  //     }
+  //   };
+  // }, [user]);
 
 
 
@@ -272,6 +330,19 @@ export const CartProvider = ({ children }: any) => {
     }
   };
 
+  const clearCart = async () => {
+    setLoading(true);
+    try {
+      await axiosInstance.delete("cart/cart/clear/");
+      setCart(null);
+
+    } catch (error) {
+      console.error("Failed to clear cart:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const purchase = async (
     orderItems: { product_id: number; quantity: number }[],
     orderType: "product_delivery" | "oil_change",
@@ -291,8 +362,11 @@ export const CartProvider = ({ children }: any) => {
         fetchCart();
         // fetchOrders(response.data.order_id);
         setOrderModalButtonVisible(true);
-      } catch (error) {
-        console.error("Failed to create order:", error);
+      } catch (error: any) {
+        // console.error("❌ Failed to create order:", error);
+        if (error.response && error.response.data && error.response.data.detail) {
+          Alert.alert("შეცდომა ❌", error.response.data.detail);
+        }
       }
     } else {
       alert("თქვენ უკვე გაქვთ აქტიური შეკვეთა")
@@ -309,10 +383,12 @@ export const CartProvider = ({ children }: any) => {
         updateCartItem,
         purchase,
         orders,
+        setOrders,
         orderModalButtonVisible,
         setOrderModalButtonVisible,
         sendWebSocketMessage,
         fetchOrders,
+        clearCart
       }}
     >
       {children}

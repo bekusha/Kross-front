@@ -70,14 +70,14 @@ const MyPageScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {showSettings && (
+      {/* {showSettings && (
         <View style={[styles.settingsPopup, { zIndex: 10 }]}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut}>
             <Icon name="logout" size={24} color="black" />
             <Text style={styles.logoutButtonText}>ექაუნთიდან  </Text>
           </TouchableOpacity>
         </View>
-      )}
+      )} */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
           <Text style={styles.username}>
@@ -88,25 +88,25 @@ const MyPageScreen: React.FC = () => {
           <Text>  Page</Text>
         </Text>
 
-        <View style={styles.accountSettings}>
+        {/* <View style={styles.accountSettings}>
           <TouchableOpacity onPress={() => setShowSettings(!showSettings)}>
             <Icon name="settings" size={30} color="black" />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.toggleButton, activeComponent === "ჩემი პროდუქტი" && styles.activeButton]}
             onPress={() => setActiveComponent("ჩემი პროდუქტი")}>
             <Text style={[styles.toggleButtonText, activeComponent === "ჩემი პროდუქტი" && styles.activeButtonText]}>
-              კალათი<Icon name="shopping-cart" size={20} color="white" style={{ marginLeft: 10 }} />
+              <Icon name="shopping-cart" size={20} color="auto" style={{ marginLeft: 10 }} />
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.toggleButton, activeComponent === "შენახული გარბენი" && styles.activeButton]}
             onPress={() => setActiveComponent("შენახული გარბენი")}>
             <Text style={[styles.toggleButtonText, activeComponent === "შენახული გარბენი" && styles.activeButtonText]}>
-              ისტორია<Icon name="history" size={20} color="white" style={{ marginLeft: 10 }} />
+              <Icon name="history" size={20} color="auto" style={{ marginLeft: 10 }} />
             </Text>
           </TouchableOpacity>
         </View>
@@ -161,24 +161,23 @@ const styles = StyleSheet.create({
     marginTop: 20,
     zIndex: 5,
   },
-  logoutButton: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 5,
-  },
+  // logoutButton: {
+  //   display: "flex",
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  //   marginVertical: 5,
+  // },
   deleteButton: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 5,
+
   },
-  logoutButtonText: {
-    marginLeft: 10,
-  },
+
   card: {
     width: "100%",
-    height: 500,
+    height: "80%",
     padding: 20,
     borderRadius: 10,
     backgroundColor: "#ffffff",
@@ -214,7 +213,7 @@ const styles = StyleSheet.create({
 
   },
   activeButton: {
-    backgroundColor: "black",
+    backgroundColor: "red",
   },
   toggleButtonText: {
     textAlign: "center",

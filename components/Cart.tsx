@@ -16,7 +16,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 
 const Cart = () => {
-  const { cart, removeFromCart, purchase, orders } = useCart();
+  const { cart, removeFromCart, purchase, clearCart, orderModalButtonVisible } = useCart();
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState({
@@ -63,8 +63,12 @@ const Cart = () => {
         return;
       }
       await purchase(orderItems, "product_delivery", additionalInfo);
+      setIsModalVisible(false)
 
-      setIsModalVisible(false);
+
+      clearCart();
+
+      // setIsModalVisible(false);
     } catch (error) {
       console.error("Failed to purchase:", error);
       Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
@@ -110,7 +114,7 @@ const Cart = () => {
         <Text>თქვენი კალათა ცარიელია!</Text>
       )}
       <View style={styles.summary}>
-        <Text style={[styles.emptyCart, { color: '#00FF00' }]}>ნივთების რაოდენობა: {cart?.totalItems || 0}</Text>
+        <Text style={[styles.emptyCart]}> სულ {cart?.totalItems || 0} სახეობის პროდუქცია</Text>
         {/* i want to bold only ჯამური ფასი */}
 
         <Text style={styles.checkoutInfo}>ჯამური ფასი: <Text>{cart?.totalPrice || 0} ლ</Text></Text>

@@ -112,7 +112,7 @@ const ProductDetails = ({ route, navigation }: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Image
         source={{ uri: product.image1 }}
         style={styles.productImage}
@@ -124,12 +124,12 @@ const ProductDetails = ({ route, navigation }: any) => {
       <ScrollView><Text style={styles.productDescription}>{product.description}</Text></ScrollView>
 
       {/* <Button title="კალათში დამატება" onPress={handleAddToCart} /> */}
-      <TouchableOpacity onPress={handleCallService} style={styles.basketButton} >
+      {/* <TouchableOpacity onPress={handleCallService} style={styles.basketButton} >
         <Text style={styles.basketButtonText}>სერვისის ადგილზე გამოძახება</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity style={styles.basketButton} onPress={handleAddToCart}>
         <Text style={styles.basketButtonText}>კალათში დამატება</Text>
-        <Modal
+        {/* <Modal
           animationType="slide"
           transparent={true}
           visible={modalVisible}
@@ -154,7 +154,7 @@ const ProductDetails = ({ route, navigation }: any) => {
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -185,7 +185,7 @@ const ProductDetails = ({ route, navigation }: any) => {
         </TouchableOpacity>
 
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

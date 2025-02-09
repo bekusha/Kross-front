@@ -18,10 +18,11 @@ import { useAuth } from "@/context/authContext";
 import { useCart } from "@/context/cartContext";
 import { Ionicons } from '@expo/vector-icons';
 import { Product } from "@/types/product";
+import { API_BASE_URL } from "@env";
 const ChatScreen = ({ navigation }: { navigation: any }) => {
   const { aiResponses, loading, error, fetchAIResponse } = useAI();
   const [input, setInput] = useState("");
-  const [modalVisible, setModalVisible] = useState(true);
+  // const [modalVisible, setModalVisible] = useState(true);
   const flatListRef = useRef<FlatList>(null);
   const { addToCart } = useCart();
   // const [quantity, setQuantity] = useState(1);
@@ -142,58 +143,67 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
           style={styles.loadingIndicator}
         />
       )}
-      <FlatList
-        ref={flatListRef}
-        data={aiResponses}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => {
-          // ვთვლით პროდუქტების საერთო ფასსა და ლიტრაჟს
-          const totalLiters = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.liter, 0);
-          const totalPrice = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.price, 0);
+      {aiResponses.length === 0 ? (
+        <View style={styles.emptyChatContainer}>
+          <Ionicons name="chatbubble-ellipses-outline" size={60} color="gray" />
+          <Text style={styles.emptyChatTitle}>ჩაწერე შენი მანქანის მონაცემები</Text>
+          <Text style={styles.emptyChatText}>
+            მაგალითად: "Toyota Corolla 2008, 1.6 ბენზინი"
+          </Text>
+          <Text style={styles.emptyChatText}>
+            ბოტი გირჩევს შესაბამის ზეთს და გამოთვლის საჭირო რაოდენობას.
+          </Text>
+          <Ionicons name="car-outline" size={50} color="gray" />
+        </View>
+      ) : (
+        <FlatList
+          ref={flatListRef}
+          data={aiResponses || []}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => {
+            const totalLiters = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.liter, 0);
+            const totalPrice = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.price, 0);
 
-          return (
-            <View style={styles.botResponseCard}>
-              {/* AI-ს მიერ დაბრუნებული ინფორმაცია */}
-              <Text style={styles.messageText}>{item.message}</Text>
+            return (
+              <View style={styles.botResponseCard}>
+                <Text style={styles.messageText}>{item.message}</Text>
+                <View style={styles.productContainer}>
+                  {item.products.map((product: Product, index: any) => (
+                    <View key={index} style={styles.productRow}>
 
-              {/* პროდუქტის დეტალები */}
-              <View style={styles.productContainer}>
-                {item.products.map((product: Product, index: any) => (
-                  <View key={index} style={styles.productRow}>
-                    <Text style={styles.productTitle}>{product.name}</Text>
-                    <Text> ცალი ({product.liter} ლ/ბოთლი)</Text>
-                    <Text>რაოდენობა: {product.recommended_quantity}ც</Text>
-                    <Text style={{ color: "red" }}>ფასი: {product.recommended_quantity! * product.price} ლარი</Text>
-                  </View>
-                ))}
+                      <Text style={styles.productTitle}>{product.name}</Text>
+                      <Text>ცალი ({product.liter} ლ/ბოთლი)</Text>
+                      <Text>რაოდენობა: {product.recommended_quantity}ც</Text>
+                      <Text style={{ color: "red" }}>ფასი: {product.recommended_quantity! * product.price} ლარი</Text>
+                    </View>
+                  ))}
+                </View>
+                <View style={styles.summaryContainer}>
+                  <Text style={styles.summaryText}>საერთო ლიტრები: {totalLiters} ლ</Text>
+                  <Text style={styles.summaryText}>საერთო ფასი: {totalPrice} ლ</Text>
+                </View>
+                <View style={styles.actionButtonsContainer}>
+                  <TouchableOpacity onPress={() => handleOrder("cart", item.products)} style={styles.actionButton}>
+                    <Ionicons name="cart" size={24} color={"white"} />
+                    <Text style={styles.actionButtonText}>კალათაში დამატება</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => handleOrder("service", item.products)} style={styles.actionButton}>
+                    <Ionicons name="construct-outline" size={24} color="white" />
+                    <Text style={styles.actionButtonText}>სერვისის გამოძახება</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
+            );
+          }}
+          contentContainerStyle={styles.chatContainer}
+          onContentSizeChange={() =>
+            flatListRef.current?.scrollToEnd({ animated: true })
+          }
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
-              {/* საერთო რაოდენობა და ღილაკები */}
-              <View style={styles.summaryContainer}>
-                <Text style={styles.summaryText}>საერთო ლიტრები: {totalLiters} ლ</Text>
-                <Text style={styles.summaryText}>საერთო ფასი: {totalPrice} ლ</Text>
-              </View>
-
-              <View style={styles.actionButtonsContainer}>
-                <TouchableOpacity onPress={() => handleOrder("cart", item.products)} style={styles.actionButton}>
-                  <Ionicons name="cart" size={24} color={"white"} />
-                  <Text style={styles.actionButtonText}>კალათაში დამატება</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => handleOrder("service", item.products)} style={styles.actionButton}>
-                  <Ionicons name="construct-outline" size={24} color="white" />
-                  <Text style={styles.actionButtonText}>სერვისის გამოძახება</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          );
-        }}
-        contentContainerStyle={styles.chatContainer}
-        onContentSizeChange={() =>
-          flatListRef.current?.scrollToEnd({ animated: true })
-        }
-        showsVerticalScrollIndicator={false}
-      />
 
 
       <View style={styles.inputContainer}>
@@ -211,7 +221,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
       </View>
 
       {/* Modal Component */}
-      <Modal
+      {/* <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
@@ -229,7 +239,7 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </Modal> */}
     </KeyboardAvoidingView>
   );
 };
@@ -471,6 +481,27 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+
+  emptyChatContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    textAlign: "center",
+  },
+  emptyChatTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "black",
+    marginVertical: 10,
+  },
+  emptyChatText: {
+    fontSize: 16,
+    color: "gray",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+
 
 });
 

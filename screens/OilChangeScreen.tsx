@@ -27,6 +27,18 @@ const OilChangeScreen = ({ route }: { route: any }) => {
   const [deliveries, setDeliveries] = useState([]);
 
   // State for form inputs
+  // const [formData, setFormData] = useState({
+  //   phone: user?.phone || "",
+  //   car_make: user?.car_make || "",
+  //   car_model: user?.car_model || "",
+  //   car_year: user?.car_year || "",
+  //   car_mileage: user?.car_mileage || "",
+  //   address: user?.address || "",
+  //   email: user?.email || "",
+  //   ordered_at: "",
+  //   product: isMultipleProducts ? orderItems : selectedProduct?.id || 0,
+  //   quantity: isMultipleProducts ? orderItems : quantity || 1,
+  // });
   const [formData, setFormData] = useState({
     phone: user?.phone || "",
     car_make: user?.car_make || "",
@@ -36,21 +48,40 @@ const OilChangeScreen = ({ route }: { route: any }) => {
     address: user?.address || "",
     email: user?.email || "",
     ordered_at: "",
-    product: isMultipleProducts ? orderItems : selectedProduct?.id || 0,
-    quantity: isMultipleProducts ? orderItems : quantity || 1,
+    product: isMultipleProducts
+      ? orderItems.map(item => ({
+        ...item,
+        quantity: item.recommended_quantity || 1, // აქ ჩასვით რაოდენობა სწორად
+      }))
+      : selectedProduct
+        ? {
+          ...selectedProduct,
+          quantity: selectedProduct.recommended_quantity || 1
+        }
+        : null,
   });
+
 
   const [expanded, setExpanded] = useState<number | null>(null);
 
 
 
   useEffect(() => {
-    console.log("User" + JSON.stringify(user))
-    if (user?.phone) {
-      setFormData((prev) => ({ ...prev, phone: user.phone || "" }));
+    if (isMultipleProducts) {
+      setFormData((prev) => ({
+        ...prev,
+        quantity: orderItems.map(item => item.recommended_quantity || 1), // ✅ აქ მხოლოდ რიცხვები გვაქვს
+      }));
+    } else if (selectedProduct) {
+      setFormData((prev) => ({
+        ...prev,
+        quantity: selectedProduct.recommended_quantity || 1, // ✅ მხოლოდ ერთი რიცხვი
+      }));
     }
+    console.log("Updated formData:", formData); // ✅ ვამოწმებთ განახლებას
+  }, [orderItems, selectedProduct]);
 
-  }, [user]);
+
 
 
   const handleInputChange = (name: string, value: string) => {
@@ -72,6 +103,7 @@ const OilChangeScreen = ({ route }: { route: any }) => {
       Alert.alert("შეცდომა", "გთხოვთ შეიყვანოთ მისამართი.");
       return;
     }
+
     const orderType = "oil_change";
     const additionalInfo = {
       phone: formData.phone,
@@ -80,12 +112,20 @@ const OilChangeScreen = ({ route }: { route: any }) => {
     };
 
     let orderPayload = isMultipleProducts
-      ? orderItems
-      : [{ product_id: selectedProduct?.id, quantity: quantity }];
+      ? orderItems.map(item => ({
+        product_id: item.id,
+        quantity: item.recommended_quantity || 1, // სწორად გადავცემთ რაოდენობას
+      }))
+      : [{
+        product_id: selectedProduct?.id,
+        quantity: selectedProduct?.recommended_quantity || 1
+      }];
 
     console.log("შეკვეთის მონაცემები:", { orderPayload, orderType, additionalInfo });
+
     purchase(orderPayload, orderType, additionalInfo);
   };
+
 
 
 
@@ -160,17 +200,19 @@ const OilChangeScreen = ({ route }: { route: any }) => {
                 <View key={index}>
                   <Text>პროდუქტი: {product.name}</Text>
                   <Text>რაოდენობა: {product.recommended_quantity} ბოთლი</Text>
-                  <Text>ფასი: {product.price * product.recommended_quantity} ლარი</Text>
+                  <Text>ფასი: <Text>{(product.price * product.recommended_quantity).toString()} ლარი</Text></Text>
                 </View>
               ))}
-              <Text>ჯამი: {orderItems.reduce((acc, item) => acc + (item.price * item.recommended_quantity), 0)} ლარი</Text> {/* ✅ აქაც სწორი გამოთვლა */}
+              <Text>ჯამი: <Text>{orderItems.reduce((acc, item) => acc + (item.price * item.recommended_quantity), 0).toString()} ლარი</Text></Text>
 
               {/* <Text >ჯამი: {orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)} ლარი</Text> */}
             </View>
           ) : selectedProduct ? (
             <View>
               <Text>შერჩეული პროდუქტი: {selectedProduct.name}</Text>
-              <Text>რაოდენობა: {quantity} ბოთლი</Text>
+              <View>
+                <Text>რაოდენობა: {Array.isArray(quantity) ? quantity.join(", ") : quantity} ბოთლი</Text>
+              </View>
               <Text>ფასი: {selectedProduct.price * quantity} ლარი</Text>
             </View>
           ) : (

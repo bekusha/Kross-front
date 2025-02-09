@@ -9,6 +9,7 @@ import {
 
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
+import { Ionicons } from '@expo/vector-icons';
 import { useProducts } from "../context/productContext";
 import { useAuth } from "@/context/authContext";
 import axios from "axios";
@@ -46,6 +47,7 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
             }
           },
         }));
+        formattedContent.sort((a: any, b: any) => (a.text.includes("შეარჩიე სწორი") ? -1 : 1));
         setContent(formattedContent);
       })
       .catch((error: any) => {
@@ -56,56 +58,63 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
         {content.map((item, index) => (
-          <Animatable.View
-            key={index}
-            animation="fadeInDown"
-            duration={600}
-            delay={index * 150}
-            easing="ease-out"
-            useNativeDriver={true}
-            style={styles.cardWrapper}
-          >
-            <Text style={styles.cardText}>{item.text}</Text>
-            <View style={{ overflow: 'hidden' }}>
-              <Animatable.View
-                animation={{
-                  0: {
-                    translateY: 200,
-                    opacity: 0,
-                  },
-                  1: {
-                    translateY: 0,
-                    opacity: 1,
-                  }
-                }}
-                duration={700}
-                delay={index * 150 + 200}
-                easing="ease-out"
-                useNativeDriver={true}
-              >
-                <TouchableOpacity
-                  style={styles.card}
-                  onPress={item.action}
-                  activeOpacity={0.7}
-                >
-                  <Image
-                    style={styles.image}
-                    source={item.image}
-                  />
-                </TouchableOpacity>
+          <View key={index} style={{ width: "90%", alignItems: "center" }}>
+            {/* წარწერა ქარდის გარეთ */}
+            <View style={styles.serviceHeader}>
+              {(index === 0 || index === 1) && (
+                <View style={styles.serviceHeader}>
+                  {item.text.includes("შეარჩიე სწორი") ? (
+                    <>
+                      <Ionicons name="construct-outline" size={24} color="red" />
+                      <Text style={styles.serviceHeaderText}>სერვის-ჯგუფის ადგილზე გამოძახება</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Ionicons name="cart-outline" size={24} color="green" />
+                      <Text style={styles.serviceHeaderText}>მხოლოდ პროდუქციის გამოძახება</Text>
+                    </>
+                  )}
+                </View>
+              )}
 
-
-              </Animatable.View>
             </View>
-          </Animatable.View>
+
+            <Animatable.View
+              animation="fadeInDown"
+              duration={600}
+              delay={index * 150}
+              easing="ease-out"
+              useNativeDriver={true}
+              style={styles.cardWrapper}
+            >
+              <Text style={styles.cardText}>{item.text}</Text>
+              <View style={{ overflow: "hidden" }}>
+                <Animatable.View
+                  animation={{
+                    0: { translateY: 200, opacity: 0 },
+                    1: { translateY: 0, opacity: 1 },
+                  }}
+                  duration={700}
+                  delay={index * 150 + 200}
+                  easing="ease-out"
+                  useNativeDriver={true}
+                >
+                  <TouchableOpacity
+                    style={styles.card}
+                    onPress={item.action}
+                    activeOpacity={0.7}
+                  >
+                    <Image style={styles.image} source={item.image} />
+                  </TouchableOpacity>
+                </Animatable.View>
+              </View>
+            </Animatable.View>
+          </View>
         ))}
       </ScrollView>
-
-
-
-      {/* <Footer /> */}
     </View>
   );
+
 };
 
 const styles = StyleSheet.create({
@@ -164,6 +173,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 5,
   },
+  serviceHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+    gap: 10, // ხატულასა და ტექსტს შორის სივრცე
+  },
+  serviceHeaderText: {
+    fontSize: 16,
+    color: 'gray'
+  },
+
 });
 
 export default Main;

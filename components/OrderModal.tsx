@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import { useCart } from "@/context/cartContext";
 import OrderCountdown from "@/components/OrderCountdown";
@@ -18,7 +19,7 @@ const OrderModal = ({
   visible: boolean;
   onClose: () => void;
 }) => {
-  const { orders } = useCart();
+  const { orders, setOrderModalButtonVisible, setOrders } = useCart();
   useEffect(() => {
     console.log("Order modal visibility:", visible);
     console.log("Orders data:", orders);
@@ -37,12 +38,43 @@ const OrderModal = ({
         return "მოლოდინის რეჟიმი: მალე დაგიკავშირდებით! მოლოდინის რეჟიმი 10 წუთი";
       case "in_progress":
         return `შეკვეთა მიმდინარეობს.`;
-      case "completed":
-        return "შეკვეთა დასრულებულია.";
+      case "delivered":
+        return "შეკვეთა დასრულებულია. ";
       default:
         return `შეკვეთის სტატუსი: ${status}`;
     }
   };
+
+  const handleCloseOrderModal = () => {
+    Alert.alert("დასრულება", "ნამდვილად გსურთ შეკვეთის შეწყვეტა?", [
+      {
+        text: "დიახ",
+        onPress: () => {
+          setOrders(null);
+          setOrderModalButtonVisible(false);
+          onClose();
+        },
+      },
+      {
+        text: "არა",
+        style: "cancel",
+      },
+    ]
+
+    );
+  }
+
+  const renderDeliveryEndMessage = () => {
+    if (orders?.status === "delivered") {
+      return (
+        <View style={styles.deliveryEndMessageContainer}>
+          <Text style={styles.deliveryEndMessageText}>
+            შეკვეთა დასრულებულია. მადლობა რომ სარგებლობთ ჩვენი სერვისით
+          </Text>
+        </View>
+      );
+    }
+  }
 
   const renderCourierDetails = () => {
     if (orders?.status === "in_progress" && orders?.courier_name) {
@@ -91,7 +123,7 @@ const OrderModal = ({
                       </Text>
                     </Text>
                     {renderCourierDetails()}
-
+                    {renderDeliveryEndMessage()}
 
                     <Text style={styles.orderText}>
                       Address:{" "}
@@ -108,6 +140,9 @@ const OrderModal = ({
               )}
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <Text style={styles.closeButtonText}>დახურვა</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.closeProcessButton} onPress={handleCloseOrderModal}>
+                <Text style={styles.closeButtonText}>პროცესის დასრულება</Text>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -156,6 +191,19 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
+  deliveryEndMessageContainer: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#e9f5ff",
+    borderRadius: 8,
+  },
+
+  deliveryEndMessageText: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: "#333",
+  },
+
   orderText: {
     fontSize: 16,
     marginBottom: 10,
@@ -198,6 +246,14 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  closeProcessButton: {
+    backgroundColor: "red",
+    marginTop: 10,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: "center",
   },
 });
 

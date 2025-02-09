@@ -53,6 +53,13 @@ const SavedOrders: React.FC = () => {
                         <Text style={styles.orderDate}>📅 თარიღი: {new Date(item.created_at).toLocaleDateString()}</Text>
                     </View>
                 )}
+                ListEmptyComponent={() => (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>📭 შეკვეთების ისტორია ცარიელია </Text>
+                        <Text style={styles.emptySubText}>როდესაც შეკვეთას გააფორმებთ აქ საჭირო ინფორმაცია დაგხვდებათ.</Text>
+
+                    </View>
+                )}
             />
         </View>
     );
@@ -97,6 +104,23 @@ const styles = StyleSheet.create({
         color: "red",
         textAlign: "center",
         marginTop: 20,
+    },
+    emptyContainer: {
+        marginTop: 50,
+        alignItems: "center",
+
+    },
+    emptyText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#555",
+        textAlign: "center",
+    },
+    emptySubText: {
+        fontSize: 14,
+        color: "#777",
+        marginTop: 5,
+        textAlign: "center",
     },
 });
 
