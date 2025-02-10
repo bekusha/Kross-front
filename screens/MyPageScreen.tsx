@@ -3,81 +3,30 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   Alert,
-  Platform,
 } from "react-native";
 import { useAuth } from "@/context/authContext";
-import { useOil } from "@/context/oilContext";
-import { CommonActions, NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/types/routes";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Cart from "@/components/Cart";
 import SavedOrders from "@/components/SavedOrders";
-// import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 
 const MyPageScreen: React.FC = () => {
   type MyPageScreenNavigationProp = NavigationProp<RootStackParamList, "Home">;
 
-  const { user, logout, isLoggedIn } = useAuth();
-  const { oilRecords, loading, error, fetchOilRecords, createOilRecord } = useOil();
-  const [mileage, setMileage] = useState<string>("");
+  const { user, isLoggedIn } = useAuth();
+  // const { fetchOilRecords, createOilRecord } = useOil();
   const [activeComponent, setActiveComponent] = useState<string>("ჩემი პროდუქტი");
-  const [showSettings, setShowSettings] = useState<boolean>(false);
-
-  const navigation = useNavigation<MyPageScreenNavigationProp>();
-
-  useEffect(() => {
-    if (!isLoggedIn && !user) {
-      navigation.navigate("AuthScreen");
-    } else {
-      fetchOilRecords();
-    }
-  }, [isLoggedIn, navigation]);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchOilRecords();
-    }
-  }, [isLoggedIn, mileage]);
 
 
   const capitalizeFirstLetter = (username: string) => {
     return username.charAt(0).toUpperCase() + username.slice(1);
   };
 
-  const handleSaveMileage = () => {
-    if (mileage) {
-      createOilRecord(parseInt(mileage, 10));
-      setMileage("");
-      fetchOilRecords();
-      Alert.alert("გარბენი შენახულია", `ზეთი შეიცვალა ${mileage} კმ გარბენზე.`);
-    } else {
-      Alert.alert("Error", "Please enter a valid mileage.");
-    }
-  };
-
-
-
-  const handleLogOut = () => {
-
-  };
-
-
-
-
-
   return (
     <View style={styles.container}>
-      {/* {showSettings && (
-        <View style={[styles.settingsPopup, { zIndex: 10 }]}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut}>
-            <Icon name="logout" size={24} color="black" />
-            <Text style={styles.logoutButtonText}>ექაუნთიდან  </Text>
-          </TouchableOpacity>
-        </View>
-      )} */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
           <Text style={styles.username}>
@@ -87,12 +36,6 @@ const MyPageScreen: React.FC = () => {
           </Text>
           <Text>  Page</Text>
         </Text>
-
-        {/* <View style={styles.accountSettings}>
-          <TouchableOpacity onPress={() => setShowSettings(!showSettings)}>
-            <Icon name="settings" size={30} color="black" />
-          </TouchableOpacity>
-        </View> */}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -153,7 +96,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    // elevation: (Platform.OS === 'android') ? 5 : 0,
+
   },
   accountButtons: {
     display: "flex",
@@ -161,12 +104,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     zIndex: 5,
   },
-  // logoutButton: {
-  //   display: "flex",
-  //   flexDirection: "row",
-  //   alignItems: "center",
-  //   marginVertical: 5,
-  // },
+
   deleteButton: {
     display: "flex",
     flexDirection: "row",

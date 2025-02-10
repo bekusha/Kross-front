@@ -4,7 +4,7 @@ import { Cart, CartItem } from "@/types/cart";
 import { Product } from "@/types/product";
 import { useAuth } from "./authContext";
 import axiosInstance from "./axiosInstance";
-import { API_BASE_URL, WS_BASE_URL } from "@env";
+import { WS_BASE_URL } from "@env";
 
 import { useRef } from "react";
 
@@ -63,8 +63,22 @@ export const CartProvider = ({ children }: any) => {
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectAttempts = useRef(0);
-  const MAX_RETRIES = 5; // მაქსიმალური მცდელობები
-  const RECONNECT_DELAY = 3000;
+  const MAX_RETRIES = 15; // მაქსიმალური მცდელობები
+  const RECONNECT_DELAY = 8000;
+
+
+  useEffect(() => {
+    connectWebSocket();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+      if (reconnectIntervalRef.current) {
+        clearTimeout(reconnectIntervalRef.current);
+      }
+    };
+  }, [user]);
 
   const connectWebSocket = () => {
     if (!user || !user.id) return;
@@ -102,66 +116,6 @@ export const CartProvider = ({ children }: any) => {
       }
     };
   };
-
-  useEffect(() => {
-    connectWebSocket();
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-      if (reconnectIntervalRef.current) {
-        clearTimeout(reconnectIntervalRef.current);
-      }
-    };
-  }, [user]);
-
-  // useEffect(() => {
-  //   // console.log("api base url", API_BASE_URL)
-  //   fetchCart();
-  //   console.log("API_BASE_URL", API_BASE_URL)
-  // }, [user]);
-
-  // useEffect(() => {
-  //   console.log("API:", API_BASE_URL);
-  //   if (!user || !user.id) return;
-
-  //   // const wsUrl = `ws://127.0.0.1:8000/ws/order/${user.id}/${user.device_id}/`;
-  //   const wsUrl = `${WS_BASE_URL}order/${user.id}/${user.device_id}/`;
-  //   socketRef.current = new WebSocket(wsUrl);
-
-  //   socketRef.current.onopen = () => console.log("WebSocket connected" + wsUrl);
-
-  //   socketRef.current.onmessage = (event) => {
-  //     console.log("Received WebSocket message:", JSON.parse(event.data));
-  //     setOrders(JSON.parse(event.data));
-  //   };
-  //   // socketRef.current.onmessage = (event) => {
-  //   //   const data = JSON.parse(event.data);
-
-
-  //   //   // Set the received order directly
-  //   //   setOrders(data);
-
-  //   // };
-
-  //   socketRef.current.onerror = (event) => {
-  //     console.error("WebSocket error:", event);
-  //   };
-
-  //   socketRef.current.onclose = (event) => {
-  //     console.log("WebSocket closed:", event.code, event.reason);
-  //   };
-
-  //   return () => {
-  //     if (socketRef.current) {
-  //       socketRef.current.close();
-  //     }
-  //   };
-  // }, [user]);
-
-
-
 
   const sendWebSocketMessage = (message: any) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Modal,
   View,
@@ -20,17 +20,6 @@ const OrderModal = ({
   onClose: () => void;
 }) => {
   const { orders, setOrderModalButtonVisible, setOrders } = useCart();
-  useEffect(() => {
-    console.log("Order modal visibility:", visible);
-    console.log("Orders data:", orders);
-  }, [visible, orders]);
-
-
-  useEffect(() => {
-    if (visible && orders) {
-      console.log("Order modal opened:", orders.order_id);
-    }
-  }, [visible, orders]);
 
   const renderStatusMessage = (status: string) => {
     switch (status) {
@@ -46,19 +35,15 @@ const OrderModal = ({
   };
 
   const handleCloseOrderModal = () => {
-    Alert.alert("დასრულება", "ნამდვილად გსურთ შეკვეთის შეწყვეტა?", [
+    Alert.alert("დასრულება", "შეკვეთა დასრულებულია მადლობა, რომ სარგებლობთ ჩვენი მომსახურებით  ", [
       {
-        text: "დიახ",
+        text: "დახურვა",
         onPress: () => {
           setOrders(null);
           setOrderModalButtonVisible(false);
           onClose();
         },
-      },
-      {
-        text: "არა",
-        style: "cancel",
-      },
+      }
     ]
 
     );
@@ -75,6 +60,16 @@ const OrderModal = ({
       );
     }
   }
+
+  const renderOrderType = (orderType: string) => {
+    switch (orderType) {
+      case "product_delivery":
+        return "პროდუქტის მიწოდება";
+      case "oil_change":
+        return "სერვის ჯგუფის გამოძახება";
+
+    }
+  };
 
   const renderCourierDetails = () => {
     if (orders?.status === "in_progress" && orders?.courier_name) {
@@ -114,7 +109,7 @@ const OrderModal = ({
                     </Text>
                     <Text style={styles.orderText}>
                       შეკვეთის ტიპი:{" "}
-                      <Text style={styles.orderValue}>{orders.order_type}</Text>
+                      <Text style={styles.orderValue}>{renderOrderType(orders.order_type)}</Text>
                     </Text>
                     <Text style={styles.orderText}>
                       შეკვეთის სტატუსი:{" "}
@@ -138,12 +133,17 @@ const OrderModal = ({
                   <Text style={styles.noOrdersText}>შეკვეთები არ არის</Text>
                 </View>
               )}
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <Text style={styles.closeButtonText}>დახურვა</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.closeProcessButton} onPress={handleCloseOrderModal}>
-                <Text style={styles.closeButtonText}>პროცესის დასრულება</Text>
-              </TouchableOpacity>
+              {orders?.status !== "delivered" && (
+                <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                  <Text style={styles.closeButtonText}>დახურვა</Text>
+                </TouchableOpacity>
+              )}
+
+              {orders?.status === "delivered" && (
+                <TouchableOpacity style={styles.closeProcessButton} onPress={handleCloseOrderModal}>
+                  <Text style={styles.closeButtonText}>პროცესის დასრულება</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </TouchableWithoutFeedback>
         </View>
@@ -208,10 +208,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
     color: "#555",
+    fontWeight: "bold",
+    display: "flex",
+    flexDirection: "column",
   },
   orderValue: {
-    fontWeight: "bold",
-    color: "#333",
+    fontWeight: "normal",
+    color: "red",
   },
   courierDetails: {
     marginTop: 15,

@@ -31,14 +31,6 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, []);
 
-  const fetchProductById = useCallback(async (productId: number) => {
-    try {
-      const response = await apiClient.get(`/product/${productId}/`);
-      return response.data;
-    } catch (error) {
-      console.error("Failed to fetch product:", error);
-    }
-  }, []);
 
   const editProduct = useCallback(async (productId: number, formData: FormData) => {
     try {

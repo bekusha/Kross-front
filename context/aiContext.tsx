@@ -4,9 +4,8 @@ import React, {
   useContext,
   useState,
   ReactNode,
-  useEffect,
+
 } from "react";
-import axios from "axios";
 import axiosInstance from './axiosInstance';
 
 

@@ -9,27 +9,24 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  Modal,
-  Image,
   Alert
 } from "react-native";
 import { useAI } from "@/context/aiContext";
-import { useAuth } from "@/context/authContext";
 import { useCart } from "@/context/cartContext";
 import { Ionicons } from '@expo/vector-icons';
 import { Product } from "@/types/product";
-import { API_BASE_URL } from "@env";
+
 const ChatScreen = ({ navigation }: { navigation: any }) => {
   const { aiResponses, loading, error, fetchAIResponse } = useAI();
   const [input, setInput] = useState("");
-  // const [modalVisible, setModalVisible] = useState(true);
+  const [carMake, setCarMake] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const { addToCart } = useCart();
-  // const [quantity, setQuantity] = useState(1);
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   // FOR MAIN CALCULATOR
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalLiters, setTotalLiters] = useState(0);
+
 
   useEffect(() => {
     calculateTotals();
@@ -43,33 +40,6 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
     return () => clearTimeout(timeout);
   }, [aiResponses]);
 
-  const handleCallService = (product: Product) => {
-    if (!product) {
-      console.error("Product is missing!");
-      return;
-    }
-    const quantity = quantities[product.id] || 1;
-
-    console.log("Selected product:", JSON.stringify(product, null, 2));
-
-    const orderItems = [
-      { product_id: product.id, quantity: quantity, product: product },
-    ];
-    const orderType = "oil_change";
-    const additionalInfo = {
-      phone: "",
-      address: "",
-      email: "",
-    };
-
-    navigation.navigate("OilChangeScreen", {
-      orderItems,
-      orderType,
-      additionalInfo,
-      selectedProduct: product,
-      quantity,
-    });
-  };
 
 
   const handleOrder = (orderType: "cart" | "service", products: Product[]) => {
@@ -77,15 +47,17 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
       products.forEach(product => addToCart(product, product.recommended_quantity || 1));
       Alert.alert("პროდუქტები დაემატა კალათაში", "შეგიძლიათ იხილოთ კალათაში");
     } else if (orderType === "service") {
+      console.log("🚗 Car Make Sent:", carMake);
       navigation.navigate("OilChangeScreen", {
         orderItems: products,  // 🛠️ აქ ვაგზავნით products მთლიანად!
         orderType: "oil_change",
         additionalInfo: { phone: "", address: "", email: "" },
+        carData: {
+          car_make: carMake,
+        }
       });
     }
   };
-
-
 
 
   const calculateTotals = () => {
@@ -107,26 +79,11 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
 
   const handleSend = () => {
     if (input.trim()) {
-      fetchAIResponse(input); // Fetch bot response, do not save user message
+      setCarMake(input); // ✅ ვანახლებთ carMake-ს მომხმარებლის შეყვანილი ტექსტით
+      fetchAIResponse(input); // Fetch bot response
       setInput("");
     }
   };
-
-  // const handleAddToCart = (product: any) => {
-  //   const quantity = quantities[product.id] || 1;
-  //   addToCart(product, quantity);
-  //   Alert.alert(
-  //     "პროდუქტი წარმატებით დაემატა",
-  //     "შეგიძლიათ იხილოთ თაბზე, ჩემი გვერდი",
-  //     [
-  //       {
-  //         text: "OK",
-  //         onPress: () => navigation.navigate("Cart"),
-  //       },
-  //     ],
-  //     { cancelable: false }
-  //   )
-  // };
 
 
   return (
@@ -163,33 +120,39 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
           renderItem={({ item }) => {
             const totalLiters = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.liter, 0);
             const totalPrice = item.products?.reduce((acc: any, product: Product) => acc + product.recommended_quantity! * product.price, 0);
-
+            const formattedMessage = item.message
+              .replace(/(\d{1,2}W[-]?\d{1,2})/g, "##$1##") // სიბლანტე
+              .replace(/(\d{1,2}\.?(\d{1,2})?)\s?ლიტრი/g, "##$1 ლიტრი##");
+            if (!item.products || !Array.isArray(item.products) || item.products.length === 0) {
+              return (
+                <View style={styles.botResponseCard}>
+                  <Text style={styles.noProductsText}>
+                    ❌ სამწუხაროდ, შესაბამისი პროდუქტი ამ ეტაპზე არ გვაქვს.
+                  </Text>
+                </View>
+              );
+            }
             return (
               <View style={styles.botResponseCard}>
-                <Text style={styles.messageText}>{item.message}</Text>
-                <View style={styles.productContainer}>
-                  {item.products.map((product: Product, index: any) => (
-                    <View key={index} style={styles.productRow}>
-
-                      <Text style={styles.productTitle}>{product.name}</Text>
-                      <Text>ცალი ({product.liter} ლ/ბოთლი)</Text>
-                      <Text>რაოდენობა: {product.recommended_quantity}ც</Text>
-                      <Text style={{ color: "red" }}>ფასი: {product.recommended_quantity! * product.price} ლარი</Text>
-                    </View>
-                  ))}
-                </View>
+                <Text style={styles.messageText}>
+                  {formattedMessage.split(/(##)/).map((part: any, index: any) => {
+                    if (part === "##") return null; // გამოტოვე დელიმიტერი
+                    return /\d{1,2}W[-]?\d{1,2}/.test(part) || /\d{1,2}\.?(\d{1,2})?\s?ლიტრი/.test(part) ? (
+                      <Text key={index} style={{ color: "red", fontWeight: "bold" }}>
+                        {part}
+                      </Text>
+                    ) : (
+                      part
+                    );
+                  })}
+                </Text>
                 <View style={styles.summaryContainer}>
-                  <Text style={styles.summaryText}>საერთო ლიტრები: {totalLiters} ლ</Text>
+                  <Text style={styles.summaryText}>საერთო ლიტრების რაოდენობა: {totalLiters} ლ</Text>
                   <Text style={styles.summaryText}>საერთო ფასი: {totalPrice} ლ</Text>
                 </View>
                 <View style={styles.actionButtonsContainer}>
-                  <TouchableOpacity onPress={() => handleOrder("cart", item.products)} style={styles.actionButton}>
-                    <Ionicons name="cart" size={24} color={"white"} />
-                    <Text style={styles.actionButtonText}>კალათაში დამატება</Text>
-                  </TouchableOpacity>
-
                   <TouchableOpacity onPress={() => handleOrder("service", item.products)} style={styles.actionButton}>
-                    <Ionicons name="construct-outline" size={24} color="white" />
+                    <Ionicons name="construct-outline" size={24} color="black" />
                     <Text style={styles.actionButtonText}>სერვისის გამოძახება</Text>
                   </TouchableOpacity>
                 </View>
@@ -219,27 +182,6 @@ const ChatScreen = ({ navigation }: { navigation: any }) => {
           <Text style={styles.sendButtonText}>გაგზავნა</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Modal Component */}
-      {/* <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              მიაწოდე შემდეგი ინფორმაცია : მარკა, მოდელი, ძრავი, წელი
-              და ბოტი დაგიბრუნებს შესაბამის ინფორმაციას, სხვა შემთხვევაში შესაძლოა დაბრუნდეს შეცდომა
-            </Text>
-            <TouchableOpacity
-              style={styles.okButton}
-              onPress={() => setModalVisible(false)}>
-              <Text style={styles.okButtonText}>გასაგებია</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal> */}
     </KeyboardAvoidingView>
   );
 };
@@ -274,13 +216,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginRight: 10,
   },
-  // productTitle: {
-  //   fontSize: 14,
-  //   fontWeight: "bold",
-  //   marginBottom: 5,
-  //   width: "80%",
-  //   marginLeft: 10,
-  // },
   sendButton: {
     backgroundColor: "black",
     paddingVertical: 10,
@@ -297,7 +232,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 5,
     alignSelf: "center",
-    maxWidth: "80%",
+    maxWidth: "100%",
   },
   summaryContainer: {
     marginTop: 10,
@@ -372,9 +307,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   actionButtonText: {
-    color: "#fff",
+    color: "black",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "bold",
     marginLeft: 5,
   },
   quantityContainer: {
@@ -400,9 +335,7 @@ const styles = StyleSheet.create({
   callServiceButtonText: {
     backgroundColor: "black",
     color: "red",
-    // height: 50,
     borderRadius: 8,
-    // padding: 10,
     textAlign: "center",
     display: "flex",
     flexDirection: "row",
@@ -449,38 +382,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: "center",
   },
-  // Modal styles
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalView: {
-    width: 300,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  okButton: {
-    backgroundColor: "black",
-    padding: 10,
-    borderRadius: 10,
-  },
-  okButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
 
   emptyChatContainer: {
     flex: 1,
@@ -501,6 +402,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 5,
   },
+  noProductsText: {
+    color: "gray",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 10,
+  }
 
 
 });

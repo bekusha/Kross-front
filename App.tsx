@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import React, { useState } from "react";
+import { View, Image, StyleSheet, Dimensions } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -7,12 +7,8 @@ import { AuthProvider } from "./context/authContext";
 import { ProductProvider } from "./context/productContext";
 import { CartProvider, useCart } from "./context/cartContext";
 import { AIProvider } from "./context/aiContext";
-import { OilProvider } from "./context/oilContext";
-import WelcomeScreen from "./screens/WelcomeScreen";
-import HomeScreen from "./screens/HomeScreen";
 import ProductsScreen from "./screens/ProductsScreen";
 import ProductDetails from "./screens/productDetails";
-import AuthScreen from "./screens/AuthScreen";
 import MyPageScreen from "./screens/MyPageScreen";
 import ContactScreen from "./screens/ContactScreen";
 import Main from "./screens/Main";
@@ -42,106 +38,77 @@ export default function App() {
       <ProductProvider>
         <CartProvider>
           <AIProvider>
-            <OilProvider>
-              <NavigationContainer>
-                <OrderButton
-                  onPress={() => handleOrderModal(showOrderModal)}
-                  visible={orderModalButtonVisible}
-                  initialPosition={{ top: 700, left: 300 }} // პოზიციის განსაზღვრა
+            <NavigationContainer>
+              <OrderButton
+                onPress={() => handleOrderModal(showOrderModal)}
+                visible={orderModalButtonVisible}
+                initialPosition={{ top: 700, left: 300 }} // პოზიციის განსაზღვრა
+              />
+              {/* <StatusBar style="auto" /> */}
+              {showOrderModal && (
+                <OrderModal
+                  visible={showOrderModal} // მართავს მოდალის ხილვადობას
+                  onClose={() => setShowOrderModal(false)} // დახურვის ფუნქცია
                 />
-                {/* <StatusBar style="auto" /> */}
-                {showOrderModal && (
-                  <OrderModal
-                    visible={showOrderModal} // მართავს მოდალის ხილვადობას
-                    onClose={() => setShowOrderModal(false)} // დახურვის ფუნქცია
-                  />
-                  // <View style={styles.modalContainer}>
-                  //   <Text style={styles.modalText}>Order Modal Content</Text>
-                  //   <TouchableOpacity onPress={() => setShowOrderModal(false)} style={styles.closeButton}>
-                  //     <Text style={styles.closeButtonText}>Close</Text>
-                  //   </TouchableOpacity>
-                  // </View>
-                )}
-                <Tab.Navigator
-                  screenOptions={{
-                    headerTitle: () => (
-                      <View style={styles.headerContainer}>
-                        <Image source={require("./assets/logo.jpg")} style={styles.logo} />
-                      </View>
+              )}
+              <Tab.Navigator
+                screenOptions={{
+                  headerTitle: () => (
+                    <View style={styles.headerContainer}>
+                      <Image source={require("./assets/logo.jpg")} style={styles.logo} />
+                    </View>
+                  ),
+                  headerStyle: { backgroundColor: "red" },
+                  headerTitleAlign: "center", // ჰედერის ტექსტი ან ლოგო ცენტრში
+                  headerTintColor: "white",
+                  tabBarStyle: {
+                    backgroundColor: "#ecf0f1",
+                    position: "absolute",
+                    bottom: 0,
+                    zIndex: 9999,
+                  },
+                  tabBarActiveTintColor: "red",
+                  tabBarInactiveTintColor: "black",
+                }}
+              >
+                {/* მთავარი */}
+                <Tab.Screen
+                  name="Main"
+                  component={HomeStack}
+                  options={{
+                    title: "მთავარი",
+                    tabBarIcon: ({ color, size }: any) => (
+                      <Icon name="home" color={color} size={size} />
                     ),
-                    headerStyle: { backgroundColor: "red" },
-                    headerTitleAlign: "center", // ჰედერის ტექსტი ან ლოგო ცენტრში
-                    headerTintColor: "white",
-                    tabBarStyle: {
-                      backgroundColor: "#ecf0f1",
-                      position: "absolute",
-                      bottom: 0,
-                      zIndex: 9999,
-                    },
-                    tabBarActiveTintColor: "red",
-                    tabBarInactiveTintColor: "black",
                   }}
-                >
-                  {/* მთავარი */}
-                  <Tab.Screen
-                    name="Main"
-                    component={HomeStack}
-                    options={{
-                      title: "მთავარი",
-                      tabBarIcon: ({ color, size }: any) => (
-                        <Icon name="home" color={color} size={size} />
-                      ),
-                    }}
-                  />
-                  {/* <Tab.Screen
-                    name="HomeStack"
-                    component={HomeStack}
-                    options={{
-                      title: "სხვა",
-                      tabBarIcon: ({ color, size }: any) => (
-                        <Icon name="menu" color={color} size={size} />
-                      ),
-                    }}
-                  /> */}
+                />
 
-                  {/* ჩემი გვერდი */}
-                  <Tab.Screen
-                    name="MyPage"
-                    component={MyPageScreen}
-                    options={{
-                      title: "ჩემი გვერდი",
-                      tabBarIcon: ({ color, size }: any) => (
-                        <Icon name="person" color={color} size={size} />
-                      ),
-                    }}
-                  />
 
-                  {/* კონტაქტი */}
-                  <Tab.Screen
-                    name="Contact"
-                    component={ContactScreen}
-                    options={{
-                      title: "კონტაქტი",
-                      tabBarIcon: ({ color, size }: any) => (
-                        <Icon name="phone" color={color} size={size} />
-                      ),
-                    }}
-                  />
+                {/* ჩემი გვერდი */}
+                <Tab.Screen
+                  name="MyPage"
+                  component={MyPageScreen}
+                  options={{
+                    title: "ჩემი გვერდი",
+                    tabBarIcon: ({ color, size }: any) => (
+                      <Icon name="person" color={color} size={size} />
+                    ),
+                  }}
+                />
 
-                  {/* Home ნავიგაცია */}
-                  {/* <Tab.Screen
-                    name="HomeStack"
-                    component={HomeStack}
-                    options={{
-                      title: "სხვა",
-                      tabBarIcon: ({ color, size }: any) => (
-                        <Icon name="menu" color={color} size={size} />
-                      ),
-                    }}
-                  /> */}
-                </Tab.Navigator>
-              </NavigationContainer>
-            </OilProvider>
+                {/* კონტაქტი */}
+                <Tab.Screen
+                  name="Contact"
+                  component={ContactScreen}
+                  options={{
+                    title: "კონტაქტი",
+                    tabBarIcon: ({ color, size }: any) => (
+                      <Icon name="phone" color={color} size={size} />
+                    ),
+                  }}
+                />
+              </Tab.Navigator>
+            </NavigationContainer>
           </AIProvider>
         </CartProvider>
       </ProductProvider>
@@ -154,14 +121,13 @@ function HomeStack() {
     <Stack.Navigator>
       <Stack.Screen
         name="Home"
-        component={HomeScreen}
+        component={Main}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen name="Products" component={ProductsScreen} options={{ title: "პროდუქტები" }} />
       <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ title: "პროდუქტის დეტალები" }} />
-      <Stack.Screen name="AuthScreen" component={AuthScreen} options={{ title: "ავტორიზაცია" }} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ title: "ჩატი" }} />
       <Stack.Screen name="OilChangeScreen" component={OilChangeScreen} options={{ title: "სერვისის გამოძახება" }} />
     </Stack.Navigator>

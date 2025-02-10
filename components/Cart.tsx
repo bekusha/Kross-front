@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -16,8 +15,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 
 const Cart = () => {
-  const { cart, removeFromCart, purchase, clearCart, orderModalButtonVisible } = useCart();
-  const [expandedItems, setExpandedItems] = useState<number[]>([]);
+  const { cart, removeFromCart, purchase, clearCart } = useCart();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState({
     phone: "",
@@ -64,11 +62,7 @@ const Cart = () => {
       }
       await purchase(orderItems, "product_delivery", additionalInfo);
       setIsModalVisible(false)
-
-
       clearCart();
-
-      // setIsModalVisible(false);
     } catch (error) {
       console.error("Failed to purchase:", error);
       Alert.alert("შეცდომა", "შეკვეთის გაფორმება ვერ მოხერხდა.");
@@ -87,13 +81,6 @@ const Cart = () => {
       {cart && cart.items.length > 0 ? (
         <ScrollView>
           {cart.items.map((item, index) => {
-            const rotateAnim = rotateAnims[index] || new Animated.Value(0); // Safe fallback
-
-            const rotateInterpolate = rotateAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["0deg", "180deg"],
-            });
-
             return (
               <View key={index} style={styles.cartItem}>
                 <View style={styles.itemHeader}>
@@ -115,10 +102,7 @@ const Cart = () => {
       )}
       <View style={styles.summary}>
         <Text style={[styles.emptyCart]}> სულ {cart?.totalItems || 0} სახეობის პროდუქცია</Text>
-        {/* i want to bold only ჯამური ფასი */}
-
         <Text style={styles.checkoutInfo}>ჯამური ფასი: <Text>{cart?.totalPrice || 0} ლ</Text></Text>
-
         <TouchableOpacity onPress={() => setIsModalVisible(true)} style={styles.checkoutButton}>
           <Text style={styles.buttonText}>შეძენა</Text>
         </TouchableOpacity>
@@ -156,17 +140,6 @@ const Cart = () => {
                 setAdditionalInfo((prev) => ({ ...prev, address: text }))
               }
             />
-
-            {/* Input for Email */}
-            {/* <TextInput
-              style={styles.input}
-              placeholder="ელფოსტა"
-              keyboardType="email-address"
-              value={additionalInfo.email}
-              onChangeText={(text) =>
-                setAdditionalInfo((prev) => ({ ...prev, email: text }))
-              }
-            /> */}
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -276,14 +249,6 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
   },
-  // checkoutButton: {
-  //   backgroundColor: "#000",
-  //   padding: 16,
-  //   borderRadius: 8,
-  //   marginTop: 16,
-  //   alignItems: "center",
-  // },
-
   modalContainer: {
     flex: 1,
     justifyContent: "center",

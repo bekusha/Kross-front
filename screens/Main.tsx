@@ -14,9 +14,6 @@ import { useProducts } from "../context/productContext";
 import { useAuth } from "@/context/authContext";
 import axios from "axios";
 import { API_BASE_URL } from "@env";
-// import Footer from "@/components/Footer";
-
-
 
 
 type MainProps = {
@@ -24,7 +21,6 @@ type MainProps = {
 };
 const Main: React.FC<MainProps> = ({ navigation }) => {
   const { categories } = useProducts();
-  const { isLoggedIn } = useAuth();
   const [content, setContent] = useState<any[]>([]);
 
   useEffect(() => {
@@ -120,6 +116,7 @@ const Main: React.FC<MainProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 20,
   },
   cardContainer: {
     padding: 10,

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, ActivityIndicator, StyleSheet } from "react-native";
-import axios from "axios";
 import apiClient from "@/context/axiosInstance";
 interface SavedOrder {
     id: number;

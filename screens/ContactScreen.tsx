@@ -9,26 +9,26 @@ const ContactScreen = () => {
   };
 
   const handlePhonePress = () => {
-    Linking.openURL('tel:577442003');
+    Linking.openURL('tel:+955 111111111');
   };
 
   return (
     <View style={styles.container}>
       <Animatable.View animation="fadeInDown" style={styles.contactContainer}>
-        <Text style={styles.heading}>კონტაქტი</Text>
+        <Text style={styles.heading}>KROSSGEORGIA</Text>
         <Text style={styles.intro}>მოგვწერეთ მაილზე ან დაგვირეკეთ ქვემოთ მითითებულ ნომერზე</Text>
 
         <Animatable.View animation="fadeInUp" delay={300} style={styles.contactItem}>
           <Ionicons name="mail-outline" size={24} color="#D32F2F" />
           <TouchableOpacity onPress={handleEmailPress}>
-            <Text style={styles.contactText}>KROSSGEORGIA</Text>
+            <Text style={styles.contactText}>krossgeorgia@gmail.com</Text>
           </TouchableOpacity>
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" delay={500} style={styles.contactItem}>
           <Ionicons name="call-outline" size={24} color="#D32F2F" />
           <TouchableOpacity onPress={handlePhonePress}>
-            <Text style={styles.contactText}>+955 577442003</Text>
+            <Text style={styles.contactText}>+955 111111111</Text>
           </TouchableOpacity>
         </Animatable.View>
       </Animatable.View>

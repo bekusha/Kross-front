@@ -4,14 +4,12 @@ import {
   Image,
   Text,
   StyleSheet,
-  Button,
   ScrollView,
   TouchableOpacity,
   Modal
 } from "react-native";
 import { useProducts } from "@/context/productContext";
 import { useCart } from "@/context/cartContext";
-import { Alert } from "react-native";
 import { useAuth } from "@/context/authContext";
 
 
@@ -22,7 +20,7 @@ const ProductDetails = ({ route, navigation }: any) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const { isLoggedIn } = useAuth();
-  const { addToCart, orderModalButtonVisible } = useCart();
+  const { addToCart } = useCart();
 
   const productId = route.params?.productId; // მიღებულია productId from route params
 
@@ -45,56 +43,6 @@ const ProductDetails = ({ route, navigation }: any) => {
     }
   };
 
-  // const handleAddToCart = () => {
-  //   if (isLoggedIn) {
-  //     console.log(isLoggedIn);
-  //     if (product) {
-  //       addToCart(product, quantity);
-  //       console.log("წარმატება", `${product.name} დამატებულია კარტაში!`);
-  //     }
-  //   } else {
-  //     console.log(isLoggedIn);
-  //     Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
-  //   }
-  // };
-
-  // const handleOpenOilChangeDelivery = () => {
-  //   if (orderModalButtonVisible) {
-  //     alert("თქვენ უკვე გაქვთ აქტიური შეკვეთა")
-  //   } else {
-  //     if (isLoggedIn) {
-  //       navigation.navigate("OilChangeScreen");
-  //     } else {
-  //       Alert.alert("შეცდომა", "გთხოვთ გაიაროთ ავტორიზაცია");
-  //       setModalVisible(true);
-  //     }
-  //   }
-  // }
-
-  const handleCallService = () => {
-    if (!product) {
-      console.error("პროდუქტი არ არსებობს!");
-      return;
-    }
-
-    const orderItems = [
-      { product_id: product.id, quantity: quantity, product: product },
-    ];
-    const orderType = "oil_change";
-    const additionalInfo = {
-      phone: "",
-      address: "",
-      email: "",
-    };
-
-    navigation.navigate("OilChangeScreen", {
-      orderItems,
-      orderType,
-      additionalInfo,
-      selectedProduct: product,
-      quantity,
-    });
-  };
 
 
   const incrementQuantity = () => {
@@ -120,41 +68,26 @@ const ProductDetails = ({ route, navigation }: any) => {
       />
       <View style={styles.namePrice} ><Text style={styles.productName}>{product.name}</Text>
         <Text style={styles.productPrice}>{product.price}ლარი</Text></View>
-
+      <View style={styles.stockContainer}>
+        <Text style={[styles.productStock, product.quantity ? styles.inStock : styles.outOfStock]}>
+          {product.quantity ? `მარაგშია: ${product.quantity} ერთეული` : "მარაგი ამოწურილია"}
+        </Text>
+      </View>
       <ScrollView><Text style={styles.productDescription}>{product.description}</Text></ScrollView>
+      <View style={styles.quantityContainer}>
 
-      {/* <Button title="კალათში დამატება" onPress={handleAddToCart} /> */}
-      {/* <TouchableOpacity onPress={handleCallService} style={styles.basketButton} >
-        <Text style={styles.basketButtonText}>სერვისის ადგილზე გამოძახება</Text>
-      </TouchableOpacity> */}
+        <TouchableOpacity style={styles.quantityButton} onPress={incrementQuantity}>
+          <Text style={styles.quantityButtonText}>+</Text>
+        </TouchableOpacity>
+        <Text style={styles.quantityText}>{quantity}</Text>
+        <TouchableOpacity style={styles.quantityButton} onPress={decrementQuantity}>
+          <Text style={styles.quantityButtonText}>-</Text>
+        </TouchableOpacity>
+
+      </View>
       <TouchableOpacity style={styles.basketButton} onPress={handleAddToCart}>
         <Text style={styles.basketButtonText}>კალათში დამატება</Text>
-        {/* <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>
-                დამატებითი სერვისებით სარგებლობისთვის გთხოვთ გაიაროთ ავტორიზაცია
-              </Text>
-              <TouchableOpacity
-                style={styles.okButton}
-                onPress={() => {
-                  setModalVisible(false);
-                  navigation.navigate("AuthScreen"); // რეგისტრაციის ან ავტორიზაციის გვერდზე გადასვლა
-                }}>
-                <Text style={styles.okButtonText}>ავტორიზაცია</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.cancelButton, { marginTop: 10 }]}
-                onPress={() => setModalVisible(false)}>
-                <Text style={styles.okButtonText}>უკან დაბრუნება</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal> */}
+
         <Modal
           animationType="slide"
           transparent={true}
@@ -174,17 +107,7 @@ const ProductDetails = ({ route, navigation }: any) => {
           </View>
         </Modal>
       </TouchableOpacity>
-      <View style={styles.quantityContainer}>
 
-        <TouchableOpacity style={styles.quantityButton} onPress={incrementQuantity}>
-          <Text style={styles.quantityButtonText}>+</Text>
-        </TouchableOpacity>
-        <Text style={styles.quantityText}>{quantity}</Text>
-        <TouchableOpacity style={styles.quantityButton} onPress={decrementQuantity}>
-          <Text style={styles.quantityButtonText}>-</Text>
-        </TouchableOpacity>
-
-      </View>
     </ScrollView>
   );
 };
@@ -198,7 +121,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: "80%",
-    height: 200,
+    height: "30%",
     borderRadius: 8,
     marginTop: 50
   },
@@ -224,7 +147,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   basketButton: {
-    backgroundColor: "black",
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 8,
     color: "red",
@@ -233,9 +156,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   basketButtonText: {
-    color: "white",
+    color: "black",
     textAlign: "center",
     fontSize: 16,
+    fontWeight: "bold",
   },
   quantityContainer: {
     flexDirection: "row",
@@ -243,13 +167,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   quantityButtonText: {
-    color: "white",
+    color: "black",
     textAlign: "center",
     fontSize: 20,
   },
   quantityText: {
     fontSize: 20,
     marginHorizontal: 10,
+    fontWeight: "bold",
   },
   quantityButton: {
     flexDirection: "row",
@@ -258,8 +183,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: 30,
     height: 30,
-    backgroundColor: "black",
-    color: "white",
+    backgroundColor: "red",
     textAlign: "center",
     borderRadius: 4,
   },
@@ -301,9 +225,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  cancelButtonText: {
+  stockContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  productStock: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginVertical: 5,
+  },
+  inStock: {
+    color: "green",
+  },
+  outOfStock: {
+    color: "red",
+  },
 
-  }
 });
 
 export default ProductDetails;

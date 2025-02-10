@@ -13,16 +13,14 @@ import {
 import * as Animatable from 'react-native-animatable';
 import { useProducts } from "../context/productContext";
 import { Product } from "@/types/product";
-import SelectedProductsBar from "@/components/SelectedProductsBar";
+
 
 const ProductsScreen = ({ navigation, route }: any) => {
   const { fetchProducts, fetchProductsByCategory, products } = useProducts();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  // const [filter, setFilter] = useState(route.params?.filter || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const categoryId = route.params?.categoryId || null;
-  // const [isFromOilChangeScreen, setIsFromOilChangeScreen] = useState(false);
   const isFromOilChangeScreen = route.params?.fromOilChangeScreen || false;
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
 
@@ -108,6 +106,9 @@ const ProductsScreen = ({ navigation, route }: any) => {
                 style={styles.productImage}
                 resizeMode="contain"
               />
+              <Text style={[styles.productStock, item.quantity ? styles.inStock : styles.outOfStock]}>
+                {item.quantity ? "მარაგშია" : "მარაგი ამოწურილია"}
+              </Text>
               <Text style={styles.productVolume}>ბოთლის მოცულობა {item.liter}L</Text>
               <Text style={styles.productPrice}>{item.price} ლარი</Text>
             </TouchableOpacity>
@@ -158,17 +159,6 @@ const ProductsScreen = ({ navigation, route }: any) => {
         useNativeDriver
         style={styles.searchContainer}
       >
-        <SelectedProductsBar
-          selectedProducts={selectedProducts}
-          onRemove={(productId) =>
-            setSelectedProducts((prev) => prev.filter((p) => p.id !== productId))
-          }
-          onConfirm={() =>
-            navigation.navigate("OilChangeScreen", {
-              orderItems: selectedProducts // მთლიანად გადავცემთ 
-            })
-          }
-        />
         <TextInput
           style={styles.filterInput}
           placeholder="რას ეძებ..."
@@ -322,6 +312,18 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  productStock: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 5,
+    textAlign: "center",
+  },
+  inStock: {
+    color: "green",
+  },
+  outOfStock: {
+    color: "red",
   },
 });
 

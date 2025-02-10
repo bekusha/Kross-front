@@ -3,7 +3,6 @@ import {
   View,
   Text,
   FlatList,
-  Button,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -19,30 +18,16 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const OilChangeScreen = ({ route }: { route: any }) => {
   const { purchase, orders } = useCart();
-  const { user, isLoggedIn } = useAuth();
+  const { user } = useAuth();
   type AuthScreenNavigationProp = NavigationProp<RootStackParamList, "AuthScreen">;
   const navigation = useNavigation<AuthScreenNavigationProp>();
-  const { selectedProduct, quantity, orderItems = [], additionalInfo = {} } = route.params || {};
+  const { selectedProduct, quantity, orderItems = [], carData = {} } = route.params || {};
   const isMultipleProducts = Array.isArray(orderItems) && orderItems.length > 0;
-  const [deliveries, setDeliveries] = useState([]);
 
-  // State for form inputs
-  // const [formData, setFormData] = useState({
-  //   phone: user?.phone || "",
-  //   car_make: user?.car_make || "",
-  //   car_model: user?.car_model || "",
-  //   car_year: user?.car_year || "",
-  //   car_mileage: user?.car_mileage || "",
-  //   address: user?.address || "",
-  //   email: user?.email || "",
-  //   ordered_at: "",
-  //   product: isMultipleProducts ? orderItems : selectedProduct?.id || 0,
-  //   quantity: isMultipleProducts ? orderItems : quantity || 1,
-  // });
   const [formData, setFormData] = useState({
     phone: user?.phone || "",
-    car_make: user?.car_make || "",
-    car_model: user?.car_model || "",
+    car_make: carData?.car_make || user?.car_make || "",
+    car_model: carData.car_make,
     car_year: user?.car_year || "",
     car_mileage: user?.car_mileage || "",
     address: user?.address || "",
@@ -63,8 +48,6 @@ const OilChangeScreen = ({ route }: { route: any }) => {
 
 
   const [expanded, setExpanded] = useState<number | null>(null);
-
-
 
   useEffect(() => {
     if (isMultipleProducts) {
@@ -158,41 +141,24 @@ const OilChangeScreen = ({ route }: { route: any }) => {
           />
 
           <TextInput
-            placeholder="მანქანის მწარმოებელი"
+            placeholder="ავტომობილი"
             value={formData.car_make}
             onChangeText={(value) => handleInputChange("car_make", value)}
             style={styles.input}
           />
-          <TextInput
-            placeholder="მანქანის მოდელი"
-            value={formData.car_model}
-            onChangeText={(value) => handleInputChange("car_model", value)}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="გამოშვების წელი"
-            value={formData.car_year}
-            onChangeText={(value) => handleInputChange("car_year", value)}
-            style={styles.input}
-          />
-          <TextInput
+
+          {/* <TextInput
             placeholder="გარბენი"
             value={formData.car_mileage}
             onChangeText={(value) => handleInputChange("car_mileage", value)}
             style={styles.input}
-          />
+          /> */}
           <TextInput
             placeholder="მისამართი"
             value={formData.address}
             onChangeText={(value) => handleInputChange("address", value)}
             style={styles.input}
           />
-          {/* <TextInput
-            placeholder="test@mail.com"
-            value={formData.email}
-            onChangeText={(value) => handleInputChange("email", value)}
-            style={styles.input}
-          /> */}
           {isMultipleProducts ? (
             <View>
               <Text style={styles.title}>შერჩეული პროდუქტები:</Text>
@@ -203,9 +169,8 @@ const OilChangeScreen = ({ route }: { route: any }) => {
                   <Text>ფასი: <Text>{(product.price * product.recommended_quantity).toString()} ლარი</Text></Text>
                 </View>
               ))}
-              <Text>ჯამი: <Text>{orderItems.reduce((acc, item) => acc + (item.price * item.recommended_quantity), 0).toString()} ლარი</Text></Text>
+              <Text style={{ color: "red" }}>ჯამი: <Text>{orderItems.reduce((acc, item) => acc + (item.price * item.recommended_quantity), 0).toString()} ლარი</Text></Text>
 
-              {/* <Text >ჯამი: {orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)} ლარი</Text> */}
             </View>
           ) : selectedProduct ? (
             <View>
@@ -242,9 +207,6 @@ const OilChangeScreen = ({ route }: { route: any }) => {
 
           ><Text style={styles.submitButtonText}>სერვისის გამოძახება</Text></TouchableOpacity>
         </ScrollView>
-
-        {/* <Text style={styles.title}>შენი სერვისის გამოძახების ისტორია</Text> */}
-        {/* if changedeliveries.length !== 0 show view above */}
         {orders && (
           <Text style={styles.title}>შენი სერვისების ისტორია</Text>
         )}
@@ -354,7 +316,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 15,
-    backgroundColor: "black",
+    backgroundColor: "red",
     width: "100%",
     height: 40,
 
@@ -362,8 +324,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   submitButtonText: {
-
-    color: "white",
+    fontWeight: "bold",
+    color: "black",
     textAlign: "center",
   },
 
